@@ -39,6 +39,9 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace; // For better color representation
 
+// Add this after creating the renderer
+document.body.appendChild(renderer.domElement);
+
 // --- Info Box Container ---
 // We'll manage the info box directly in the DOM now
 const infoBoxContainer = document.createElement('div');
@@ -193,7 +196,7 @@ const bgNoiseMaterial = new THREE.ShaderMaterial({
             finalColor = mix(finalColor, uColorBlue * 0.3, cluster2); // Dark Blue
 
             float cluster3 = smoothstep(0.55, 0.6, noiseValue);
-            finalColor = mix((finalColor, uColorGreen * 0.3, cluster3); // Dark Green
+            finalColor = mix(finalColor, uColorGreen * 0.3, cluster3); // Dark Green
 
             float cluster4 = smoothstep(0.65, 0.7, noiseValue);
             finalColor = mix(finalColor, uColorPurple * 0.3, cluster4); // Dark Purple
@@ -559,35 +562,17 @@ function hideInfoBox() {
 
 function centerCameraOnPOI(poiMesh, duration = 800) {
     const targetPosition = poiMesh.position;
-
-    // Target for OrbitControls (center of view)
-    const controlsTarget = new THREE.Vector3(targetPosition.x, targetPosition.y, 0);
-
-    // Target for Camera position (maintain Z distance)
     const cameraTargetPos = new THREE.Vector3(targetPosition.x, targetPosition.y, camera.position.z);
 
-    // Animate Controls Target
-    new TWEEN.Tween(controls.target)
-        .to({ x: controlsTarget.x, y: controlsTarget.y, z: controlsTarget.z }, duration)
-        .easing(TWEEN.Easing.Quadratic.Out) // Use a smooth easing function
-        .start();
-
-    // Animate Camera Position
+    // Remove controls reference and just animate camera
     new TWEEN.Tween(camera.position)
         .to({ x: cameraTargetPos.x, y: cameraTargetPos.y, z: cameraTargetPos.z }, duration)
         .easing(TWEEN.Easing.Quadratic.Out)
-        .onUpdate(() => {
-            // No need to call camera.lookAt during tween if controls.target is also tweening
-        })
         .onComplete(() => {
-            // Ensure controls are updated after tween completes
-            controls.update();
-            // Show info box AFTER camera move is complete
             showInfoBox(poiMesh);
         })
         .start();
 }
-
 
 function onCanvasClick(event) {
     updateMouseCoords(event);
@@ -659,23 +644,24 @@ function animate() {
     const delta = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
 
-    TWEEN.update(); // Update animations
+    // Update background shader time uniform
+    bgNoiseMaterial.uniforms.uTime.value = elapsedTime;
+
+    TWEEN.update();
     
-    // --- Animate POI Rings ---
+    // Update POI rings
     poiGroup.children.forEach(child => {
-        if (child instanceof THREE.LineLoop) { // Identify rings
-            child.rotation.z += delta * 0.5; // Slow rotation
-            child.material.opacity = 0.6 + Math.sin(elapsedTime * 2 + child.position.x) * 0.2; // Subtle pulse
-            child.material.needsUpdate = true; // Needed if material props change
+        if (child instanceof THREE.LineLoop) {
+            child.rotation.z += delta * 0.5;
+            child.material.opacity = 0.6 + Math.sin(elapsedTime * 2 + child.position.x) * 0.2;
+            child.material.needsUpdate = true;
         }
     });
 
-    // --- Render Scene ---
     renderer.render(scene, camera);
-    // No labelRenderer.render needed
 }
 
-// Start animation
+// Make sure to start the animation loop
 animate();
 
 // Add basic CSS for the info box (can be moved to a separate CSS file)
@@ -687,3 +673,4 @@ canvas#bg { display: block; }
 #infoBoxContainer { z-index: 10; } /* Ensure container is above canvas */
 .info-box a:hover { background-color: #aaaaff; color: #111; }
 `
+document.head.appendChild(styleSheet);
