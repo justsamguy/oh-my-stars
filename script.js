@@ -1,32 +1,36 @@
 import * as THREE from 'three';
-// OrbitControls might still be useful for panning/zooming in 2D
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-// CSS2DRenderer is less suitable for the new animation, we'll use standard DOM elements.
-// import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+// OrbitControls removed, implementing custom vertical scroll/drag
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import TWEEN from '@tweenjs/tween.js'; // For smooth camera animation
+import { SimplexNoise } from 'three/examples/jsm/math/SimplexNoise.js'; // For background noise
 
 // =============================================================================
-// Scene Setup (2D Focus)
+// Scene Setup (Vertical Scroll Focus)
 // =============================================================================
 const scene = new THREE.Scene();
-// Background will be handled by a custom gradient plane
+const simplex = new SimplexNoise();
 
-// --- Orthographic Camera for 2D ---
-const aspect = window.innerWidth / window.innerHeight;
-const frustumSize = 150; // Determines the visible area height; adjust as needed
+// --- Orthographic Camera for Vertical Scroll ---
+let aspect = window.innerWidth / window.innerHeight;
+// Define total vertical content height (adjust based on POI spread)
+const totalContentHeight = 600; // Example: Larger than initial view
+const frustumHeight = 150; // The visible portion height
+let frustumWidth = frustumHeight * aspect;
+
 const camera = new THREE.OrthographicCamera(
-    frustumSize * aspect / -2, // left
-    frustumSize * aspect / 2,  // right
-    frustumSize / 2,           // top
-    frustumSize / -2,          // bottom
-    1,                         // near
-    2000                       // far
+    frustumWidth / -2, // left
+    frustumWidth / 2,  // right
+    frustumHeight / 2, // top
+    frustumHeight / -2,// bottom
+    1,                 // near
+    2000               // far
 );
-camera.position.set(0, 0, 1000); // Positioned far back, looking along -Z
-camera.lookAt(scene.position); // Look at the center
+// Start camera at the top of the content
+camera.position.set(0, totalContentHeight / 2 - frustumHeight / 2, 1000);
+camera.lookAt(0, camera.position.y, 0); // Look straight ahead at the current Y level
 
 const renderer = new THREE.WebGLRenderer({
-    canvas: document.querySelector('#bg'),
+    canvas: document.querySelector('#bg'), // Ensure canvas ID is 'bg' in HTML
     antialias: true,
 });
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -47,84 +51,177 @@ document.body.appendChild(infoBoxContainer);
 let currentInfoBox = null; // Reference to the currently displayed info box element
 
 // =============================================================================
-// Controls (Adjusted for 2D)
+// Custom Vertical Scroll/Drag Controls
 // =============================================================================
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.1;
-controls.screenSpacePanning = true; // Allow panning
-controls.enableRotate = false; // Disable rotation for 2D
-controls.enableZoom = true;
-controls.minZoom = 0.5; // Adjust zoom limits as needed
-controls.maxZoom = 4;
-controls.mouseButtons = {
-    LEFT: THREE.MOUSE.PAN, // Pan with left click
-    MIDDLE: THREE.MOUSE.DOLLY,
-    RIGHT: null // Disable right-click context menu/rotate
-};
-controls.touches = {
-	ONE: THREE.TOUCH.PAN, // Pan with one finger
-	TWO: THREE.TOUCH.DOLLY_PAN // Zoom/Pan with two fingers
-};
+let isDragging = false;
+let previousMouseY = 0;
+const dragSensitivity = 0.5; // Adjust sensitivity
+const minY = -totalContentHeight / 2 + frustumHeight / 2; // Bottom limit
+const maxY = totalContentHeight / 2 - frustumHeight / 2; // Top limit
+
+function onMouseDown(event) {
+    isDragging = true;
+    previousMouseY = event.clientY;
+    renderer.domElement.style.cursor = 'grabbing';
+}
+
+function onMouseUp(event) {
+    isDragging = false;
+    renderer.domElement.style.cursor = 'grab';
+}
+
+function onMouseMove(event) {
+    if (!isDragging) return;
+    const deltaY = event.clientY - previousMouseY;
+    previousMouseY = event.clientY;
+
+    // Move camera vertically (inverted direction for natural drag)
+    camera.position.y -= deltaY * dragSensitivity;
+    // Clamp camera position
+    camera.position.y = Math.max(minY, Math.min(maxY, camera.position.y));
+    camera.lookAt(0, camera.position.y, 0); // Keep looking straight
+    // No need for controls.update()
+}
+
+function onWheel(event) {
+    const deltaY = event.deltaY;
+    camera.position.y += deltaY * 0.1; // Adjust scroll speed
+    // Clamp camera position
+    camera.position.y = Math.max(minY, Math.min(maxY, camera.position.y));
+    camera.lookAt(0, camera.position.y, 0);
+}
+
+renderer.domElement.addEventListener('mousedown', onMouseDown);
+renderer.domElement.addEventListener('mouseup', onMouseUp);
+renderer.domElement.addEventListener('mouseleave', onMouseUp); // Stop dragging if mouse leaves canvas
+renderer.domElement.addEventListener('mousemove', onMouseMove);
+renderer.domElement.addEventListener('wheel', onWheel);
+renderer.domElement.style.cursor = 'grab'; // Initial cursor
+
 
 // =============================================================================
-// Lighting (Less critical in 2D/unlit materials, but good practice)
+// Lighting (Still useful for potential future materials)
 // =============================================================================
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Dimmer ambient
 scene.add(ambientLight);
+// Optional: Add a subtle directional light if needed later
+// const directionalLight = new THREE.DirectionalLight(0xffffff, 0.2);
+// directionalLight.position.set(0, 1, 1);
+// scene.add(directionalLight);
 
 // =============================================================================
-// Background Gradient Plane
+// Background Space Noise Plane
 // =============================================================================
-const bgGradientGeometry = new THREE.PlaneGeometry(2, 2); // Covers the entire viewport
+const bgPlaneGeometry = new THREE.PlaneGeometry(2, 2); // Covers viewport
 
-const bgGradientMaterial = new THREE.ShaderMaterial({
+const bgNoiseMaterial = new THREE.ShaderMaterial({
     vertexShader: `
         varying vec2 vUv;
         void main() {
             vUv = uv;
-            gl_Position = vec4(position.xy, 1.0, 1.0); // Position directly in clip space
+            gl_Position = vec4(position.xy, 1.0, 1.0);
         }
     `,
     fragmentShader: `
         varying vec2 vUv;
-        uniform vec3 color1; // Top-left (Blue)
-        uniform vec3 color2; // Top-right (Violet)
-        uniform vec3 color3; // Bottom-left (Green)
-        uniform vec3 color4; // Bottom-right (Orange)
-        uniform vec3 centerColor; // Center (Black)
+        uniform float uTime;
+        uniform vec3 uColorOrange;
+        uniform vec3 uColorBlue;
+        uniform vec3 uColorGreen;
+        uniform vec3 uColorPurple;
+        uniform sampler2D uNoiseTexture; // Using simplex noise function directly now
+
+        // Simplex noise function (requires importing SimplexNoise class in JS)
+        // This is a placeholder; noise generation happens in JS and passed via uniform/texture
+        // Or implement a GLSL noise function here if preferred
+
+        // Function to generate Simplex noise value (requires passing noise function via JS)
+        // We'll use a simpler approach: JS calculates noise and passes colors
+
+        // Using precomputed noise function from Three.js examples (SimplexNoise)
+        // We need to pass the noise value or use a noise texture.
+        // Let's try calculating noise directly in the shader for simplicity here.
+
+        // 2D Random function
+        float random(vec2 st) {
+            return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+        }
+
+        // 2D Noise function (Value Noise)
+        float noise(vec2 st) {
+            vec2 i = floor(st);
+            vec2 f = fract(st);
+
+            float a = random(i);
+            float b = random(i + vec2(1.0, 0.0));
+            float c = random(i + vec2(0.0, 1.0));
+            float d = random(i + vec2(1.0, 1.0));
+
+            vec2 u = f * f * (3.0 - 2.0 * f); // Smoothstep curve
+            return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+        }
+
+        // Fractional Brownian Motion (fBm)
+        float fbm(vec2 st) {
+            float value = 0.0;
+            float amplitude = 0.5;
+            float frequency = 0.0; // Not used in this simple version
+
+            // Loop for multiple octaves of noise
+            for (int i = 0; i < 4; i++) { // 4 octaves
+                value += amplitude * noise(st);
+                st *= 2.0; // Double frequency
+                amplitude *= 0.5; // Halve amplitude
+            }
+            return value;
+        }
+
 
         void main() {
-            // Interpolate corners
-            vec3 topColor = mix(color1, color2, vUv.x);
-            vec3 bottomColor = mix(color3, color4, vUv.x);
-            vec3 cornerMixedColor = mix(topColor, bottomColor, vUv.y);
+            vec2 scaledUv = vUv * 5.0; // Scale UVs to get smaller noise patterns
+            float noiseValue = fbm(scaledUv + uTime * 0.05); // Add slow time evolution
 
-            // Interpolate towards center (using distance from center)
-            float dist = distance(vUv, vec2(0.5)); // Distance from center (0 to ~0.7)
-            float fade = smoothstep(0.0, 0.6, dist); // Fade factor (0 near center, 1 further out)
+            // Create color clusters based on noise thresholds
+            vec3 finalColor = vec3(0.01, 0.0, 0.02); // Very dark base (almost black)
 
-            gl_FragColor = vec4(mix(centerColor, cornerMixedColor, fade), 1.0);
+            float cluster1 = smoothstep(0.35, 0.4, noiseValue);
+            finalColor = mix(finalColor, uColorOrange * 0.3, cluster1); // Dark Orange
+
+            float cluster2 = smoothstep(0.45, 0.5, noiseValue);
+            finalColor = mix(finalColor, uColorBlue * 0.3, cluster2); // Dark Blue
+
+            float cluster3 = smoothstep(0.55, 0.6, noiseValue);
+            finalColor = mix((finalColor, uColorGreen * 0.3, cluster3); // Dark Green
+
+            float cluster4 = smoothstep(0.65, 0.7, noiseValue);
+            finalColor = mix(finalColor, uColorPurple * 0.3, cluster4); // Dark Purple
+
+            // Fade edges into black (optional, base color is already dark)
+            float edgeFade = smoothstep(0.0, 0.3, vUv.x) * smoothstep(1.0, 0.7, vUv.x) *
+                             smoothstep(0.0, 0.3, vUv.y) * smoothstep(1.0, 0.7, vUv.y);
+            // finalColor *= edgeFade; // Uncomment for vignette effect
+
+            gl_FragColor = vec4(finalColor, 1.0);
         }
     `,
     uniforms: {
-        color1: { value: new THREE.Color(0x007bff) }, // Blue
-        color2: { value: new THREE.Color(0x8a2be2) }, // Violet
-        color3: { value: new THREE.Color(0x28a745) }, // Green
-        color4: { value: new THREE.Color(0xfd7e14) }, // Orange
-        centerColor: { value: new THREE.Color(0x000000) } // Black
+        uTime: { value: 0.0 },
+        uColorOrange: { value: new THREE.Color(0x8B4513) }, // Dark Orange (SaddleBrown)
+        uColorBlue:   { value: new THREE.Color(0x00008B) }, // Dark Blue
+        uColorGreen:  { value: new THREE.Color(0x006400) }, // Dark Green
+        uColorPurple: { value: new THREE.Color(0x4B0082) }  // Indigo (Dark Purple)
     },
-    depthWrite: false, // Render behind everything
+    depthWrite: false,
     transparent: false
 });
 
-const bgGradientMesh = new THREE.Mesh(bgGradientGeometry, bgGradientMaterial);
-bgGradientMesh.renderOrder = -1; // Ensure it's drawn first (background)
-scene.add(bgGradientMesh);
+const bgNoiseMesh = new THREE.Mesh(bgPlaneGeometry, bgNoiseMaterial);
+bgNoiseMesh.renderOrder = -10; // Ensure it's drawn first (background)
+scene.add(bgNoiseMesh);
 
 
 // =============================================================================
-// Star Texture (for round stars)
+// Star Texture (Shared by all stars)
 // =============================================================================
 function createStarTexture() {
     const size = 64;
@@ -203,6 +300,11 @@ const poiData = [ // Static POI data
     { id: 'poi_2', name: 'K\'tharr Nebula', description: 'Ancient battleground, remnants of a forgotten war.', link: '#', position: new THREE.Vector3(40, 0, 0), color: '#ff9999' },
     { id: 'poi_3', name: 'Orion Spur Relay', description: 'Major trade hub connecting several sectors.', link: '#', position: new THREE.Vector3(70, 35, 0), color: '#ccff99' },
     { id: 'poi_4', name: 'Void Anomaly 3B', description: 'Unstable region, travel advised with caution.', link: '#', position: new THREE.Vector3(20, -50, 0), color: '#cccccc' },
+    { id: 'poi_5', name: 'Solara Prime', description: 'Homeworld of the Lumina civilization. Rich in history.', link: '#', position: new THREE.Vector3(-70, 70, 0), color: '#ffcc66' },
+    { id: 'poi_6', name: 'Nebula Cluster X-7', description: 'Dense gas cloud, site of recent stellar nursery discovery.', link: '#', position: new THREE.Vector3(-30, -70, 0), color: '#99ccff' },
+    { id: 'poi_7', name: 'K\'tharr Nebula', description: 'Ancient battleground, remnants of a forgotten war.', link: '#', position: new THREE.Vector3(60, 10, 0), color: '#ff9999' },
+    { id: 'poi_8', name: 'Orion Spur Relay', description: 'Major trade hub connecting several sectors.', link: '#', position: new THREE.Vector3(90, 45, 0), color: '#ccff99' },
+    { id: 'poi_9', name: 'Void Anomaly 3B', description: 'Unstable region, travel advised with caution.', link: '#', position: new THREE.Vector3(40, -60, 0), color: '#cccccc' }
 ];
 
 const poiObjects = []; // Store mesh objects for raycasting
@@ -213,7 +315,7 @@ const poiBaseGeometry = new THREE.SphereGeometry(1, 16, 16); // Base geometry, s
 
 poiData.forEach((data, i) => {
     const poiColor = new THREE.Color(data.color);
-    const poiSize = 1.5 + Math.random() * 1.5; // Varied size (1.5 to 3.0)
+    poiSize = 1.5 + Math.random() * 1.5; // Varied size (1.5 to 3.0)
 
     const poiMaterial = new THREE.MeshBasicMaterial({
         color: poiColor,
@@ -395,7 +497,7 @@ function showInfoBox(poiMesh) {
         <p style="margin-bottom: 15px; line-height: 1.5;">${data.description}</p>
         <a href="${data.link}" target="_blank" style="color: #aaaaff; text-decoration: none; border: 1px solid #aaaaff; padding: 5px 10px; border-radius: 3px; transition: background-color 0.2s, color 0.2s;"
            onmouseover="this.style.backgroundColor='#aaaaff'; this.style.color='#111';"
-           onmouseout="this.style.backgroundColor='transparent'; this.style.color='#aaaaff';">
+           onmouseout="this.style.backgroundColor='transparent'; this.style.color='#aaaaff';"><br>
            Learn More
         </a>
         <button class="close-button" style="position: absolute; top: 5px; right: 5px; background: none; border: none; color: #aaa; font-size: 18px; cursor: pointer; padding: 5px;">&times;</button>
@@ -544,8 +646,7 @@ function animate() {
     const elapsedTime = clock.getElapsedTime();
 
     TWEEN.update(); // Update animations
-    controls.update(); // Update controls (for damping)
-
+    
     // --- Animate POI Rings ---
     poiGroup.children.forEach(child => {
         if (child instanceof THREE.LineLoop) { // Identify rings
@@ -567,24 +668,8 @@ animate();
 const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = `
-body { margin: 0; overflow: hidden; background-color: #000; }
+body { margin: 0; overflow: hidden; background-color: #000; cursor: grab; }
 canvas#bg { display: block; }
 #infoBoxContainer { z-index: 10; } /* Ensure container is above canvas */
 .info-box a:hover { background-color: #aaaaff; color: #111; }
-.info-box .close-button:hover { color: #fff; }
-`;
-document.head.appendChild(styleSheet);
-
-// Ensure TWEEN is available (e.g., via import map or bundle)
-// If using import maps in index.html:
-/*
-<script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
-      "three/examples/jsm/": "https://unpkg.com/three@0.163.0/examples/jsm/",
-      "@tweenjs/tween.js": "https://unpkg.com/@tweenjs/tween.js@^21/dist/tween.esm.js"
-    }
-  }
-</script>
-*/
+`

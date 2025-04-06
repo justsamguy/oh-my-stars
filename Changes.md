@@ -1,15 +1,13 @@
 <!-- User Input -->
 
-Make it 2D, keep the route close to the center of the screen.
-Make the boxes animation grow from the POI location towards the right (make the box grow up and down as a single vertical line from the vertical center to form the left edge, then expand to the right, and fade in the contents), instead of flying in from the upper left to center on the POI location.
-Make the boxes content static, no generated information - It needs to be changeable by a backend user later.
-Make the other stars round instead of square, and make their colors random (they need to be light colors, e.g. a sky blue instead of solid blue - saturation should be around pastel lightness).
-make the route lines a gradient from one POI to another
-make the POIs static, but procedurally generate the others. Also style them so that the range of star sizes is much more varied, and instead of making POIs significantly bigger, set some varied size too. Instead make a 7-dash ring around each one indicating it's a POI.
-Make all stars glow (emission texture or whatever three.js calls it)
-Make the camera view scroll up or down automatically to center on the selected POI prior to the box animation.
-Add a slight gradient to the background, using blue, violet, green, and orange, one in each corner and black in center. (can be static.)
-Add a slight gradient to the background inside the box (but keep it dark- just adding a tiny bit of depth)
+Double the POI count from 5 to 10. Make the route go vertically, so that a user can scroll the page like a normal website.
+Add random stars everywhere as part of the foreground (i want them to move when the view moves). They need to move at different speeds to provide a feeling of depth. Do it as a function of size - the smaller the star, the father it is and the less it moves in the view. The smallest stars in the background layer move, but even less than the predetermined function.
+Make the static route connect from one star to another (even adjusting in length as the camera moves but ONLY if needed)
+Make the background almost completely dark. have varying dark orange, blue, green, and purple as random noise clusters in the background with edges fading into the black. It's supposed to look like space, not a color wheel.
+Make the dashed ring effect around the POIs thicken by 2x on hover
+Make the POI colors less saturated, make them match the size of the stars around them, and make them glow (all the stars should glow as a function based on their size).
+
+
 
 <!-- Agent Output -->
 
