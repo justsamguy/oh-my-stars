@@ -1,4 +1,3 @@
-import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.module.min.js';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.134/examples/jsm/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'https://cdn.jsdelivr.net/npm/three@0.134/examples/jsm/renderers/CSS2DRenderer.js';
 
