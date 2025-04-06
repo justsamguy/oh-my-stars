@@ -213,7 +213,7 @@ const bgNoiseMaterial = new THREE.ShaderMaterial({
         uColorGreen:  { value: new THREE.Color(0x006400) }, // Dark Green
         uColorPurple: { value: new THREE.Color(0x4B0082) }  // Indigo (Dark Purple)
     },
-    depthWrite: false,
+    depthWrite: true,
     transparent: false
 });
 
