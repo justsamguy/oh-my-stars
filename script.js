@@ -27,9 +27,9 @@ const camera = new THREE.OrthographicCamera(
     1,                 // near
     2000               // far
 );
-// Start camera at the top of the content
-camera.position.set(0, totalContentHeight / 2 - frustumHeight / 2, 1000);
-camera.lookAt(0, camera.position.y, 0); // Look straight ahead at the current Y level
+// Modify the camera's initial position to be closer
+camera.position.set(0, 0, 10); // Changed from (0, totalContentHeight / 2 - frustumHeight / 2, 1000)
+camera.lookAt(0, 0, 0); // Look at center
 
 const renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector('#bg'), // Ensure canvas ID is 'bg' in HTML
@@ -117,7 +117,7 @@ scene.add(ambientLight);
 // =============================================================================
 // Background Space Noise Plane
 // =============================================================================
-const bgPlaneGeometry = new THREE.PlaneGeometry(2, 2); // Covers viewport
+const bgPlaneGeometry = new THREE.PlaneGeometry(fieldWidth, fieldHeight); // Changed from (2, 2)
 
 const bgNoiseMaterial = new THREE.ShaderMaterial({
     vertexShader: `
@@ -221,6 +221,7 @@ const bgNoiseMaterial = new THREE.ShaderMaterial({
 });
 
 const bgNoiseMesh = new THREE.Mesh(bgPlaneGeometry, bgNoiseMaterial);
+bgNoiseMesh.position.z = -5; // Place behind everything else
 bgNoiseMesh.renderOrder = -10; // Ensure it's drawn first (background)
 scene.add(bgNoiseMesh);
 
