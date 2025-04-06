@@ -16,12 +16,14 @@ let aspect = window.innerWidth / window.innerHeight;
 const totalContentHeight = 600; // Example: Larger than initial view
 const frustumHeight = 150; // The visible portion height
 let frustumWidth = frustumHeight * aspect;
+let fieldWidth = frustumHeight * aspect * 1.5; // Spread wider than view
+let fieldHeight = frustumHeight * 1.5;
 
 const camera = new THREE.OrthographicCamera(
     frustumWidth / -2, // left
     frustumWidth / 2,  // right
     frustumHeight / 2, // top
-    frustumHeight / -2,// bottom
+    frustumHeight / -2, // bottom
     1,                 // near
     2000               // far
 );
