@@ -147,11 +147,11 @@ scene.add(stars);
 // Define POI geometry before using it
 const poiGeometry = new THREE.CircleGeometry(3, 32);
 
-// Enhanced POI creation with rings
+// Enhanced POI creation with dashed rings and improved glow
 function createPOI(poiData) {
     const group = new THREE.Group();
     
-    // Main POI circle
+    // Main POI circle (unchanged)
     const material = new THREE.MeshBasicMaterial({ 
         color: poiData.color,
         transparent: true,
@@ -159,26 +159,33 @@ function createPOI(poiData) {
     });
     const mesh = new THREE.Mesh(poiGeometry, material);
     
-    // Outer ring
-    const ringGeometry = new THREE.RingGeometry(4, 4.5, 32);
-    const ringMaterial = new THREE.MeshBasicMaterial({
+    // Dashed ring
+    const ringGeometry = new THREE.BufferGeometry();
+    const segments = 32;
+    const points = [];
+    for (let i = 0; i <= segments; i++) {
+        const theta = (i / segments) * Math.PI * 2;
+        points.push(new THREE.Vector3(Math.cos(theta) * 4, Math.sin(theta) * 4, 0));
+    }
+    ringGeometry.setFromPoints(points);
+    
+    const ringMaterial = new THREE.LineDashedMaterial({
         color: poiData.color,
+        dashSize: 1,
+        gapSize: 0.5,
         transparent: true,
-        opacity: 0.5,
-        side: THREE.DoubleSide
+        opacity: 0.5
     });
-    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     
-    group.add(mesh);
-    group.add(ring);
-    group.position.copy(poiData.position);
-    group.userData = poiData;
+    const ring = new THREE.Line(ringGeometry, ringMaterial);
+    ring.computeLineDistances(); // Required for dashed lines
     
-    // Add glow effect
-    const glowGeometry = new THREE.CircleGeometry(6, 32);
+    // Enhanced glow effect
+    const glowGeometry = new THREE.CircleGeometry(8, 32);
     const glowMaterial = new THREE.ShaderMaterial({
         uniforms: {
-            color: { value: new THREE.Color(poiData.color) }
+            color: { value: new THREE.Color(poiData.color) },
+            time: { value: 0 }
         },
         vertexShader: `
             varying vec2 vUv;
@@ -189,11 +196,14 @@ function createPOI(poiData) {
         `,
         fragmentShader: `
             uniform vec3 color;
+            uniform float time;
             varying vec2 vUv;
             void main() {
-                float strength = 1.0 - distance(vUv, vec2(0.5));
+                float dist = distance(vUv, vec2(0.5));
+                float strength = 1.0 - dist;
                 strength = pow(strength, 3.0);
-                gl_FragColor = vec4(color, strength * 0.5);
+                float pulse = sin(time * 2.0) * 0.1 + 0.9;
+                gl_FragColor = vec4(color, strength * 0.5 * pulse);
             }
         `,
         transparent: true,
@@ -202,7 +212,12 @@ function createPOI(poiData) {
     });
     
     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    
+    group.add(mesh);
+    group.add(ring);
     group.add(glow);
+    group.position.copy(poiData.position);
+    group.userData = poiData;
     
     return group;
 }
@@ -284,6 +299,26 @@ function showInfoBox(poi) {
     return div;
 }
 
+// Add click handling for info boxes
+let currentInfoBox = null;
+
+function onPoiClick(event) {
+    const intersects = raycaster.intersectObjects(poiObjects, true);
+    
+    if (intersects.length > 0) {
+        const poi = intersects[0].object.parent;
+        if (currentInfoBox) {
+            infoBoxContainer.removeChild(currentInfoBox);
+        }
+        currentInfoBox = showInfoBox(poi.userData);
+    } else if (currentInfoBox && !event.target.closest('.info-box')) {
+        infoBoxContainer.removeChild(currentInfoBox);
+        currentInfoBox = null;
+    }
+}
+
+window.addEventListener('click', onPoiClick);
+
 // Event listeners
 function onMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -317,23 +352,29 @@ function animate() {
     
     const elapsedTime = clock.getElapsedTime();
     
-    // Update POI rings and glow
+    // Update POI elements
     poiObjects.forEach(poi => {
         const ring = poi.children[1];
         const glow = poi.children[2];
         ring.rotation.z += 0.005;
-        if (glow) {
-            glow.rotation.z -= 0.003;
+        if (glow && glow.material.uniforms) {
+            glow.material.uniforms.time.value = elapsedTime;
+        }
+        
+        // Add hover effect
+        const intersects = raycaster.intersectObject(poi, true);
+        if (intersects.length > 0) {
+            poi.scale.lerp(new THREE.Vector3(1.2, 1.2, 1.2), 0.1);
+            document.body.style.cursor = 'pointer';
+        } else {
+            poi.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
         }
     });
     
-    // Raycasting for POI interaction
+    // Update raycasting
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(poiObjects, true);
     
-    if (intersects.length > 0) {
-        document.body.style.cursor = 'pointer';
-    } else {
+    if (raycaster.intersectObjects(poiObjects, true).length === 0) {
         document.body.style.cursor = 'grab';
     }
     
