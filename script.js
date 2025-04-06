@@ -247,8 +247,6 @@ const starVertices = [];
 const starColors = [];
 const starSizes = [];
 const starCount = 500; // More stars for a denser 2D field
-const fieldWidth = frustumSize * aspect * 1.5; // Spread wider than view
-const fieldHeight = frustumSize * 1.5;
 
 const color = new THREE.Color();
 
@@ -622,15 +620,29 @@ renderer.domElement.addEventListener('mousemove', onCanvasMouseMove, false);
 // =============================================================================
 function onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
+    const frustumHeight = 150; // The visible portion height
+    let frustumWidth = frustumHeight * aspect;
+    const fieldWidth = frustumHeight * aspect * 1.5; // Spread wider than view
+    const fieldHeight = frustumHeight * 1.5;
 
-    camera.left = frustumSize * aspect / -2;
-    camera.right = frustumSize * aspect / 2;
-    camera.top = frustumSize / 2;
-    camera.bottom = frustumSize / -2;
+    camera.left = frustumWidth / -2;
+    camera.right = frustumWidth / 2;
+    camera.top = frustumHeight / 2;
+    camera.bottom = frustumHeight / -2;
     camera.updateProjectionMatrix();
 
     renderer.setSize(window.innerWidth, window.innerHeight);
     // No labelRenderer to resize
+
+    // Update star positions on resize
+    const starPositions = starGeometry.attributes.position.array;
+    for (let i = 0; i < starCount; i++) {
+        const x = (Math.random() - 0.5) * fieldWidth;
+        const y = (Math.random() - 0.5) * fieldHeight;
+        starPositions[i * 3] = x;
+        starPositions[i * 3 + 1] = y;
+    }
+    starGeometry.attributes.position.needsUpdate = true;
 }
 window.addEventListener('resize', onWindowResize, false);
 
