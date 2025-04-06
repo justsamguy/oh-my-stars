@@ -8,6 +8,28 @@ const aspect = window.innerWidth / window.innerHeight;
 const viewportHeight = 150;
 const viewportWidth = viewportHeight * aspect;
 
+// Enhanced POI data
+const pois = [
+    { 
+        position: new THREE.Vector3(-40, 20, 0),
+        color: 0xff6666,
+        name: 'Alpha Station',
+        description: 'Primary research facility in the outer rim.'
+    },
+    { 
+        position: new THREE.Vector3(40, -20, 0),
+        color: 0x66ff66,
+        name: 'Beta Nebula',
+        description: 'Rich in rare minerals and atmospheric phenomena.'
+    },
+    { 
+        position: new THREE.Vector3(0, 40, 0),
+        color: 0x6666ff,
+        name: 'Gamma Point',
+        description: 'Strategic military outpost and trading hub.'
+    }
+];
+
 // Camera Setup - Orthographic for 2D-style view
 const camera = new THREE.OrthographicCamera(
     viewportWidth / -2,
@@ -20,14 +42,30 @@ const camera = new THREE.OrthographicCamera(
 camera.position.z = 100;
 camera.lookAt(0, 0, 0);
 
-// Renderer Setup
+// Remove header by adjusting renderer setup
+const canvas = document.createElement('canvas');
+canvas.id = 'bg';
 const renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
     antialias: true,
     alpha: true
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000, 1);
+document.body.style.margin = '0';
+document.body.style.overflow = 'hidden';
 document.body.appendChild(renderer.domElement);
+
+// Info box container
+const infoBoxContainer = document.createElement('div');
+infoBoxContainer.id = 'infoBoxContainer';
+infoBoxContainer.style.position = 'absolute';
+infoBoxContainer.style.top = '0';
+infoBoxContainer.style.left = '0';
+infoBoxContainer.style.width = '100%';
+infoBoxContainer.style.height = '100%';
+infoBoxContainer.style.pointerEvents = 'none';
+document.body.appendChild(infoBoxContainer);
 
 // Background
 const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, viewportHeight * 2);
@@ -91,22 +129,105 @@ function createStars(count = 200) {
 const stars = createStars();
 scene.add(stars);
 
-// POIs (Points of Interest)
-const poiGeometry = new THREE.CircleGeometry(3, 32);
-const pois = [
-    { position: new THREE.Vector3(-40, 20, 0), color: 0xff6666 },
-    { position: new THREE.Vector3(40, -20, 0), color: 0x66ff66 },
-    { position: new THREE.Vector3(0, 40, 0), color: 0x6666ff }
-];
-
-pois.forEach(poi => {
-    const material = new THREE.MeshBasicMaterial({ color: poi.color });
+// Enhanced POI creation with rings
+function createPOI(poiData) {
+    const group = new THREE.Group();
+    
+    // Main POI circle
+    const material = new THREE.MeshBasicMaterial({ 
+        color: poiData.color,
+        transparent: true,
+        opacity: 0.9
+    });
     const mesh = new THREE.Mesh(poiGeometry, material);
-    mesh.position.copy(poi.position);
-    scene.add(mesh);
+    
+    // Outer ring
+    const ringGeometry = new THREE.RingGeometry(4, 4.5, 32);
+    const ringMaterial = new THREE.MeshBasicMaterial({
+        color: poiData.color,
+        transparent: true,
+        opacity: 0.5,
+        side: THREE.DoubleSide
+    });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    
+    group.add(mesh);
+    group.add(ring);
+    group.position.copy(poiData.position);
+    group.userData = poiData;
+    
+    return group;
+}
+
+// Create and add POIs
+const poiObjects = pois.map(poi => {
+    const poiGroup = createPOI(poi);
+    scene.add(poiGroup);
+    return poiGroup;
 });
 
-// Animation Loop
+// Interaction setup
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let isDragging = false;
+let previousMouseY = 0;
+
+function showInfoBox(poi) {
+    const div = document.createElement('div');
+    div.className = 'info-box';
+    div.style.cssText = `
+        position: absolute;
+        background: rgba(0, 0, 20, 0.8);
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        max-width: 200px;
+        pointer-events: auto;
+    `;
+    
+    div.innerHTML = `
+        <h3 style="margin: 0 0 10px 0; color: #${poi.color.toString(16)}">${poi.name}</h3>
+        <p style="margin: 0">${poi.description}</p>
+    `;
+    
+    const worldPos = poi.position.clone();
+    const screenPos = worldPos.project(camera);
+    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+    
+    div.style.left = `${x + 20}px`;
+    div.style.top = `${y - 20}px`;
+    
+    infoBoxContainer.appendChild(div);
+    return div;
+}
+
+// Event listeners
+function onMouseMove(event) {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    if (isDragging) {
+        const deltaY = event.clientY - previousMouseY;
+        camera.position.y += deltaY * 0.1;
+        previousMouseY = event.clientY;
+    }
+}
+
+function onMouseDown(event) {
+    isDragging = true;
+    previousMouseY = event.clientY;
+}
+
+function onMouseUp() {
+    isDragging = false;
+}
+
+window.addEventListener('mousemove', onMouseMove);
+window.addEventListener('mousedown', onMouseDown);
+window.addEventListener('mouseup', onMouseUp);
+
+// Modified animation loop
 const clock = new THREE.Clock();
 
 function animate() {
@@ -115,7 +236,21 @@ function animate() {
     const elapsedTime = clock.getElapsedTime();
     bgMaterial.uniforms.uTime.value = elapsedTime;
     
-    stars.rotation.z = elapsedTime * 0.05;
+    // Update POI rings
+    poiObjects.forEach(poi => {
+        const ring = poi.children[1];
+        ring.rotation.z = elapsedTime * 0.5;
+    });
+    
+    // Raycasting for POI interaction
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(poiObjects, true);
+    
+    if (intersects.length > 0) {
+        document.body.style.cursor = 'pointer';
+    } else {
+        document.body.style.cursor = 'grab';
+    }
     
     renderer.render(scene, camera);
 }
