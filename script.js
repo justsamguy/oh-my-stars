@@ -313,9 +313,9 @@ scene.add(poiGroup);
 
 const poiBaseGeometry = new THREE.SphereGeometry(1, 16, 16); // Base geometry, size scaled per POI
 
-poiData.forEach((data, i) => {
-    const poiColor = new THREE.Color(data.color);
-    poiSize = 1.5 + Math.random() * 1.5; // Varied size (1.5 to 3.0)
+    poiData.forEach((data, i) => {
+        const poiColor = new THREE.Color(data.color);
+    let poiSize = 1.5 + Math.random() * 1.5; // Varied size (1.5 to 3.0)
 
     const poiMaterial = new THREE.MeshBasicMaterial({
         color: poiColor,
