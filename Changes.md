@@ -1,18 +1,25 @@
 <!-- User Input -->
 
-Bring the POI count to 10. Make the route go somewhat vertically (vertically diagonal like a gentle zig-zag), so that a user can scroll the page like a normal website.
-Add more random stars everywhere as part of the foreground (i want them to move when the view moves). They need to move at different speeds to provide a feeling of depth. Do it as a function of size - the smaller the star, the father it is and the less it moves in the view. The smallest stars in the background layer move, but even less than the predetermined function.
-Make the background almost completely dark. have varying dark orange, blue, green, and purple as random noise clusters in the background with edges fading into the black.
-Make the dashed ring effect around the POIs thicken by 2x on hover.
-Make the POI colors less saturated, make them match the size of the foreground stars around them, and make them glow more than the randomly generated ones (all the other stars should glow as a function based on their size).
+Change the POI colors to be slightly less saturated and more bright. Make a heavier glow gradient (like a bloom effect), rather than a sharp cutoff. Make them slightly smaller (60%).
+Change the foreground stars so their maximum random size is the same size as the POIs and make them circular.
+Change all foregound and background stars to have the same muted colors, a glow/bloom effect that increases with their percieved size, and a subtle twinkle effect that decreases with percieved size.
+Change the relative speed at which stars move, make this effect about 10x of what it is currently.
+Change the background color so that there are no visible seam lines - solid black on all 4 edges.
+Change the Box animation to start from vertical center and expand up and down on the left edge before the current animation that expands it to the right.
+Change the Box style to have a thin line around it in the color of the POI
+Change the connecting lines to be white
+Add the ability to use a scroll wheel to scroll, just like a webpage.
+
 
 
 
 <!-- Agent Output -->
 
-Add more POIs in a vertical zig-zag pattern
-Create a layered star system with parallax
-Update the background to be darker with color clusters
-Add ring thickness hover effect
-Improve info box animation
-Adjust POI colors to be less saturated
+Update POI colors and size
+Enhance star system with improved glow and twinkling
+Improve background gradient blending
+Update info box animation and style
+Add wheel scrolling support
+Make connecting lines white
+Increase star parallax effect
+

@@ -7,4 +7,4 @@ Available at
 ## Last Update
 <!-- Agent Output -->
 
-Reference Changes.md for feature updates
+Reference <a href="https://github.com/justsamguy/my-test-site/blob/main/Changes.md">Changes.md</a> for feature updates.
