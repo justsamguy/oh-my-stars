@@ -79,53 +79,7 @@ document.body.appendChild(infoBoxContainer);
 
 // Background
 const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, viewportHeight * 2);
-const bgMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        uColorA: { value: new THREE.Color(0x000000) },
-        uColors: { 
-            value: [
-                new THREE.Vector4(0.1, 0.05, 0.02, 0.3),  // Orange
-                new THREE.Vector4(0.02, 0.06, 0.1, 0.3),  // Blue
-                new THREE.Vector4(0.02, 0.1, 0.05, 0.3),  // Green
-                new THREE.Vector4(0.05, 0.02, 0.1, 0.3)   // Purple
-            ]
-        }
-    },
-    vertexShader: `
-        varying vec2 vUv;
-        void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-    `,
-    fragmentShader: `
-        uniform vec4 uColors[4];
-        varying vec2 vUv;
-        
-        float noise(vec2 p) {
-            return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
-        }
-        
-        void main() {
-            vec2 uv = vUv * 2.0 - 1.0;
-            float edgeFade = 1.0 - smoothstep(0.5, 0.95, abs(uv.x));
-            edgeFade *= 1.0 - smoothstep(0.5, 0.95, abs(uv.y));
-            
-            vec3 finalColor = vec3(0.0);
-            float totalInfluence = 0.0;
-            
-            for(int i = 0; i < 4; i++) {
-                float n = noise(uv * uColors[i].w + vec2(float(i)));
-                float influence = smoothstep(0.3, 0.7, n) * uColors[i].w;
-                finalColor += uColors[i].rgb * influence;
-                totalInfluence += influence;
-            }
-            
-            finalColor = mix(vec3(0.0), finalColor, edgeFade * smoothstep(0.0, 0.5, totalInfluence));
-            gl_FragColor = vec4(finalColor, 1.0);
-        }
-    `
-});
+const bgMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
 const background = new THREE.Mesh(bgGeometry, bgMaterial);
 background.position.z = -100;
@@ -145,7 +99,7 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
         positions[i * 3 + 1] = (Math.random() - 0.5) * viewportHeight * 6;
         positions[i * 3 + 2] = depth - Math.random() * 50;
         sizes[i] = size;
-        speeds[i] = speedFactor * (size / maxSize) * 10; // 10x speed increase
+        speeds[i] = speedFactor * (size / maxSize) * 0.1; // 100x slower
         twinkles[i] = Math.random() * Math.PI; // Random phase for twinkling
     }
     
@@ -157,7 +111,12 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
     const material = new THREE.ShaderMaterial({
         uniforms: {
             cameraY: { value: 0 },
-            time: { value: 0 }
+            time: { value: 0 },
+            color: { value: new THREE.Color(
+                0.9 + Math.random() * 0.1,
+                0.9 + Math.random() * 0.1,
+                0.9 + Math.random() * 0.1
+            )}
         },
         vertexShader: `
             attribute float size;
@@ -172,17 +131,18 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
                 vSize = size;
                 float twinkleEffect = 1.0 + sin(time * 2.0 + twinkle) * 0.2 * (1.0 - size/3.0);
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-                gl_PointSize = size * twinkleEffect * (300.0 / -pos.z);
+                gl_PointSize = size * twinkleEffect * (3000.0 / -pos.z); // 10x larger
             }
         `,
         fragmentShader: `
+            uniform vec3 color;
             varying float vSize;
             void main() {
                 vec2 center = gl_PointCoord - vec2(0.5);
                 float dist = length(center);
-                float strength = 1.0 - smoothstep(0.3, 0.5, dist);
+                float strength = 1.0 - smoothstep(0.1, 0.5, dist); // Wider glow
                 float alpha = strength * (0.3 + 0.7 * (vSize/3.0));
-                gl_FragColor = vec4(1.0, 1.0, 1.0, alpha);
+                gl_FragColor = vec4(color, alpha);
             }
         `,
         transparent: true,
@@ -270,7 +230,7 @@ function createPOI(poiData) {
     ring.userData.hoverWidth = 1.0;
     
     // Enhanced glow effect
-    const glowGeometry = new THREE.CircleGeometry(8 * scale, 32);
+    const glowGeometry = new THREE.CircleGeometry(80 * scale, 32); // 10x larger
     const glowMaterial = new THREE.ShaderMaterial({
         uniforms: {
             color: { value: new THREE.Color(poiData.color) },
@@ -289,7 +249,7 @@ function createPOI(poiData) {
             varying vec2 vUv;
             void main() {
                 float dist = length(vUv - vec2(0.5));
-                float strength = 1.0 - smoothstep(0.0, 0.5, dist);
+                float strength = 1.0 - smoothstep(0.0, 0.8, dist); // Wider glow
                 strength = pow(strength, 2.0);
                 float pulse = sin(time * 2.0) * 0.1 + 0.9;
                 gl_FragColor = vec4(color, strength * pulse);
@@ -330,7 +290,7 @@ function createConnectingLines() {
         const material = new THREE.LineBasicMaterial({
             color: 0xffffff,
             transparent: true,
-            opacity: 0.3
+            opacity: 0.6
         });
         
         const line = new THREE.Line(geometry, material);
@@ -445,11 +405,20 @@ window.addEventListener('mousemove', onMouseMove);
 window.addEventListener('mousedown', onMouseDown);
 window.addEventListener('mouseup', onMouseUp);
 
-// Add wheel scroll support
+// Add smooth scrolling
+let scrollVelocity = 0;
+const scrollDamping = 0.92;
+
+function updateScroll() {
+    if (Math.abs(scrollVelocity) > 0.01) {
+        camera.position.y += scrollVelocity;
+        scrollVelocity *= scrollDamping;
+    }
+}
+
 function onWheel(event) {
     event.preventDefault();
-    const scrollAmount = event.deltaY * 0.1;
-    camera.position.y += scrollAmount;
+    scrollVelocity += event.deltaY * 0.001;
     camera.position.y = Math.max(-totalContentHeight/2, Math.min(totalContentHeight/2, camera.position.y));
 }
 
@@ -496,6 +465,8 @@ function animate() {
         layer.material.uniforms.cameraY.value = cameraY;
         layer.material.uniforms.time.value = elapsedTime;
     });
+    
+    updateScroll();
     
     renderer.render(scene, camera);
 }
