@@ -20,16 +20,15 @@ let fieldWidth = frustumHeight * aspect * 1.5; // Spread wider than view
 let fieldHeight = frustumHeight * 1.5;
 
 const camera = new THREE.OrthographicCamera(
-    frustumWidth / -2, // left
-    frustumWidth / 2,  // right
-    frustumHeight / 2, // top
-    frustumHeight / -2, // bottom
-    1,                 // near
-    2000               // far
+    frustumWidth / -2,
+    frustumWidth / 2,
+    frustumHeight / 2,
+    frustumHeight / -2,
+    -1000,    // Change near plane to allow negative z-values
+    1000
 );
-// Modify the camera's initial position to be closer
-camera.position.set(0, 0, 10); // Changed from (0, totalContentHeight / 2 - frustumHeight / 2, 1000)
-camera.lookAt(0, 0, 0); // Look at center
+camera.position.set(0, 0, 100); // Move camera closer
+camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector('#bg'), // Ensure canvas ID is 'bg' in HTML
@@ -124,7 +123,8 @@ const bgNoiseMaterial = new THREE.ShaderMaterial({
         varying vec2 vUv;
         void main() {
             vUv = uv;
-            gl_Position = vec4(position.xy, 1.0, 1.0);
+            vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_Position = projectionMatrix * modelViewPosition;
         }
     `,
     fragmentShader: `
@@ -221,8 +221,8 @@ const bgNoiseMaterial = new THREE.ShaderMaterial({
 });
 
 const bgNoiseMesh = new THREE.Mesh(bgPlaneGeometry, bgNoiseMaterial);
-bgNoiseMesh.position.z = -5; // Place behind everything else
-bgNoiseMesh.renderOrder = -10; // Ensure it's drawn first (background)
+bgNoiseMesh.position.z = -50; // Move background further back
+bgNoiseMesh.renderOrder = -1;
 scene.add(bgNoiseMesh);
 
 
@@ -291,6 +291,7 @@ const starMaterial = new THREE.PointsMaterial({
 });
 
 const starField = new THREE.Points(starGeometry, starMaterial);
+starField.position.z = -25; // Place stars between background and POIs
 scene.add(starField);
 
 // (Dust field removed for simplicity in 2D, can be added back if needed)
