@@ -2,6 +2,24 @@ import * as THREE from 'three';
 import TWEEN from '@tweenjs/tween.js';
 import { SimplexNoise } from 'three/examples/jsm/math/SimplexNoise.js';
 
+// Add this style block at the start
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        * { margin: 0; padding: 0; }
+        body, html { 
+            overflow: hidden; 
+            background: #000;
+            height: 100vh;
+            width: 100vw;
+        }
+        canvas { 
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    </style>
+`);
+
 // Scene Setup
 const scene = new THREE.Scene();
 const aspect = window.innerWidth / window.innerHeight;
@@ -71,9 +89,8 @@ document.body.appendChild(infoBoxContainer);
 const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, viewportHeight * 2);
 const bgMaterial = new THREE.ShaderMaterial({
     uniforms: {
-        uTime: { value: 0 },
-        uColorA: { value: new THREE.Color(0x000033) },
-        uColorB: { value: new THREE.Color(0x000066) }
+        uColorA: { value: new THREE.Color(0x000022) },
+        uColorB: { value: new THREE.Color(0x000044) }
     },
     vertexShader: `
         varying vec2 vUv;
@@ -83,13 +100,11 @@ const bgMaterial = new THREE.ShaderMaterial({
         }
     `,
     fragmentShader: `
-        uniform float uTime;
         uniform vec3 uColorA;
         uniform vec3 uColorB;
         varying vec2 vUv;
-
         void main() {
-            vec3 color = mix(uColorA, uColorB, vUv.y + sin(uTime * 0.5) * 0.2);
+            vec3 color = mix(uColorA, uColorB, vUv.y);
             gl_FragColor = vec4(color, 1.0);
         }
     `
@@ -159,6 +174,36 @@ function createPOI(poiData) {
     group.position.copy(poiData.position);
     group.userData = poiData;
     
+    // Add glow effect
+    const glowGeometry = new THREE.CircleGeometry(6, 32);
+    const glowMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            color: { value: new THREE.Color(poiData.color) }
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform vec3 color;
+            varying vec2 vUv;
+            void main() {
+                float strength = 1.0 - distance(vUv, vec2(0.5));
+                strength = pow(strength, 3.0);
+                gl_FragColor = vec4(color, strength * 0.5);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+    
+    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    group.add(glow);
+    
     return group;
 }
 
@@ -168,6 +213,30 @@ const poiObjects = pois.map(poi => {
     scene.add(poiGroup);
     return poiGroup;
 });
+
+// Add connecting lines between POIs
+function createConnectingLines() {
+    const lineGroup = new THREE.Group();
+    for (let i = 0; i < pois.length - 1; i++) {
+        const start = pois[i].position;
+        const end = pois[i + 1].position;
+        
+        const points = [start, end];
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({
+            color: 0x334455,
+            transparent: true,
+            opacity: 0.3
+        });
+        
+        const line = new THREE.Line(geometry, material);
+        lineGroup.add(line);
+    }
+    return lineGroup;
+}
+
+const connectingLines = createConnectingLines();
+scene.add(connectingLines);
 
 // Interaction setup
 const raycaster = new THREE.Raycaster();
@@ -200,6 +269,16 @@ function showInfoBox(poi) {
     
     div.style.left = `${x + 20}px`;
     div.style.top = `${y - 20}px`;
+    
+    // Add animation
+    div.style.transform = 'scale(0.8)';
+    div.style.opacity = '0';
+    div.style.transition = 'all 0.3s ease-out';
+    
+    requestAnimationFrame(() => {
+        div.style.transform = 'scale(1)';
+        div.style.opacity = '1';
+    });
     
     infoBoxContainer.appendChild(div);
     return div;
@@ -237,12 +316,15 @@ function animate() {
     requestAnimationFrame(animate);
     
     const elapsedTime = clock.getElapsedTime();
-    bgMaterial.uniforms.uTime.value = elapsedTime;
     
-    // Update POI rings
+    // Update POI rings and glow
     poiObjects.forEach(poi => {
         const ring = poi.children[1];
-        ring.rotation.z = elapsedTime * 0.5;
+        const glow = poi.children[2];
+        ring.rotation.z += 0.005;
+        if (glow) {
+            glow.rotation.z -= 0.003;
+        }
     });
     
     // Raycasting for POI interaction
