@@ -129,6 +129,9 @@ function createStars(count = 200) {
 const stars = createStars();
 scene.add(stars);
 
+// Define POI geometry before using it
+const poiGeometry = new THREE.CircleGeometry(3, 32);
+
 // Enhanced POI creation with rings
 function createPOI(poiData) {
     const group = new THREE.Group();
