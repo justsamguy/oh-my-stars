@@ -26,26 +26,18 @@ const aspect = window.innerWidth / window.innerHeight;
 const viewportHeight = 150;
 const viewportWidth = viewportHeight * aspect;
 
-// Enhanced POI data
+// Update POI data
 const pois = [
-    { 
-        position: new THREE.Vector3(-40, 20, 0),
-        color: 0xff6666,
-        name: 'Alpha Station',
-        description: 'Primary research facility in the outer rim.'
-    },
-    { 
-        position: new THREE.Vector3(40, -20, 0),
-        color: 0x66ff66,
-        name: 'Beta Nebula',
-        description: 'Rich in rare minerals and atmospheric phenomena.'
-    },
-    { 
-        position: new THREE.Vector3(0, 40, 0),
-        color: 0x6666ff,
-        name: 'Gamma Point',
-        description: 'Strategic military outpost and trading hub.'
-    }
+    { position: new THREE.Vector3(-20, 200, 0), color: 0xb39c94, name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
+    { position: new THREE.Vector3(30, 150, 0), color: 0x94b3a8, name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
+    { position: new THREE.Vector3(-40, 100, 0), color: 0x9c94b3, name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
+    { position: new THREE.Vector3(20, 50, 0), color: 0xb3a894, name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
+    { position: new THREE.Vector3(-30, 0, 0), color: 0x94a8b3, name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
+    { position: new THREE.Vector3(40, -50, 0), color: 0xa894b3, name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
+    { position: new THREE.Vector3(-20, -100, 0), color: 0xb3b394, name: 'Eden Colony', description: 'Self-sustaining agricultural biosphere.' },
+    { position: new THREE.Vector3(30, -150, 0), color: 0x949cb3, name: 'Defense Platform Omega', description: 'Strategic military installation.' },
+    { position: new THREE.Vector3(-40, -200, 0), color: 0xb394a8, name: 'Deep Space Array', description: 'Long-range communications and sensor hub.' },
+    { position: new THREE.Vector3(20, -250, 0), color: 0xa8b394, name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
 ];
 
 // Camera Setup - Orthographic for 2D-style view
@@ -89,8 +81,11 @@ document.body.appendChild(infoBoxContainer);
 const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, viewportHeight * 2);
 const bgMaterial = new THREE.ShaderMaterial({
     uniforms: {
-        uColorA: { value: new THREE.Color(0x000022) },
-        uColorB: { value: new THREE.Color(0x000044) }
+        uTime: { value: 0 },
+        uColorOrange: { value: new THREE.Color(0x1a0d06) },
+        uColorBlue: { value: new THREE.Color(0x06101a) },
+        uColorGreen: { value: new THREE.Color(0x061a0d) },
+        uColorPurple: { value: new THREE.Color(0x0d061a) }
     },
     vertexShader: `
         varying vec2 vUv;
@@ -100,11 +95,16 @@ const bgMaterial = new THREE.ShaderMaterial({
         }
     `,
     fragmentShader: `
-        uniform vec3 uColorA;
-        uniform vec3 uColorB;
+        uniform vec3 uColorOrange;
+        uniform vec3 uColorBlue;
+        uniform vec3 uColorGreen;
+        uniform vec3 uColorPurple;
+        uniform float uTime;
         varying vec2 vUv;
         void main() {
-            vec3 color = mix(uColorA, uColorB, vUv.y);
+            vec3 color = mix(uColorOrange, uColorBlue, vUv.y);
+            color = mix(color, uColorGreen, vUv.x);
+            color = mix(color, uColorPurple, sin(uTime * 0.1) * 0.5 + 0.5);
             gl_FragColor = vec4(color, 1.0);
         }
     `
@@ -113,6 +113,62 @@ const bgMaterial = new THREE.ShaderMaterial({
 const background = new THREE.Mesh(bgGeometry, bgMaterial);
 background.position.z = -100;
 scene.add(background);
+
+// Enhanced star system with parallax
+function createStarField(count, minSize, maxSize, depth, speedFactor) {
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const speeds = new Float32Array(count);
+    
+    for (let i = 0; i < count; i++) {
+        const size = minSize + Math.random() * (maxSize - minSize);
+        positions[i * 3] = (Math.random() - 0.5) * viewportWidth * 3;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * viewportHeight * 6;
+        positions[i * 3 + 2] = depth - Math.random() * 50;
+        sizes[i] = size;
+        speeds[i] = speedFactor * (size / maxSize);
+    }
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    geometry.setAttribute('speed', new THREE.BufferAttribute(speeds, 1));
+    
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            cameraY: { value: 0 }
+        },
+        vertexShader: `
+            attribute float size;
+            attribute float speed;
+            uniform float cameraY;
+            void main() {
+                vec3 pos = position;
+                pos.y -= cameraY * speed;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                gl_PointSize = size * (300.0 / -pos.z);
+            }
+        `,
+        fragmentShader: `
+            void main() {
+                float strength = 1.0 - distance(gl_PointCoord, vec2(0.5));
+                strength = pow(strength, 2.0);
+                gl_FragColor = vec4(1.0, 1.0, 1.0, strength);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending
+    });
+    
+    return new THREE.Points(geometry, material);
+}
+
+const starLayers = [
+    createStarField(1000, 0.5, 1.0, -100, 0.1),  // Background
+    createStarField(500, 1.0, 2.0, -50, 0.3),    // Middle
+    createStarField(200, 2.0, 3.0, -25, 0.5)     // Foreground
+];
+starLayers.forEach(layer => scene.add(layer));
 
 // Stars
 function createStars(count = 200) {
@@ -179,6 +235,8 @@ function createPOI(poiData) {
     
     const ring = new THREE.Line(ringGeometry, ringMaterial);
     ring.computeLineDistances(); // Required for dashed lines
+    ring.userData.baseWidth = 0.5;
+    ring.userData.hoverWidth = 1.0;
     
     // Enhanced glow effect
     const glowGeometry = new THREE.CircleGeometry(8, 32);
@@ -270,12 +328,19 @@ function showInfoBox(poi) {
         border-radius: 5px;
         max-width: 200px;
         pointer-events: auto;
+        transform-origin: left center;
+        transform: scaleX(0);
+        transition: transform 0.3s ease-out;
     `;
     
-    div.innerHTML = `
+    const content = document.createElement('div');
+    content.style.opacity = '0';
+    content.style.transition = 'opacity 0.2s ease-out 0.2s';
+    content.innerHTML = `
         <h3 style="margin: 0 0 10px 0; color: #${poi.color.toString(16)}">${poi.name}</h3>
         <p style="margin: 0">${poi.description}</p>
     `;
+    div.appendChild(content);
     
     const worldPos = poi.position.clone();
     const screenPos = worldPos.project(camera);
@@ -285,17 +350,12 @@ function showInfoBox(poi) {
     div.style.left = `${x + 20}px`;
     div.style.top = `${y - 20}px`;
     
-    // Add animation
-    div.style.transform = 'scale(0.8)';
-    div.style.opacity = '0';
-    div.style.transition = 'all 0.3s ease-out';
-    
+    infoBoxContainer.appendChild(div);
     requestAnimationFrame(() => {
-        div.style.transform = 'scale(1)';
-        div.style.opacity = '1';
+        div.style.transform = 'scaleX(1)';
+        content.style.opacity = '1';
     });
     
-    infoBoxContainer.appendChild(div);
     return div;
 }
 
@@ -365,9 +425,11 @@ function animate() {
         const intersects = raycaster.intersectObject(poi, true);
         if (intersects.length > 0) {
             poi.scale.lerp(new THREE.Vector3(1.2, 1.2, 1.2), 0.1);
+            ring.material.linewidth = ring.userData.hoverWidth;
             document.body.style.cursor = 'pointer';
         } else {
             poi.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+            ring.material.linewidth = ring.userData.baseWidth;
         }
     });
     
@@ -377,6 +439,11 @@ function animate() {
     if (raycaster.intersectObjects(poiObjects, true).length === 0) {
         document.body.style.cursor = 'grab';
     }
+    
+    const cameraY = camera.position.y;
+    starLayers.forEach(layer => {
+        layer.material.uniforms.cameraY.value = cameraY;
+    });
     
     renderer.render(scene, camera);
 }
