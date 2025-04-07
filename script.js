@@ -95,20 +95,21 @@ background.position.z = -200;  // Move further back
 scene.add(background);
 
 // Stars
-function createAllStars(count = 5000) {
+function createAllStars(count = 8000) { // Increased star count
     const group = new THREE.Group();
     
     // Sort POIs by Y position
     const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
     const highestY = sortedPOIs[0].position.y;
     const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y;
+    const totalHeight = highestY - lowestY;
     
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
         
-        // Keep stars within viewport bounds
-        const x = (Math.random() - 0.5) * viewportWidth * 1.5;
-        const y = lowestY + Math.random() * (highestY - lowestY) * 1.2; // Slightly extend beyond POI range
+        // Generate stars across the full scrollable area plus padding
+        const x = (Math.random() - 0.5) * viewportWidth * 2;
+        const y = lowestY - (totalHeight * 0.2) + (Math.random() * (totalHeight * 1.4)); // 20% padding
         const z = -120 - Math.random() * 60;
         
         // Find the nearest POI segment for color interpolation
