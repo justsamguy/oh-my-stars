@@ -175,16 +175,19 @@ function createStars(count = 300) {
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
+    const twinkles = new Float32Array(count);
 
     for (let i = 0; i < count; i++) {
         positions[i * 3] = (Math.random() - 0.5) * viewportWidth * 2;
         positions[i * 3 + 1] = (Math.random() - 0.5) * viewportHeight * 2;
         positions[i * 3 + 2] = -50;
-        sizes[i] = 2 + Math.random() * 3; // Varied star sizes
+        sizes[i] = 2 + Math.random() * 4; // Slightly larger stars
+        twinkles[i] = Math.random() * Math.PI * 2; // Random twinkle phase
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    geometry.setAttribute('twinkle', new THREE.BufferAttribute(twinkles, 1));
 
     const material = new THREE.ShaderMaterial({
         uniforms: {
@@ -192,36 +195,52 @@ function createStars(count = 300) {
         },
         vertexShader: `
             attribute float size;
+            attribute float twinkle;
+            uniform float time;
             varying float vSize;
+            varying float vTwinkle;
             void main() {
                 vSize = size;
+                vTwinkle = twinkle;
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = size * (150.0 / -position.z);
+                float twinkleEffect = sin(time * 2.0 + twinkle) * 0.2 + 1.0;
+                gl_PointSize = size * twinkleEffect * (300.0 / -position.z);
             }
         `,
         fragmentShader: `
             varying float vSize;
+            varying float vTwinkle;
+            uniform float time;
             void main() {
                 vec2 center = gl_PointCoord - vec2(0.5);
                 float dist = length(center);
                 
-                // Core of the star
-                float core = 1.0 - smoothstep(0.0, 0.2, dist);
+                // Sharp center core
+                float core = 1.0 - smoothstep(0.0, 0.1, dist);
                 
-                // Outer glow
-                float glow = exp(-2.0 * dist);
+                // Main star shape
+                float mainGlow = exp(-2.0 * dist);
                 
-                // Bloom effect
-                float bloom = 1.0 - smoothstep(0.0, 0.5, dist);
-                bloom = pow(bloom, 3.0) * 0.5;
+                // Outer glow with distance falloff
+                float outerGlow = exp(-1.0 * dist);
                 
-                // Combine effects
-                float final = core + glow * 0.6 + bloom;
+                // Intense bloom effect
+                float bloom = 1.0 - smoothstep(0.0, 0.8, dist);
+                bloom = pow(bloom, 2.0);
                 
-                // Star color (slightly warm white)
-                vec3 color = vec3(1.0, 0.98, 0.95);
+                // Combine all effects
+                float brightness = core + mainGlow * 0.5 + outerGlow * 0.3 + bloom * 0.5;
                 
-                gl_FragColor = vec4(color, final * (0.8 + 0.4 * (vSize/5.0)));
+                // Slightly warm star color
+                vec3 color = vec3(1.0, 0.95, 0.8);
+                
+                // Add subtle color variation
+                color += vec3(0.1, 0.05, 0.0) * sin(time + vTwinkle);
+                
+                // Discard pixels outside of star's circle
+                if (dist > 0.5) discard;
+                
+                gl_FragColor = vec4(color, brightness * (0.8 + 0.4 * (vSize/6.0)));
             }
         `,
         transparent: true,
