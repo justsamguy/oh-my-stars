@@ -69,6 +69,8 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000, 1);
+renderer.sortObjects = true;  // Enable depth sorting
+renderer.autoClear = false;   // Manual scene clearing
 document.body.style.margin = '0';
 document.body.style.overflow = 'hidden';
 document.body.appendChild(renderer.domElement);
@@ -89,7 +91,7 @@ const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, viewportHeight * 2
 const bgMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
 const background = new THREE.Mesh(bgGeometry, bgMaterial);
-background.position.z = -100;
+background.position.z = -200;  // Move further back
 scene.add(background);
 
 // Enhanced star system with parallax
@@ -139,7 +141,7 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
         star.position.set(
             (Math.random() - 0.5) * viewportWidth * 3,
             (Math.random() - 0.5) * viewportHeight * 6,
-            depth - Math.random() * 50
+            depth - Math.random() * 25  // Reduced depth range
         );
         
         // Size based on parameters
@@ -156,10 +158,10 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
 }
 
 const starLayers = [
-    createStarField(2000, 1.5, 4.5, -150, 0.007),  // Far background (1/3 speed)
-    createStarField(1500, 3.0, 7.5, -125, 0.01),   // Background
-    createStarField(1000, 4.5, 9.0, -100, 0.013),  // Middle
-    createStarField(500, 6.0, 12.0, -75, 0.017)    // Near background
+    createStarField(2000, 1.5, 4.5, -180, 0.007),  // Adjusted depths
+    createStarField(1500, 3.0, 7.5, -160, 0.01),
+    createStarField(1000, 4.5, 9.0, -140, 0.013),
+    createStarField(500, 6.0, 12.0, -120, 0.017)
 ];
 starLayers.forEach(layer => scene.add(layer));
 
@@ -499,6 +501,7 @@ function animate() {
     
     updateScroll();
     
+    renderer.clear();         // Clear manually
     renderer.render(scene, camera);
 }
 
