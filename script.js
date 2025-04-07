@@ -38,12 +38,12 @@ const generateSpectralColors = (count) => {
 // Update POI data with spectrum colors and new positions
 const poiColors = generateSpectralColors(7);
 const pois = [
-    { position: new THREE.Vector3(-25, 100, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
-    { position: new THREE.Vector3(40, 55, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
-    { position: new THREE.Vector3(-10, 20, 0), color: poiColors[2], name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
-    { position: new THREE.Vector3(30, -15, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
-    { position: new THREE.Vector3(-35, -45, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
-    { position: new THREE.Vector3(15, -85, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
+    { position: new THREE.Vector3(-25, 50, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
+    { position: new THREE.Vector3(-20, 15, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
+    { position: new THREE.Vector3(35, -10, 0), color: poiColors[2], name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
+    { position: new THREE.Vector3(40, -15, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
+    { position: new THREE.Vector3(-35, -65, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
+    { position: new THREE.Vector3(15, -95, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
     { position: new THREE.Vector3(-20, -120, 0), color: poiColors[6], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
 ];
 
@@ -120,9 +120,9 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
             cameraY: { value: 0 },
             time: { value: 0 },
             color: { value: new THREE.Color(
-                0.9 + Math.random() * 0.1,
-                0.9 + Math.random() * 0.1,
-                0.9 + Math.random() * 0.1
+                0.95 + Math.random() * 0.05,
+                0.95 + Math.random() * 0.05,
+                0.95 + Math.random() * 0.05
             )}
         },
         vertexShader: `
@@ -149,8 +149,8 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
                 float dist = length(center);
                 float core = 1.0 - smoothstep(0.0, 0.2, dist); // Sharp core
                 float glow = 1.0 - smoothstep(0.2, 0.5, dist); // Soft glow
-                float final = core * 0.6 + glow * 0.4;
-                gl_FragColor = vec4(color, final * (0.51 + 1.19 * (vSize/3.0))); // 1.7x stronger glow
+                float final = core * 0.7 + glow * 0.6;
+                gl_FragColor = vec4(color, final * (0.8 + 1.4 * (vSize/3.0))); // 1.7x stronger glow
             }
         `,
         transparent: true,
@@ -162,9 +162,10 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
 }
 
 const starLayers = [
-    createStarField(1000, 0.5, 1.0, -100, 0.1),  // Background
-    createStarField(500, 1.0, 2.0, -50, 0.3),    // Middle
-    createStarField(600, 4.0, 6.0, -25, 0.5)     // Foreground (2x size, 3x count)
+    createStarField(1000, 0.5, 1.0, -100, 0.05),  // Background
+    createStarField(800, 1.0, 2.0, -50, 0.15),    // Middle
+    createStarField(1200, 2.0, 4.0, -35, 0.25),   // New intermediate layer
+    createStarField(600, 4.0, 6.0, -25, 0.35)     // Foreground (2x size, 3x count)
 ];
 starLayers.forEach(layer => scene.add(layer));
 
@@ -393,7 +394,7 @@ function hideInfoBox() {
 function onWheel(event) {
     event.preventDefault();
     if (!isInfoBoxOpen) {
-        scrollVelocity -= event.deltaY * 0.01; // Inverted direction
+        scrollVelocity -= event.deltaY * 0.012; // Increased by 20%
     }
 }
 
