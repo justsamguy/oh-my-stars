@@ -94,72 +94,65 @@ scene.add(background);
 
 // Enhanced star system with parallax
 function createStarField(count, minSize, maxSize, depth, speedFactor) {
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(count * 3);
-    const sizes = new Float32Array(count);
-    const speeds = new Float32Array(count);
-    const twinkles = new Float32Array(count);
+    const group = new THREE.Group();
     
     for (let i = 0; i < count; i++) {
+        // Create geometry for each star
+        const geometry = new THREE.CircleGeometry(1, 32);
+        
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                color: { value: new THREE.Color(0.95 + Math.random() * 0.05, 0.95 + Math.random() * 0.05, 0.95 + Math.random() * 0.05) },
+                time: { value: 0 },
+                cameraY: { value: 0 }
+            },
+            vertexShader: `
+                uniform float cameraY;
+                attribute float speed;
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    vec3 pos = position;
+                    pos.y -= cameraY * ${speedFactor.toFixed(4)}; // Hardcode speed factor
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 color;
+                uniform float time;
+                varying vec2 vUv;
+                void main() {
+                    float dist = length(vUv - vec2(0.5));
+                    float strength = smoothstep(1.0, 0.0, dist * 2.0);
+                    float pulse = sin(time * 2.0) * 0.1 + 0.9;
+                    gl_FragColor = vec4(color, strength * pulse);
+                }
+            `,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const star = new THREE.Mesh(geometry, material);
+        
+        // Random position
+        star.position.set(
+            (Math.random() - 0.5) * viewportWidth * 3,
+            (Math.random() - 0.5) * viewportHeight * 6,
+            depth - Math.random() * 50
+        );
+        
+        // Size based on parameters
         const size = minSize + Math.random() * (maxSize - minSize);
-        positions[i * 3] = (Math.random() - 0.5) * viewportWidth * 3;
-        positions[i * 3 + 1] = (Math.random() - 0.5) * viewportHeight * 6;
-        positions[i * 3 + 2] = depth - Math.random() * 50;
-        sizes[i] = size;
-        speeds[i] = speedFactor * (size / maxSize) * 0.1; // 100x slower
-        twinkles[i] = Math.random() * Math.PI; // Random phase for twinkling
+        star.scale.set(size, size, 1);
+        
+        // Random rotation
+        star.rotation.z = Math.random() * Math.PI;
+        
+        group.add(star);
     }
-    
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-    geometry.setAttribute('speed', new THREE.BufferAttribute(speeds, 1));
-    geometry.setAttribute('twinkle', new THREE.BufferAttribute(twinkles, 1));
-    
-    const material = new THREE.ShaderMaterial({
-        uniforms: {
-            cameraY: { value: 0 },
-            time: { value: 0 },
-            color: { value: new THREE.Color(
-                0.95 + Math.random() * 0.05,
-                0.95 + Math.random() * 0.05,
-                0.95 + Math.random() * 0.05
-            )}
-        },
-        vertexShader: `
-            attribute float size;
-            attribute float speed;
-            attribute float twinkle;
-            uniform float time;
-            uniform float cameraY;
-            varying float vSize;
-            void main() {
-                vec3 pos = position;
-                pos.y -= cameraY * speed;
-                vSize = size;
-                float twinkleEffect = 1.0 + sin(time * 2.0 + twinkle) * 0.2 * (1.0 - size/3.0);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-                gl_PointSize = size * twinkleEffect * (150.0 / -pos.z); // Reduced size
-            }
-        `,
-        fragmentShader: `
-            uniform vec3 color;
-            varying float vSize;
-            void main() {
-                vec2 center = gl_PointCoord - vec2(0.5);
-                float dist = length(center);
-                float core = 1.0 - smoothstep(0.0, 0.15, dist);
-                float glow = exp(-1.5 * dist); // Stronger bloom
-                float bloom = smoothstep(0.5, 0.0, dist) * 0.8; // Additional bloom layer
-                float final = core + glow * 0.7 + bloom;
-                gl_FragColor = vec4(color + vec3(0.2 * bloom), final * (0.6 + 1.2 * (vSize/3.0)));
-            }
-        `,
-        transparent: true,
-        depthWrite: false, // Remove hitbox issue
-        blending: THREE.AdditiveBlending
-    });
-    
-    return new THREE.Points(geometry, material);
+
+    return group;
 }
 
 const starLayers = [
@@ -462,7 +455,6 @@ const clock = new THREE.Clock();
 
 function animate() {
     requestAnimationFrame(animate);
-    
     const elapsedTime = clock.getElapsedTime();
     
     // Update POI elements
@@ -494,8 +486,10 @@ function animate() {
     
     const cameraY = camera.position.y;
     starLayers.forEach(layer => {
-        layer.material.uniforms.cameraY.value = cameraY;
-        layer.material.uniforms.time.value = elapsedTime;
+        layer.children.forEach(star => {
+            star.material.uniforms.time.value = elapsedTime;
+            star.material.uniforms.cameraY.value = cameraY;
+        });
     });
     
     // Update star material time
