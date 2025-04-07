@@ -86,30 +86,30 @@ infoBoxContainer.style.height = '100%';
 infoBoxContainer.style.pointerEvents = 'none';
 document.body.appendChild(infoBoxContainer);
 
-// Background
-const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, viewportHeight * 2);
+// Background - Update size to match full scrollable area
+const scrollHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
+const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, scrollHeight * 2);
 const bgMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
 const background = new THREE.Mesh(bgGeometry, bgMaterial);
 background.position.z = -200;  // Move further back
 scene.add(background);
 
-// Stars
-function createAllStars(count = 8000) { // Increased star count
+// Stars - Modify creation function
+function createAllStars(count = 12000) { // Increased count
     const group = new THREE.Group();
     
-    // Sort POIs by Y position
+    // Sort POIs by Y position and get bounds
     const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
-    const highestY = sortedPOIs[0].position.y;
-    const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y;
-    const totalHeight = highestY - lowestY;
+    const highestY = sortedPOIs[0].position.y + 50; // Add padding
+    const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y - 50; // Add padding
     
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
         
-        // Generate stars across the full scrollable area plus padding
+        // Generate positions across full range
         const x = (Math.random() - 0.5) * viewportWidth * 2;
-        const y = lowestY - (totalHeight * 0.2) + (Math.random() * (totalHeight * 1.4)); // 20% padding
+        const y = lowestY + (Math.random() * (highestY - lowestY));
         const z = -120 - Math.random() * 60;
         
         // Find the nearest POI segment for color interpolation
@@ -189,7 +189,8 @@ function createAllStars(count = 8000) { // Increased star count
     return group;
 }
 
-const stars = createAllStars(5000);
+// Update initial star creation
+const stars = createAllStars(12000); // Match new count
 scene.add(stars);
 
 // Define POI geometry before using it
