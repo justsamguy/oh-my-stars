@@ -109,8 +109,14 @@ function createAllStars(count = 5000) {
         const z = -120 - Math.random() * 60; // Depth between -120 and -180
         const position = new THREE.Vector3(x, y, z);
         
+        // Calculate 2D distances ignoring z-coordinate
+        const distances = poiPositions.map(poiPos => {
+            const dx = poiPos.x - position.x;
+            const dy = poiPos.y - position.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        });
+        
         // Find two nearest POIs
-        const distances = poiPositions.map(poiPos => poiPos.distanceTo(position));
         const sortedIndices = distances.map((d, i) => i)
             .sort((a, b) => distances[a] - distances[b]);
         const nearest = sortedIndices[0];
