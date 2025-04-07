@@ -172,88 +172,65 @@ starLayers.forEach(layer => scene.add(layer));
 
 // Stars
 function createStars(count = 300) {
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(count * 3);
-    const sizes = new Float32Array(count);
-    const twinkles = new Float32Array(count);
-    const colors = new Float32Array(count * 3);
-
+    const group = new THREE.Group();
+    
     for (let i = 0; i < count; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * viewportWidth * 2;
-        positions[i * 3 + 1] = (Math.random() - 0.5) * viewportHeight * 2;
-        positions[i * 3 + 2] = -50;
-        sizes[i] = 3 + Math.random() * 5; // Larger base size
-        twinkles[i] = Math.random() * Math.PI * 2;
+        // Create geometry for each star
+        const geometry = new THREE.CircleGeometry(1, 32);
         
-        // Slightly varied star colors
-        const temp = 0.95 + Math.random() * 0.05;
-        colors[i * 3] = temp;
-        colors[i * 3 + 1] = temp * 0.9;
-        colors[i * 3 + 2] = temp * 0.8;
+        // Create glow material using same shader as POIs
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                color: { value: new THREE.Color(1, 0.95, 0.8) },
+                time: { value: 0 }
+            },
+            vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 color;
+                uniform float time;
+                varying vec2 vUv;
+                void main() {
+                    float dist = length(vUv - vec2(0.5));
+                    float strength = smoothstep(1.0, 0.0, dist * 2.0);
+                    float pulse = sin(time * 2.0) * 0.1 + 0.9;
+                    gl_FragColor = vec4(color, strength * pulse);
+                }
+            `,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const star = new THREE.Mesh(geometry, material);
+        
+        // Random position
+        star.position.set(
+            (Math.random() - 0.5) * viewportWidth * 2,
+            (Math.random() - 0.5) * viewportHeight * 2,
+            -50
+        );
+        
+        // Random size between 2 and 6
+        const size = 2 + Math.random() * 4;
+        star.scale.set(size, size, 1);
+        
+        // Random rotation for variation
+        star.rotation.z = Math.random() * Math.PI;
+        
+        group.add(star);
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-    geometry.setAttribute('twinkle', new THREE.BufferAttribute(twinkles, 1));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-    const material = new THREE.ShaderMaterial({
-        uniforms: {
-            time: { value: 0 }
-        },
-        vertexShader: `
-            attribute float size;
-            attribute float twinkle;
-            attribute vec3 color;
-            uniform float time;
-            varying float vSize;
-            varying vec3 vColor;
-            void main() {
-                vSize = size;
-                vColor = color;
-                float twinkleEffect = sin(time * 1.5 + twinkle) * 0.2 + 1.0;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                gl_PointSize = size * twinkleEffect * (200.0 / -position.z);
-            }
-        `,
-        fragmentShader: `
-            varying float vSize;
-            varying vec3 vColor;
-            void main() {
-                vec2 center = gl_PointCoord - vec2(0.5);
-                float dist = length(center);
-                
-                // Smooth circular mask
-                float circle = smoothstep(0.5, 0.45, dist);
-                
-                // Core glow
-                float core = exp(-2.0 * dist);
-                
-                // Mid-range glow
-                float glow = exp(-1.5 * dist * dist);
-                
-                // Extended outer glow
-                float outerGlow = exp(-dist);
-                
-                // Combine layers with intensity adjustments
-                float brightness = 
-                    core * 0.8 +          // Bright center
-                    glow * 0.6 +          // Mid glow
-                    outerGlow * 0.4;      // Outer glow
-                
-                brightness *= circle;      // Apply smooth circle mask
-                
-                // Final color with glow
-                gl_FragColor = vec4(vColor, brightness);
-            }
-        `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-    });
-
-    return new THREE.Points(geometry, material);
+    return group;
 }
+
+const stars = createStars(300);
+scene.add(stars);
 
 // Define POI geometry before using it
 const poiGeometry = new THREE.CircleGeometry(3, 32);
@@ -522,9 +499,9 @@ function animate() {
     });
     
     // Update star material time
-    if (stars.material.uniforms) {
-        stars.material.uniforms.time.value = elapsedTime;
-    }
+    stars.children.forEach(star => {
+        star.material.uniforms.time.value = elapsedTime;
+    });
     
     updateScroll();
     
