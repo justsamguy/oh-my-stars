@@ -38,16 +38,13 @@ const generateSpectralColors = (count) => {
 // Update POI data with spectrum colors and halved positions
 const poiColors = generateSpectralColors(10);
 const pois = [
-    { position: new THREE.Vector3(-10, 100, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
-    { position: new THREE.Vector3(15, 75, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
-    { position: new THREE.Vector3(-20, 50, 0), color: poiColors[2], name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
-    { position: new THREE.Vector3(10, 25, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
-    { position: new THREE.Vector3(-15, 0, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
-    { position: new THREE.Vector3(20, -25, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
-    { position: new THREE.Vector3(-10, -50, 0), color: poiColors[6], name: 'Eden Colony', description: 'Self-sustaining agricultural biosphere.' },
-    { position: new THREE.Vector3(15, -75, 0), color: poiColors[7], name: 'Defense Platform Omega', description: 'Strategic military installation.' },
-    { position: new THREE.Vector3(-20, -100, 0), color: poiColors[8], name: 'Deep Space Array', description: 'Long-range communications and sensor hub.' },
-    { position: new THREE.Vector3(10, -125, 0), color: poiColors[9], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
+    { position: new THREE.Vector3(-25, 90, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
+    { position: new THREE.Vector3(40, 45, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
+    { position: new THREE.Vector3(-10, 20, 0), color: poiColors[2], name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
+    { position: new THREE.Vector3(30, -15, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
+    { position: new THREE.Vector3(-35, -40, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
+    { position: new THREE.Vector3(15, -75, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
+    { position: new THREE.Vector3(-20, -95, 0), color: poiColors[6], name: 'Eden Colony', description: 'Self-sustaining agricultural biosphere.' }
 ];
 
 // Camera Setup - Orthographic for 2D-style view
@@ -152,7 +149,7 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
                 float dist = length(center);
                 float core = 1.0 - smoothstep(0.0, 0.2, dist); // Sharp core
                 float glow = 1.0 - smoothstep(0.2, 0.5, dist); // Soft glow
-                float final = core * 0.6 + glow * 0.4;
+                float final = (core * 0.6 + glow * 0.4) * 1.7; // 1.7x stronger glow
                 gl_FragColor = vec4(color, final * (0.3 + 0.7 * (vSize/3.0)));
             }
         `,
@@ -167,7 +164,7 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
 const starLayers = [
     createStarField(1000, 0.5, 1.0, -100, 0.1),  // Background
     createStarField(500, 1.0, 2.0, -50, 0.3),    // Middle
-    createStarField(200, 2.0, 3.0, -25, 0.5)     // Foreground
+    createStarField(600, 4.0, 6.0, -25, 0.5)     // Foreground (2x size, 3x quantity)
 ];
 starLayers.forEach(layer => scene.add(layer));
 
@@ -261,7 +258,8 @@ function createPOI(poiData) {
             varying vec2 vUv;
             void main() {
                 float dist = length(vUv - vec2(0.5));
-                float strength = pow(1.0 - dist, 3.0); // Smoother falloff
+                float strength = 1.0 - smoothstep(0.0, 1.0, dist * 1.2); // Smoother edge falloff
+                strength = pow(strength, 2.0);
                 float pulse = sin(time * 2.0) * 0.1 + 0.9;
                 gl_FragColor = vec4(color, strength * pulse);
             }
@@ -320,9 +318,6 @@ let isDragging = false;
 let previousMouseY = 0;
 
 function showInfoBox(poi) {
-    if (isInfoBoxOpen) return;
-    isInfoBoxOpen = true;
-    
     const div = document.createElement('div');
     div.className = 'info-box';
     div.style.cssText = `
@@ -353,158 +348,9 @@ function showInfoBox(poi) {
     content.style.transition = 'opacity 0.2s ease-out 0.2s';
     content.innerHTML = `
         <h3 style="margin: 0 0 10px 0; color: #${poi.color.toString(16)}">${poi.name}</h3>
-        <p style="margin: 0">${poi.description}</p>
-    `;
-    div.appendChild(content);
-    
-    const worldPos = poi.position.clone();
-    const screenPos = worldPos.project(camera);
-    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
-    
-    div.style.left = `${x + 20}px`;
-    div.style.top = `${y - 20}px`;
-    
-    infoBoxContainer.appendChild(div);
-    requestAnimationFrame(() => {
-        div.style.transform = 'scaleX(1)';
-        content.style.opacity = '1';
-    });
-    
-    return div;
-}
-
-function hideInfoBox() {
-    if (currentInfoBox) {
-        isInfoBoxOpen = false;
-        infoBoxContainer.removeChild(currentInfoBox);
-        currentInfoBox = null;
-    }
-}
-
-// Add click handling for info boxes
-let currentInfoBox = null;
-
-function onPoiClick(event) {
-    const intersects = raycaster.intersectObjects(poiObjects, true);
-    
-    if (intersects.length > 0) {
-        const poi = intersects[0].object.parent;
-        if (currentInfoBox) {
-            infoBoxContainer.removeChild(currentInfoBox);
-        }
-        currentInfoBox = showInfoBox(poi.userData);
-    } else if (currentInfoBox && !event.target.closest('.info-box')) {
-        hideInfoBox();
-    }
-}
-
-window.addEventListener('click', onPoiClick);
-
-// Event listeners
-function onMouseMove(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    
-    if (isDragging) {
-        const deltaY = event.clientY - previousMouseY;
-        camera.position.y += deltaY * 0.1;
-        previousMouseY = event.clientY;
-    }
-}
-
-function onMouseDown(event) {
-    isDragging = true;
-    previousMouseY = event.clientY;
-}
-
-function onMouseUp() {
-    isDragging = false;
-}
-
-window.addEventListener('mousemove', onMouseMove);
-window.addEventListener('mousedown', onMouseDown);
-window.addEventListener('mouseup', onMouseUp);
-
-// Add smooth scrolling
-let scrollVelocity = 0;
-const scrollDamping = 0.92;
-let isInfoBoxOpen = false;
-
-function updateScroll() {
-    if (Math.abs(scrollVelocity) > 0.01) {
-        camera.position.y += scrollVelocity;
-        scrollVelocity *= scrollDamping;
-    }
-}
-
-function onWheel(event) {
-    event.preventDefault();
-    if (!isInfoBoxOpen) {
-        scrollVelocity += event.deltaY * 0.01; // 10x faster
-    }
-}
-
-window.addEventListener('wheel', onWheel, { passive: false });
-
-// Modified animation loop
-const clock = new THREE.Clock();
-
-function animate() {
-    requestAnimationFrame(animate);
-    
-    const elapsedTime = clock.getElapsedTime();
-    
-    // Update POI elements
-    poiObjects.forEach(poi => {
-        const ring = poi.children[1];
-        const glow = poi.children[2];
-        ring.rotation.z += 0.005;
-        if (glow && glow.material.uniforms) {
-            glow.material.uniforms.time.value = elapsedTime;
-        }
+                <p style="margin: 0">${poi.description}</p>`;
         
-        // Add hover effect
-        const intersects = raycaster.intersectObject(poi, true);
-        if (intersects.length > 0) {
-            poi.scale.lerp(new THREE.Vector3(1.2, 1.2, 1.2), 0.1);
-            ring.material.linewidth = ring.userData.hoverWidth;
-            document.body.style.cursor = 'pointer';
-        } else {
-            poi.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
-            ring.material.linewidth = ring.userData.baseWidth;
+            content.style.opacity = '1';
+            div.appendChild(content);
+            infoBoxContainer.appendChild(div);
         }
-    });
-    
-    // Update raycasting
-    raycaster.setFromCamera(mouse, camera);
-    
-    if (raycaster.intersectObjects(poiObjects, true).length === 0) {
-        document.body.style.cursor = 'grab';
-    }
-    
-    const cameraY = camera.position.y;
-    starLayers.forEach(layer => {
-        layer.material.uniforms.cameraY.value = cameraY;
-        layer.material.uniforms.time.value = elapsedTime;
-    });
-    
-    updateScroll();
-    
-    renderer.render(scene, camera);
-}
-
-// Handle Window Resize
-window.addEventListener('resize', () => {
-    const newAspect = window.innerWidth / window.innerHeight;
-    const newWidth = viewportHeight * newAspect;
-    
-    camera.left = newWidth / -2;
-    camera.right = newWidth / 2;
-    camera.updateProjectionMatrix();
-    
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// Start Animation
-animate();
