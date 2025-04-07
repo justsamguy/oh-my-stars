@@ -94,28 +94,52 @@ const background = new THREE.Mesh(bgGeometry, bgMaterial);
 background.position.z = -200;  // Move further back
 scene.add(background);
 
-// Enhanced star system with parallax
-function createStarField(count, minSize, maxSize, depth, speedFactor) {
+// Stars
+function createAllStars(count = 5000) {
     const group = new THREE.Group();
+    const poiPositions = pois.map(poi => poi.position);
+    const poiColors = pois.map(poi => new THREE.Color(poi.color));
     
     for (let i = 0; i < count; i++) {
-        // Create geometry for each star
         const geometry = new THREE.CircleGeometry(1, 32);
+        
+        // Random position
+        const x = (Math.random() - 0.5) * viewportWidth * 3;
+        const y = (Math.random() - 0.5) * viewportHeight * 6;
+        const z = -120 - Math.random() * 60; // Depth between -120 and -180
+        const position = new THREE.Vector3(x, y, z);
+        
+        // Find two nearest POIs
+        const distances = poiPositions.map(poiPos => poiPos.distanceTo(position));
+        const sortedIndices = distances.map((d, i) => i)
+            .sort((a, b) => distances[a] - distances[b]);
+        const nearest = sortedIndices[0];
+        const secondNearest = sortedIndices[1];
+        
+        // Blend colors based on relative distances
+        const d1 = distances[nearest];
+        const d2 = distances[secondNearest];
+        const total = d1 + d2;
+        const color1 = poiColors[nearest];
+        const color2 = poiColors[secondNearest];
+        const blendedColor = new THREE.Color()
+            .copy(color1)
+            .lerp(color2, d1 / total);
         
         const material = new THREE.ShaderMaterial({
             uniforms: {
-                color: { value: new THREE.Color(0.95 + Math.random() * 0.05, 0.95 + Math.random() * 0.05, 0.95 + Math.random() * 0.05) },
+                color: { value: blendedColor },
                 time: { value: 0 },
                 cameraY: { value: 0 }
             },
             vertexShader: `
                 uniform float cameraY;
-                attribute float speed;
                 varying vec2 vUv;
                 void main() {
                     vUv = uv;
                     vec3 pos = position;
-                    pos.y -= cameraY * ${speedFactor.toFixed(4)}; // Hardcode speed factor
+                    float parallaxStrength = 0.015 * (180.0 + position.z) / 60.0;
+                    pos.y -= cameraY * parallaxStrength;
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
                 }
             `,
@@ -125,84 +149,10 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
                 varying vec2 vUv;
                 void main() {
                     float dist = length(vUv - vec2(0.5));
-                    float strength = smoothstep(1.0, 0.0, dist * 2.0);
-                    float pulse = sin(time * 2.0) * 0.1 + 0.9;
-                    gl_FragColor = vec4(color, strength * pulse);
-                }
-            `,
-            transparent: true,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
-        });
-
-        const star = new THREE.Mesh(geometry, material);
-        
-        // Random position
-        star.position.set(
-            (Math.random() - 0.5) * viewportWidth * 3,
-            (Math.random() - 0.5) * viewportHeight * 6,
-            depth - Math.random() * 25  // Reduced depth range
-        );
-        
-        // Size based on parameters
-        const size = minSize + Math.random() * (maxSize - minSize);
-        star.scale.set(size, size, 1);
-        
-        // Random rotation
-        star.rotation.z = Math.random() * Math.PI;
-        
-        group.add(star);
-    }
-
-    return group;
-}
-
-const starLayers = [
-    createStarField(2000, 1.5, 4.5, -180, 0.007),  // Adjusted depths
-    createStarField(1500, 3.0, 7.5, -160, 0.01),
-    createStarField(1000, 4.5, 9.0, -140, 0.013),
-    createStarField(500, 6.0, 12.0, -120, 0.017)
-];
-starLayers.forEach(layer => scene.add(layer));
-
-// Stars
-function createStars(count = 300) {
-    const group = new THREE.Group();
-    
-    // Use POI colors for star groups
-    const starColors = pois.map(poi => new THREE.Color(poi.color));
-    
-    for (let i = 0; i < count; i++) {
-        const geometry = new THREE.CircleGeometry(1, 32);
-        
-        // Select color from POI colors
-        const color = starColors[Math.floor(i / count * starColors.length)].clone();
-        
-        const material = new THREE.ShaderMaterial({
-            uniforms: {
-                color: { value: color },
-                time: { value: 0 }
-            },
-            vertexShader: `
-                varying vec2 vUv;
-                void main() {
-                    vUv = uv;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform vec3 color;
-                uniform float time;
-                varying vec2 vUv;
-                void main() {
-                    float dist = length(vUv - vec2(0.5));
-                    // Create bright core
-                    float core = smoothstep(0.2, 0.0, dist);
-                    // Create smaller glow
+                    float core = smoothstep(0.15, 0.0, dist);
                     float glow = smoothstep(1.0, 0.0, dist * 4.0);
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
-                    // Combine core and glow
-                    float brightness = core + glow * 0.5;
+                    float brightness = core + glow * 0.3;
                     gl_FragColor = vec4(color, brightness * pulse);
                 }
             `,
@@ -212,20 +162,9 @@ function createStars(count = 300) {
         });
 
         const star = new THREE.Mesh(geometry, material);
+        star.position.copy(position);
         
-        // Group by color spatially in arcs
-        const colorIndex = Math.floor(i / count * starColors.length);
-        const angleOffset = (2 * Math.PI * colorIndex) / starColors.length;
-        const angle = angleOffset + (i / count) * (Math.PI / starColors.length) * 2 + (Math.random() - 0.5) * 0.5;
-        const radius = (0.3 + Math.random() * 0.7) * viewportWidth;
-        
-        star.position.set(
-            Math.cos(angle) * radius,
-            Math.sin(angle) * radius,
-            -50
-        );
-        
-        const size = 1 + Math.random() * 2; // Smaller size range
+        const size = 1 + Math.random() * (3 - Math.abs(z + 150) / 30);
         star.scale.set(size, size, 1);
         star.rotation.z = Math.random() * Math.PI;
         
@@ -235,7 +174,7 @@ function createStars(count = 300) {
     return group;
 }
 
-const stars = createStars(300);
+const stars = createAllStars(5000);
 scene.add(stars);
 
 // Define POI geometry before using it
@@ -498,16 +437,9 @@ function animate() {
     }
     
     const cameraY = camera.position.y;
-    starLayers.forEach(layer => {
-        layer.children.forEach(star => {
-            star.material.uniforms.time.value = elapsedTime;
-            star.material.uniforms.cameraY.value = cameraY;
-        });
-    });
-    
-    // Update star material time
     stars.children.forEach(star => {
         star.material.uniforms.time.value = elapsedTime;
+        star.material.uniforms.cameraY.value = cameraY;
     });
     
     updateScroll();
