@@ -17,8 +17,54 @@ document.head.insertAdjacentHTML('beforeend', `
             top: 0;
             left: 0;
         }
+        #header, #footer {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: #000;
+            z-index: 1000;
+        }
+        #header { top: 0; }
+        #footer { bottom: 0; }
+        .info-box {
+            font-family: 'Courier New', monospace !important;
+        }
+        .info-box h3 {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        .info-box .timestamp {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 10px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #666;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            transition: color 0.2s;
+        }
+        .close-btn:hover {
+            color: #fff;
+        }
     </style>
 `);
+
+// Add header and footer
+const header = document.createElement('div');
+header.id = 'header';
+document.body.appendChild(header);
+
+const footer = document.createElement('div');
+footer.id = 'footer';
+document.body.appendChild(footer);
 
 // Scene Setup
 const scene = new THREE.Scene();
@@ -158,7 +204,7 @@ function createAllStars(count = 12000) { // Increased count
                 void main() {
                     vUv = uv;
                     vec3 pos = position;
-                    float parallaxStrength = 0.015 * (180.0 + position.z) / 60.0;
+                    float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0; // 50% reduction
                     pos.y -= cameraY * parallaxStrength;
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
                 }
@@ -184,7 +230,7 @@ function createAllStars(count = 12000) { // Increased count
         const star = new THREE.Mesh(geometry, material);
         star.position.set(x, y, z);
         
-        const size = 1 + Math.random() * (3 - Math.abs(z + 150) / 30);
+        const size = 0.5 + Math.random() * (1.5 - Math.abs(z + 150) / 60); // 50% smaller
         star.scale.set(size, size, 1);
         star.rotation.z = Math.random() * Math.PI;
         
@@ -339,26 +385,37 @@ function createNewInfoBox(poi) {
     div.className = 'info-box';
     div.style.cssText = `
         position: absolute;
-        background: rgba(0, 0, 20, 0.8);
+        background: rgba(0, 20, 40, 0.9);
         color: white;
         padding: 15px;
         border-radius: 5px;
         max-width: 200px;
         pointer-events: auto;
-        transform-origin: left center;
-        transform: scaleY(0) scaleX(0);
-        transition: transform 0.3s ease-out;
+        transform-origin: center;
+        transform: scale(0);
+        transition: transform 0.2s ease-out;
         border: 1px solid #${poi.color.toString(16)};
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     `;
+    
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'close-btn';
+    closeBtn.innerHTML = '×';
+    closeBtn.onclick = hideInfoBox;
     
     const content = document.createElement('div');
     content.style.opacity = '0';
-    content.style.transition = 'opacity 0.2s ease-out 0.2s';
+    content.style.transition = 'opacity 0.15s ease-out';
+    
+    const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -5);
+    
     content.innerHTML = `
         <h3 style="margin: 0 0 10px 0; color: #${poi.color.toString(16)}">${poi.name}</h3>
         <p style="margin: 0">${poi.description}</p>
+        <div class="timestamp">${timestamp}</div>
     `;
     
+    div.appendChild(closeBtn);
     div.appendChild(content);
     
     const worldPos = poi.position.clone();
@@ -383,15 +440,14 @@ function createNewInfoBox(poi) {
     return div;
 }
 
-// Add this function before showInfoBox
 function hideInfoBox() {
     if (currentInfoBox) {
-        currentInfoBox.style.transform = 'scaleY(1) scaleX(0)';
+        currentInfoBox.style.transform = 'scale(0)';
         setTimeout(() => {
             currentInfoBox.remove();
             currentInfoBox = null;
             isInfoBoxOpen = false;
-        }, 300);
+        }, 200);
     }
 }
 

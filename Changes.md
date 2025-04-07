@@ -1,18 +1,20 @@
 ## User Input
 
-- Okay, this is decent but you moved the first POI to the top of the screen again. Let's move it to 2/5 of the way down the screen instead of 1/3.
-spread the third and fourth POIs apart so they are visually quite distinct to each other.
-- Make the ring around the POIs 75% their current size.
-- I see moving all the stars to the background made them all super small. This is fine, just increase their maximum possible size by 3x. 
-- Change the scrolling behavior so that the POIs still move at the same speed, but our background moves a lot less - start with 1/3 their current speed, but keep their relative motion behavior. Just a lot slower..
-- I'm also not seeing a bloom effect on the stars like i asked previously, please add that.
+- Reduce the average size of stars in the background by 50% (keep the same size range, just bias the generation).
+- Reduce the scrolling-related speed and motion by 50% on the starfield (but nothing else).
+- Add a header and footer in the top and bottom margins of the screen above and below the starfield, and just add placeholders for those, background color solid black. The header is not sticky (it doesn't stay on the screen when you scroll down).
+- Add an "X" in the upper right corner of the POI boxes that closes the box.
+- Make the POI boxes feel more digital (maybe a monotype font? and a YYYY-MM-DD HH:MM:SS somewhere on it).
+- Change the POI box closing animation to shrink to the center both horizontally and vertically, and make it no longer than 0.2 seconds.
+
 
 
 ## Agent Output
 
-- Moved first POI to y=60 (2/5 down from top at y=150)
-- Spread K'tharr Station and Void Gate Alpha further apart
-- Reduced POI ring size by 25%
-- Tripled star sizes across all layers
-- Slowed star parallax to 1/3 speed (0.02 -> 0.007 etc)
-- Enhanced star shader with stronger bloom effect using multiple glow layers and color boost
+- Make stars half their original size while maintaining relative size variation
+- Reduce parallax effect by 50% for stars only
+- Add fixed black bars at top and bottom of screen
+- Style POI boxes with monospace font and timestamp
+- Add a close button to POI boxes
+- Update the POI box animations to use center-based scaling
+- Speed up the closing animation to 0.2s
