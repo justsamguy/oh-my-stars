@@ -317,6 +317,12 @@ let isDragging = false;
 let previousMouseY = 0;
 let currentInfoBox = null;
 
+// Add these variables after the mouse declaration
+let scrollVelocity = 0;
+let isInfoBoxOpen = false;
+const SCROLL_DAMPING = 0.95;
+const MAX_SCROLL_SPEED = 2;
+
 function showInfoBox(poi) {
     if (currentInfoBox) {
         hideInfoBox();
@@ -371,6 +377,18 @@ function showInfoBox(poi) {
     return div;
 }
 
+// Add this function before showInfoBox
+function hideInfoBox() {
+    if (currentInfoBox) {
+        currentInfoBox.style.transform = 'scaleY(1) scaleX(0)';
+        setTimeout(() => {
+            currentInfoBox.remove();
+            currentInfoBox = null;
+            isInfoBoxOpen = false;
+        }, 300);
+    }
+}
+
 // Update scroll behavior
 function onWheel(event) {
     event.preventDefault();
@@ -380,6 +398,25 @@ function onWheel(event) {
 }
 
 window.addEventListener('wheel', onWheel, { passive: false });
+
+// Add this function before animate()
+function updateScroll() {
+    // Apply damping
+    scrollVelocity *= SCROLL_DAMPING;
+    
+    // Clamp scroll velocity
+    scrollVelocity = Math.max(Math.min(scrollVelocity, MAX_SCROLL_SPEED), -MAX_SCROLL_SPEED);
+    
+    // Update camera position
+    if (Math.abs(scrollVelocity) > 0.01) {
+        camera.position.y += scrollVelocity;
+        
+        // Clamp camera position to POI bounds
+        const minY = -120;
+        const maxY = 100;
+        camera.position.y = Math.max(Math.min(camera.position.y, maxY), minY);
+    }
+}
 
 // Modified animation loop
 const clock = new THREE.Clock();
@@ -438,6 +475,39 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     
     renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Add these event listeners after window resize handler
+window.addEventListener('mousemove', (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    if (isDragging) {
+        const deltaY = event.clientY - previousMouseY;
+        scrollVelocity = deltaY * 0.1;
+        previousMouseY = event.clientY;
+    }
+});
+
+window.addEventListener('mousedown', (event) => {
+    isDragging = true;
+    previousMouseY = event.clientY;
+    document.body.style.cursor = 'grabbing';
+});
+
+window.addEventListener('mouseup', () => {
+    isDragging = false;
+    document.body.style.cursor = 'grab';
+});
+
+window.addEventListener('click', () => {
+    const intersects = raycaster.intersectObjects(poiObjects, true);
+    if (intersects.length > 0) {
+        const poi = intersects[0].object.parent.userData;
+        showInfoBox(poi);
+    } else {
+        hideInfoBox();
+    }
 });
 
 // Start Animation
