@@ -109,32 +109,25 @@ function createAllStars(count = 5000) {
         const z = -120 - Math.random() * 60; // Depth between -120 and -180
         const position = new THREE.Vector3(x, y, z);
         
-        // Calculate 2D distances ignoring z-coordinate
-        const distances = poiPositions.map(poiPos => {
+        // Find nearest POI using vertical bias to strengthen top-down relationship
+        const distances = poiPositions.map((poiPos, index) => {
             const dx = poiPos.x - position.x;
             const dy = poiPos.y - position.y;
-            return Math.sqrt(dx * dx + dy * dy);
+            // Add slight vertical bias to strengthen relationship with nearest POI vertically
+            const verticalBias = Math.abs(dy) * 0.5;
+            return {
+                index,
+                distance: Math.sqrt(dx * dx + dy * dy) + verticalBias
+            };
         });
         
-        // Find two nearest POIs
-        const sortedIndices = distances.map((d, i) => i)
-            .sort((a, b) => distances[a] - distances[b]);
-        const nearest = sortedIndices[0];
-        const secondNearest = sortedIndices[1];
-        
-        // Blend colors based on relative distances
-        const d1 = distances[nearest];
-        const d2 = distances[secondNearest];
-        const total = d1 + d2;
-        const color1 = poiColors[nearest];
-        const color2 = poiColors[secondNearest];
-        const blendedColor = new THREE.Color()
-            .copy(color1)
-            .lerp(color2, d1 / total);
+        // Get nearest POI
+        const nearest = distances.sort((a, b) => a.distance - b.distance)[0];
+        const color = poiColors[nearest.index];
         
         const material = new THREE.ShaderMaterial({
             uniforms: {
-                color: { value: blendedColor },
+                color: { value: color },
                 time: { value: 0 },
                 cameraY: { value: 0 }
             },
