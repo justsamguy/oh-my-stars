@@ -147,7 +147,7 @@ background.position.z = -200;  // Move further back
 scene.add(background);
 
 // Stars - Modify creation function
-function createAllStars(count = 12000) { // Increased count
+function createAllStars(count = 9000) { // Reduced to 75% of original count
     const group = new THREE.Group();
     
     // Sort POIs by Y position and get bounds
@@ -230,7 +230,7 @@ function createAllStars(count = 12000) { // Increased count
         const star = new THREE.Mesh(geometry, material);
         star.position.set(x, y, z);
         
-        const size = 0.5 + Math.random() * (1.5 - Math.abs(z + 150) / 60); // 50% smaller
+        const size = 0.5 + Math.random() * (2.25 - Math.abs(z + 150) / 60); // Increased max size by 50%
         star.scale.set(size, size, 1);
         star.rotation.z = Math.random() * Math.PI;
         
@@ -241,7 +241,7 @@ function createAllStars(count = 12000) { // Increased count
 }
 
 // Update initial star creation
-const stars = createAllStars(12000); // Match new count
+const stars = createAllStars(9000); // Match new count
 scene.add(stars);
 
 // Define POI geometry before using it
@@ -391,8 +391,8 @@ function createNewInfoBox(poi) {
         border-radius: 5px;
         max-width: 200px;
         pointer-events: auto;
-        transform-origin: center;
-        transform: scale(0);
+        transform-origin: left center;
+        transform: scaleX(0);
         transition: transform 0.2s ease-out;
         border: 1px solid #${poi.color.toString(16)};
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -429,11 +429,8 @@ function createNewInfoBox(poi) {
     infoBoxContainer.appendChild(div);
     
     requestAnimationFrame(() => {
-        div.style.transform = 'scaleY(1) scaleX(0)';
-        setTimeout(() => {
-            div.style.transform = 'scaleY(1) scaleX(1)';
-            content.style.opacity = '1';
-        }, 150);
+        div.style.transform = 'scaleX(1)';
+        content.style.opacity = '1';
     });
     
     currentInfoBox = div;
