@@ -97,12 +97,11 @@ scene.add(background);
 // Stars
 function createAllStars(count = 5000) {
     const group = new THREE.Group();
-    const poiPositions = pois.map(poi => poi.position);
-    const poiColors = pois.map(poi => new THREE.Color(poi.color));
     
-    // Sort POIs by Y position to create vertical zones
-    const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
-    const zoneSize = (sortedPOIs[0].position.y - sortedPOIs[sortedPOIs.length - 1].position.y) / (pois.length - 1);
+    // Define fixed zone boundaries
+    const totalHeight = sortedPOIs[0].position.y - sortedPOIs[sortedPOIs.length - 1].position.y;
+    const zoneHeight = totalHeight / (pois.length - 1);
+    const highestY = sortedPOIs[0].position.y;
     
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
@@ -113,29 +112,21 @@ function createAllStars(count = 5000) {
         const z = -120 - Math.random() * 60;
         const position = new THREE.Vector3(x, y, z);
         
-        // Find the appropriate color zone
-        let colorIndex = 0;
-        for (let j = 0; j < sortedPOIs.length - 1; j++) {
-            const zoneTop = sortedPOIs[j].position.y;
-            const zoneBottom = sortedPOIs[j + 1].position.y;
-            if (y <= zoneTop && y > zoneBottom) {
-                // Calculate blend between two colors
-                const blend = (y - zoneBottom) / (zoneTop - zoneBottom);
-                const color1 = new THREE.Color(sortedPOIs[j].color);
-                const color2 = new THREE.Color(sortedPOIs[j + 1].color);
-                const blendedColor = color1.clone().lerp(color2, 1 - blend);
-                colorIndex = j;
-                var finalColor = blendedColor;
-                break;
-            }
-        }
+        // Determine color zone based on vertical position
+        const normalizedY = highestY - y;  // Distance from top
+        const zoneIndex = Math.min(
+            Math.max(Math.floor(normalizedY / zoneHeight), 0),
+            pois.length - 1
+        );
         
-        // Default to nearest zone if outside bounds
-        if (!finalColor) {
-            const nearestPOI = sortedPOIs[y > sortedPOIs[0].position.y ? 0 : sortedPOIs.length - 1];
-            finalColor = new THREE.Color(nearestPOI.color);
-        }
-
+        // Get the two colors to blend between
+        const color1 = new THREE.Color(sortedPOIs[Math.min(zoneIndex, pois.length - 1)].color);
+        const color2 = new THREE.Color(sortedPOIs[Math.min(zoneIndex + 1, pois.length - 1)].color);
+        
+        // Calculate blend factor within zone
+        const blendFactor = (normalizedY % zoneHeight) / zoneHeight;
+        const finalColor = color1.clone().lerp(color2, blendFactor);
+        
         const material = new THREE.ShaderMaterial({
             uniforms: {
                 color: { value: finalColor },
