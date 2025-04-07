@@ -26,18 +26,28 @@ const aspect = window.innerWidth / window.innerHeight;
 const viewportHeight = 150;
 const viewportWidth = viewportHeight * aspect;
 
-// Update POI data
+// Generate colors across spectrum for POIs
+const generateSpectralColors = (count) => {
+    return Array.from({length: count}, (_, i) => {
+        const hue = (i / count);
+        const color = new THREE.Color().setHSL(hue, 0.7, 0.7);
+        return color.getHex();
+    });
+};
+
+// Update POI data with spectrum colors and halved positions
+const poiColors = generateSpectralColors(10);
 const pois = [
-    { position: new THREE.Vector3(-20, 200, 0), color: 0xffb4a8, name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
-    { position: new THREE.Vector3(30, 150, 0), color: 0xffb4a8, name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
-    { position: new THREE.Vector3(-40, 100, 0), color: 0xffb4a8, name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
-    { position: new THREE.Vector3(20, 50, 0), color: 0xffb4a8, name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
-    { position: new THREE.Vector3(-30, 0, 0), color: 0xffb4a8, name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
-    { position: new THREE.Vector3(40, -50, 0), color: 0xffb4a8, name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
-    { position: new THREE.Vector3(-20, -100, 0), color: 0xffb4a8, name: 'Eden Colony', description: 'Self-sustaining agricultural biosphere.' },
-    { position: new THREE.Vector3(30, -150, 0), color: 0xffb4a8, name: 'Defense Platform Omega', description: 'Strategic military installation.' },
-    { position: new THREE.Vector3(-40, -200, 0), color: 0xffb4a8, name: 'Deep Space Array', description: 'Long-range communications and sensor hub.' },
-    { position: new THREE.Vector3(20, -250, 0), color: 0xffb4a8, name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
+    { position: new THREE.Vector3(-10, 100, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
+    { position: new THREE.Vector3(15, 75, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
+    { position: new THREE.Vector3(-20, 50, 0), color: poiColors[2], name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
+    { position: new THREE.Vector3(10, 25, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
+    { position: new THREE.Vector3(-15, 0, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
+    { position: new THREE.Vector3(20, -25, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
+    { position: new THREE.Vector3(-10, -50, 0), color: poiColors[6], name: 'Eden Colony', description: 'Self-sustaining agricultural biosphere.' },
+    { position: new THREE.Vector3(15, -75, 0), color: poiColors[7], name: 'Defense Platform Omega', description: 'Strategic military installation.' },
+    { position: new THREE.Vector3(-20, -100, 0), color: poiColors[8], name: 'Deep Space Array', description: 'Long-range communications and sensor hub.' },
+    { position: new THREE.Vector3(10, -125, 0), color: poiColors[9], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
 ];
 
 // Camera Setup - Orthographic for 2D-style view
@@ -49,7 +59,7 @@ const camera = new THREE.OrthographicCamera(
     -1000,
     1000
 );
-camera.position.z = 100;
+camera.position.set(0, 100, 100);  // Y position matches highest POI
 camera.lookAt(0, 0, 0);
 
 // Remove header by adjusting renderer setup
@@ -131,7 +141,7 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
                 vSize = size;
                 float twinkleEffect = 1.0 + sin(time * 2.0 + twinkle) * 0.2 * (1.0 - size/3.0);
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-                gl_PointSize = size * twinkleEffect * (3000.0 / -pos.z); // 10x larger
+                gl_PointSize = size * twinkleEffect * (150.0 / -pos.z); // Reduced size
             }
         `,
         fragmentShader: `
@@ -140,12 +150,14 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
             void main() {
                 vec2 center = gl_PointCoord - vec2(0.5);
                 float dist = length(center);
-                float strength = 1.0 - smoothstep(0.1, 0.5, dist); // Wider glow
-                float alpha = strength * (0.3 + 0.7 * (vSize/3.0));
-                gl_FragColor = vec4(color, alpha);
+                float core = 1.0 - smoothstep(0.0, 0.2, dist); // Sharp core
+                float glow = 1.0 - smoothstep(0.2, 0.5, dist); // Soft glow
+                float final = core * 0.6 + glow * 0.4;
+                gl_FragColor = vec4(color, final * (0.3 + 0.7 * (vSize/3.0)));
             }
         `,
         transparent: true,
+        depthWrite: false, // Remove hitbox issue
         blending: THREE.AdditiveBlending
     });
     
@@ -195,7 +207,7 @@ const poiGeometry = new THREE.CircleGeometry(3, 32);
 // Enhanced POI creation with dashed rings and improved glow
 function createPOI(poiData) {
     const group = new THREE.Group();
-    const scale = 0.6; // 60% of original size
+    const scale = 0.3; // Smaller POIs
     
     // Main POI circle (unchanged)
     const material = new THREE.MeshBasicMaterial({ 
@@ -230,7 +242,7 @@ function createPOI(poiData) {
     ring.userData.hoverWidth = 1.0;
     
     // Enhanced glow effect
-    const glowGeometry = new THREE.CircleGeometry(80 * scale, 32); // 10x larger
+    const glowGeometry = new THREE.CircleGeometry(40 * scale, 32); // Half previous size
     const glowMaterial = new THREE.ShaderMaterial({
         uniforms: {
             color: { value: new THREE.Color(poiData.color) },
@@ -249,8 +261,7 @@ function createPOI(poiData) {
             varying vec2 vUv;
             void main() {
                 float dist = length(vUv - vec2(0.5));
-                float strength = 1.0 - smoothstep(0.0, 0.8, dist); // Wider glow
-                strength = pow(strength, 2.0);
+                float strength = pow(1.0 - dist, 3.0); // Smoother falloff
                 float pulse = sin(time * 2.0) * 0.1 + 0.9;
                 gl_FragColor = vec4(color, strength * pulse);
             }
@@ -309,6 +320,9 @@ let isDragging = false;
 let previousMouseY = 0;
 
 function showInfoBox(poi) {
+    if (isInfoBoxOpen) return;
+    isInfoBoxOpen = true;
+    
     const div = document.createElement('div');
     div.className = 'info-box';
     div.style.cssText = `
@@ -360,6 +374,14 @@ function showInfoBox(poi) {
     return div;
 }
 
+function hideInfoBox() {
+    if (currentInfoBox) {
+        isInfoBoxOpen = false;
+        infoBoxContainer.removeChild(currentInfoBox);
+        currentInfoBox = null;
+    }
+}
+
 // Add click handling for info boxes
 let currentInfoBox = null;
 
@@ -373,8 +395,7 @@ function onPoiClick(event) {
         }
         currentInfoBox = showInfoBox(poi.userData);
     } else if (currentInfoBox && !event.target.closest('.info-box')) {
-        infoBoxContainer.removeChild(currentInfoBox);
-        currentInfoBox = null;
+        hideInfoBox();
     }
 }
 
@@ -408,6 +429,7 @@ window.addEventListener('mouseup', onMouseUp);
 // Add smooth scrolling
 let scrollVelocity = 0;
 const scrollDamping = 0.92;
+let isInfoBoxOpen = false;
 
 function updateScroll() {
     if (Math.abs(scrollVelocity) > 0.01) {
@@ -418,8 +440,9 @@ function updateScroll() {
 
 function onWheel(event) {
     event.preventDefault();
-    scrollVelocity += event.deltaY * 0.001;
-    camera.position.y = Math.max(-totalContentHeight/2, Math.min(totalContentHeight/2, camera.position.y));
+    if (!isInfoBoxOpen) {
+        scrollVelocity += event.deltaY * 0.01; // 10x faster
+    }
 }
 
 window.addEventListener('wheel', onWheel, { passive: false });

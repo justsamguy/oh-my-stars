@@ -1,25 +1,22 @@
 <!-- User Input -->
 
-Change the POI colors to be slightly less saturated and more bright. Make a heavier glow gradient (like a bloom effect), rather than a sharp cutoff. Make them slightly smaller (60%).
-Change the foreground stars so their maximum random size is the same size as the POIs and make them circular.
-Change all foregound and background stars to have the same muted colors, a glow/bloom effect that increases with their percieved size, and a subtle twinkle effect that decreases with percieved size.
-Change the relative speed at which stars move, make this effect about 10x of what it is currently.
-Change the background color so that there are no visible seam lines - solid black on all 4 edges.
-Change the Box animation to start from vertical center and expand up and down on the left edge before the current animation that expands it to the right.
-Change the Box style to have a thin line around it in the color of the POI
-Change the connecting lines to be white
-Add the ability to use a scroll wheel to scroll, just like a webpage.
+Change the foreground stars to be smaller, and make sure the original shape is visible- not just a soft color. Also remove the opaque black hitboxes as they are visible when one star overlaps another. 
+Change the POI stars to be smaller too, and make their glow effect about half the size and smoother (i can still see the edges). Make each POI a different color, from one end of the color spectrum to the other.
+Change the box so that when it is open, prevent it from re-opening.
+Change the scroll speed when using a scroll wheel to be 10x faster, but keep the same deceleration speed.
+Change the entire map to be 50% smaller. The distance from the top of the POIs to the bottom is too much for a user to navigate.
+Change the loading so that the view starts at the top of the POIs, not the center.
 
 
 
 
 <!-- Agent Output -->
 
-Update POI colors and size
-Enhance star system with improved glow and twinkling
-Improve background gradient blending
-Update info box animation and style
-Add wheel scrolling support
-Make connecting lines white
-Increase star parallax effect
-
+Make stars smaller with visible cores and soft glows
+Remove star overlap artifacts
+Make POIs smaller with smoother glow
+Distribute POI colors across spectrum
+Prevent info box reopening when open
+Speed up scrolling
+Reduce map scale by 50%
+Start view at top of map
