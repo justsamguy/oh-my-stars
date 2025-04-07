@@ -38,10 +38,10 @@ const generateSpectralColors = (count) => {
 // Update POI data with spectrum colors and new positions
 const poiColors = generateSpectralColors(7);
 const pois = [
-    { position: new THREE.Vector3(-25, 100, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
+    { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
     { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
     { position: new THREE.Vector3(35, -20, 0), color: poiColors[2], name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
-    { position: new THREE.Vector3(40, -30, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
+    { position: new THREE.Vector3(40, -80, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
     { position: new THREE.Vector3(-35, -130, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
     { position: new THREE.Vector3(15, -190, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
     { position: new THREE.Vector3(-20, -240, 0), color: poiColors[6], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
@@ -148,9 +148,10 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
                 vec2 center = gl_PointCoord - vec2(0.5);
                 float dist = length(center);
                 float core = 1.0 - smoothstep(0.0, 0.15, dist);
-                float glow = exp(-2.0 * dist);
-                float final = core + glow * 0.5;
-                gl_FragColor = vec4(color, final * (0.6 + 0.8 * (vSize/3.0)));
+                float glow = exp(-1.5 * dist); // Stronger bloom
+                float bloom = smoothstep(0.5, 0.0, dist) * 0.8; // Additional bloom layer
+                float final = core + glow * 0.7 + bloom;
+                gl_FragColor = vec4(color + vec3(0.2 * bloom), final * (0.6 + 1.2 * (vSize/3.0)));
             }
         `,
         transparent: true,
@@ -162,10 +163,10 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
 }
 
 const starLayers = [
-    createStarField(2000, 0.5, 1.5, -150, 0.02),  // Far background
-    createStarField(1500, 1.0, 2.5, -125, 0.03),  // Background
-    createStarField(1000, 1.5, 3.0, -100, 0.04),  // Middle
-    createStarField(500, 2.0, 4.0, -75, 0.05)     // Near background
+    createStarField(2000, 1.5, 4.5, -150, 0.007),  // Far background (1/3 speed)
+    createStarField(1500, 3.0, 7.5, -125, 0.01),   // Background
+    createStarField(1000, 4.5, 9.0, -100, 0.013),  // Middle
+    createStarField(500, 6.0, 12.0, -75, 0.017)    // Near background
 ];
 starLayers.forEach(layer => scene.add(layer));
 
@@ -222,7 +223,7 @@ function createPOI(poiData) {
     const points = [];
     for (let i = 0; i <= segments; i++) {
         const theta = (i / segments) * Math.PI * 2;
-        points.push(new THREE.Vector3(Math.cos(theta) * 4, Math.sin(theta) * 4, 0));
+        points.push(new THREE.Vector3(Math.cos(theta) * 3, Math.sin(theta) * 3, 0)); // Reduced from 4 to 3
     }
     ringGeometry.setFromPoints(points);
     
