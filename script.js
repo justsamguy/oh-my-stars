@@ -102,7 +102,6 @@ function createAllStars(count = 5000) {
     const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
     const highestY = sortedPOIs[0].position.y;
     const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y;
-    const totalHeight = highestY - lowestY;
     
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
@@ -112,10 +111,25 @@ function createAllStars(count = 5000) {
         const y = (Math.random() - 0.5) * viewportHeight * 6;
         const z = -120 - Math.random() * 60;
         
-        // Find the nearest POIs above and below the star
+        // Find which POI segment the star belongs to
         let upperPOI = sortedPOIs[0];
         let lowerPOI = sortedPOIs[sortedPOIs.length - 1];
         
+        // If star is above highest POI, use highest POI color
+        if (y > highestY) {
+            const finalColor = new THREE.Color(upperPOI.color);
+            // ...rest of star creation with finalColor...
+            continue;
+        }
+        
+        // If star is below lowest POI, use lowest POI color
+        if (y < lowestY) {
+            const finalColor = new THREE.Color(lowerPOI.color);
+            // ...rest of star creation with finalColor...
+            continue;
+        }
+        
+        // Find the POI segment the star is between
         for (let j = 0; j < sortedPOIs.length - 1; j++) {
             if (y <= sortedPOIs[j].position.y && y > sortedPOIs[j + 1].position.y) {
                 upperPOI = sortedPOIs[j];
@@ -126,7 +140,8 @@ function createAllStars(count = 5000) {
         
         // Calculate blend factor based on position between POIs
         const segmentHeight = upperPOI.position.y - lowerPOI.position.y;
-        const blendFactor = (upperPOI.position.y - y) / segmentHeight;
+        const relativePos = upperPOI.position.y - y;
+        const blendFactor = relativePos / segmentHeight;
         
         const color1 = new THREE.Color(upperPOI.color);
         const color2 = new THREE.Color(lowerPOI.color);
