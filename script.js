@@ -23,12 +23,6 @@ document.head.insertAdjacentHTML('beforeend', `
 // Scene Setup
 const scene = new THREE.Scene();
 
-// Calculate proper viewport dimensions based on POI range
-const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
-const viewportHeight = poiHeight * 1.2; // Add 20% padding
-const aspect = window.innerWidth / window.innerHeight;
-const viewportWidth = viewportHeight * aspect;
-
 // Generate colors across spectrum for POIs
 const generateSpectralColors = (count) => {
     return Array.from({length: count}, (_, i) => {
@@ -38,7 +32,7 @@ const generateSpectralColors = (count) => {
     });
 };
 
-// Update POI data with spectrum colors and new positions
+// Define POIs first
 const poiColors = generateSpectralColors(7);
 const pois = [
     { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
@@ -50,7 +44,13 @@ const pois = [
     { position: new THREE.Vector3(-20, -240, 0), color: poiColors[6], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
 ];
 
-// Camera Setup - Orthographic for 2D-style view
+// Calculate viewport dimensions after POIs are defined
+const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
+const viewportHeight = poiHeight * 1.2; // Add 20% padding
+const aspect = window.innerWidth / window.innerHeight;
+const viewportWidth = viewportHeight * aspect;
+
+// Camera setup with corrected viewport
 const camera = new THREE.OrthographicCamera(
     viewportWidth / -2,
     viewportWidth / 2,
@@ -59,8 +59,10 @@ const camera = new THREE.OrthographicCamera(
     -1000,
     1000
 );
-camera.position.set(0, pois[0].position.y, 100);  // Y position matches highest POI
-camera.lookAt(0, 0, 0);
+
+// Set camera position relative to POI range
+camera.position.set(0, (pois[0].position.y + pois[pois.length - 1].position.y) / 2, 100);
+camera.lookAt(0, camera.position.y, 0);
 
 // Remove header by adjusting renderer setup
 const canvas = document.createElement('canvas');
