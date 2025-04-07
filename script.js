@@ -100,34 +100,45 @@ function createAllStars(count = 5000) {
     const poiPositions = pois.map(poi => poi.position);
     const poiColors = pois.map(poi => new THREE.Color(poi.color));
     
+    // Sort POIs by Y position to create vertical zones
+    const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
+    const zoneSize = (sortedPOIs[0].position.y - sortedPOIs[sortedPOIs.length - 1].position.y) / (pois.length - 1);
+    
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
         
         // Random position
         const x = (Math.random() - 0.5) * viewportWidth * 3;
         const y = (Math.random() - 0.5) * viewportHeight * 6;
-        const z = -120 - Math.random() * 60; // Depth between -120 and -180
+        const z = -120 - Math.random() * 60;
         const position = new THREE.Vector3(x, y, z);
         
-        // Find nearest POI using vertical bias to strengthen top-down relationship
-        const distances = poiPositions.map((poiPos, index) => {
-            const dx = poiPos.x - position.x;
-            const dy = poiPos.y - position.y;
-            // Add slight vertical bias to strengthen relationship with nearest POI vertically
-            const verticalBias = Math.abs(dy) * 0.5;
-            return {
-                index,
-                distance: Math.sqrt(dx * dx + dy * dy) + verticalBias
-            };
-        });
+        // Find the appropriate color zone
+        let colorIndex = 0;
+        for (let j = 0; j < sortedPOIs.length - 1; j++) {
+            const zoneTop = sortedPOIs[j].position.y;
+            const zoneBottom = sortedPOIs[j + 1].position.y;
+            if (y <= zoneTop && y > zoneBottom) {
+                // Calculate blend between two colors
+                const blend = (y - zoneBottom) / (zoneTop - zoneBottom);
+                const color1 = new THREE.Color(sortedPOIs[j].color);
+                const color2 = new THREE.Color(sortedPOIs[j + 1].color);
+                const blendedColor = color1.clone().lerp(color2, 1 - blend);
+                colorIndex = j;
+                var finalColor = blendedColor;
+                break;
+            }
+        }
         
-        // Get nearest POI
-        const nearest = distances.sort((a, b) => a.distance - b.distance)[0];
-        const color = poiColors[nearest.index];
-        
+        // Default to nearest zone if outside bounds
+        if (!finalColor) {
+            const nearestPOI = sortedPOIs[y > sortedPOIs[0].position.y ? 0 : sortedPOIs.length - 1];
+            finalColor = new THREE.Color(nearestPOI.color);
+        }
+
         const material = new THREE.ShaderMaterial({
             uniforms: {
-                color: { value: color },
+                color: { value: finalColor },
                 time: { value: 0 },
                 cameraY: { value: 0 }
             },
