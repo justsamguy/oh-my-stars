@@ -22,8 +22,11 @@ document.head.insertAdjacentHTML('beforeend', `
 
 // Scene Setup
 const scene = new THREE.Scene();
+
+// Calculate proper viewport dimensions based on POI range
+const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
+const viewportHeight = poiHeight * 1.2; // Add 20% padding
 const aspect = window.innerWidth / window.innerHeight;
-const viewportHeight = 150;
 const viewportWidth = viewportHeight * aspect;
 
 // Generate colors across spectrum for POIs
@@ -56,7 +59,7 @@ const camera = new THREE.OrthographicCamera(
     -1000,
     1000
 );
-camera.position.set(0, 100, 100);  // Y position matches highest POI
+camera.position.set(0, pois[0].position.y, 100);  // Y position matches highest POI
 camera.lookAt(0, 0, 0);
 
 // Remove header by adjusting renderer setup
@@ -88,7 +91,7 @@ document.body.appendChild(infoBoxContainer);
 
 // Background - Update size to match full scrollable area
 const scrollHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
-const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, scrollHeight * 2);
+const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, viewportHeight * 1.5);
 const bgMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 
 const background = new THREE.Mesh(bgGeometry, bgMaterial);
