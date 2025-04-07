@@ -35,8 +35,7 @@ const generateSpectralColors = (count) => {
     });
 };
 
-// Update POI data with spectrum colors and halved positions
-const poiColors = generateSpectralColors(10);
+const poiColors = generateSpectralColors(7); // Changed from 10 to 7
 const pois = [
     { position: new THREE.Vector3(-25, 90, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
     { position: new THREE.Vector3(40, 45, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
@@ -316,8 +315,13 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let isDragging = false;
 let previousMouseY = 0;
+let currentInfoBox = null;
 
 function showInfoBox(poi) {
+    if (currentInfoBox) {
+        infoBoxContainer.removeChild(currentInfoBox);
+    }
+    
     const div = document.createElement('div');
     div.className = 'info-box';
     div.style.cssText = `
@@ -334,23 +338,42 @@ function showInfoBox(poi) {
         border: 1px solid #${poi.color.toString(16)};
     `;
     
-    // Two-step animation
-    requestAnimationFrame(() => {
-        div.style.transform = 'scaleY(1) scaleX(0)';
-        setTimeout(() => {
-            div.style.transformOrigin = 'left center';
-            div.style.transform = 'scaleY(1) scaleX(1)';
-        }, 150);
-    });
-    
     const content = document.createElement('div');
     content.style.opacity = '0';
     content.style.transition = 'opacity 0.2s ease-out 0.2s';
     content.innerHTML = `
         <h3 style="margin: 0 0 10px 0; color: #${poi.color.toString(16)}">${poi.name}</h3>
-                <p style="margin: 0">${poi.description}</p>`;
-        
+        <p style="margin: 0">${poi.description}</p>
+    `;
+    
+    div.appendChild(content);
+    
+    const worldPos = poi.position.clone();
+    const screenPos = worldPos.project(camera);
+    const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+    const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+    
+    div.style.left = `${x + 20}px`;
+    div.style.top = `${y - 20}px`;
+    
+    infoBoxContainer.appendChild(div);
+    
+    requestAnimationFrame(() => {
+        div.style.transform = 'scaleY(1) scaleX(0)';
+        setTimeout(() => {
+            div.style.transform = 'scaleY(1) scaleX(1)';
             content.style.opacity = '1';
-            div.appendChild(content);
-            infoBoxContainer.appendChild(div);
-        }
+        }, 150);
+    });
+    
+    currentInfoBox = div;
+    return div;
+}
+
+// Update scroll behavior
+function onWheel(event) {
+    event.preventDefault();
+    scrollVelocity += event.deltaY * -0.01;
+}
+
+// ...rest of existing code...
