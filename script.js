@@ -38,13 +38,13 @@ const generateSpectralColors = (count) => {
 // Update POI data with spectrum colors and new positions
 const poiColors = generateSpectralColors(7);
 const pois = [
-    { position: new THREE.Vector3(-25, 50, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
-    { position: new THREE.Vector3(-20, 15, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
-    { position: new THREE.Vector3(35, -10, 0), color: poiColors[2], name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
-    { position: new THREE.Vector3(40, -15, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
-    { position: new THREE.Vector3(-35, -65, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
-    { position: new THREE.Vector3(15, -95, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
-    { position: new THREE.Vector3(-20, -120, 0), color: poiColors[6], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
+    { position: new THREE.Vector3(-25, 100, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
+    { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
+    { position: new THREE.Vector3(35, -20, 0), color: poiColors[2], name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
+    { position: new THREE.Vector3(40, -30, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
+    { position: new THREE.Vector3(-35, -130, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
+    { position: new THREE.Vector3(15, -190, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
+    { position: new THREE.Vector3(-20, -240, 0), color: poiColors[6], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
 ];
 
 // Camera Setup - Orthographic for 2D-style view
@@ -147,10 +147,10 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
             void main() {
                 vec2 center = gl_PointCoord - vec2(0.5);
                 float dist = length(center);
-                float core = 1.0 - smoothstep(0.0, 0.2, dist); // Sharp core
-                float glow = 1.0 - smoothstep(0.2, 0.5, dist); // Soft glow
-                float final = core * 0.7 + glow * 0.6;
-                gl_FragColor = vec4(color, final * (0.8 + 1.4 * (vSize/3.0))); // 1.7x stronger glow
+                float core = 1.0 - smoothstep(0.0, 0.15, dist);
+                float glow = exp(-2.0 * dist);
+                float final = core + glow * 0.5;
+                gl_FragColor = vec4(color, final * (0.6 + 0.8 * (vSize/3.0)));
             }
         `,
         transparent: true,
@@ -162,10 +162,10 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
 }
 
 const starLayers = [
-    createStarField(1000, 0.5, 1.0, -100, 0.05),  // Background
-    createStarField(800, 1.0, 2.0, -50, 0.15),    // Middle
-    createStarField(1200, 2.0, 4.0, -35, 0.25),   // New intermediate layer
-    createStarField(600, 4.0, 6.0, -25, 0.35)     // Foreground (2x size, 3x count)
+    createStarField(2000, 0.5, 1.5, -150, 0.02),  // Far background
+    createStarField(1500, 1.0, 2.5, -125, 0.03),  // Background
+    createStarField(1000, 1.5, 3.0, -100, 0.04),  // Middle
+    createStarField(500, 2.0, 4.0, -75, 0.05)     // Near background
 ];
 starLayers.forEach(layer => scene.add(layer));
 
@@ -326,8 +326,21 @@ const MAX_SCROLL_SPEED = 2;
 
 function showInfoBox(poi) {
     if (currentInfoBox) {
-        hideInfoBox();
+        const oldBox = currentInfoBox;
+        currentInfoBox = null;
+        oldBox.style.transform = 'scaleY(1) scaleX(0)';
+        setTimeout(() => {
+            oldBox.remove();
+            if (!currentInfoBox) {
+                createNewInfoBox(poi);
+            }
+        }, 300);
+    } else {
+        createNewInfoBox(poi);
     }
+}
+
+function createNewInfoBox(poi) {
     isInfoBoxOpen = true;
     
     const div = document.createElement('div');
@@ -412,9 +425,9 @@ function updateScroll() {
     if (Math.abs(scrollVelocity) > 0.01) {
         camera.position.y += scrollVelocity;
         
-        // Clamp camera position to POI bounds
-        const minY = -120;
-        const maxY = 100;
+        // Update clamp values to match POI bounds
+        const minY = -240;  // Match lowest POI
+        const maxY = 100;   // Match highest POI
         camera.position.y = Math.max(Math.min(camera.position.y, maxY), minY);
     }
 }
