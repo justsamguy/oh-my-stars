@@ -98,10 +98,12 @@ scene.add(background);
 function createAllStars(count = 5000) {
     const group = new THREE.Group();
     
-    // Define fixed zone boundaries
-    const totalHeight = sortedPOIs[0].position.y - sortedPOIs[sortedPOIs.length - 1].position.y;
-    const zoneHeight = totalHeight / (pois.length - 1);
+    // Sort POIs by Y position first
+    const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
     const highestY = sortedPOIs[0].position.y;
+    const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y;
+    const totalHeight = highestY - lowestY;
+    const zoneHeight = totalHeight / (pois.length - 1);
     
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
@@ -112,21 +114,22 @@ function createAllStars(count = 5000) {
         const z = -120 - Math.random() * 60;
         const position = new THREE.Vector3(x, y, z);
         
-        // Determine color zone based on vertical position
-        const normalizedY = highestY - y;  // Distance from top
+        // Calculate relative position in zones
+        const relativeY = y - lowestY;
         const zoneIndex = Math.min(
-            Math.max(Math.floor(normalizedY / zoneHeight), 0),
-            pois.length - 1
+            Math.max(Math.floor((totalHeight - relativeY) / zoneHeight), 0),
+            pois.length - 2
         );
         
-        // Get the two colors to blend between
-        const color1 = new THREE.Color(sortedPOIs[Math.min(zoneIndex, pois.length - 1)].color);
-        const color2 = new THREE.Color(sortedPOIs[Math.min(zoneIndex + 1, pois.length - 1)].color);
+        // Get colors to blend
+        const color1 = new THREE.Color(sortedPOIs[zoneIndex].color);
+        const color2 = new THREE.Color(sortedPOIs[zoneIndex + 1].color);
         
-        // Calculate blend factor within zone
-        const blendFactor = (normalizedY % zoneHeight) / zoneHeight;
+        // Calculate blend within zone
+        const zoneY = relativeY - (zoneIndex * zoneHeight);
+        const blendFactor = Math.max(0, Math.min(1, zoneY / zoneHeight));
         const finalColor = color1.clone().lerp(color2, blendFactor);
-        
+
         const material = new THREE.ShaderMaterial({
             uniforms: {
                 color: { value: finalColor },
