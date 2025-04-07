@@ -17,16 +17,6 @@ document.head.insertAdjacentHTML('beforeend', `
             top: 0;
             left: 0;
         }
-        #header, #footer {
-            position: fixed;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: #000;
-            z-index: 1000;
-        }
-        #header { top: 0; }
-        #footer { bottom: 0; }
         .info-box {
             font-family: 'Courier New', monospace !important;
         }
@@ -57,15 +47,6 @@ document.head.insertAdjacentHTML('beforeend', `
     </style>
 `);
 
-// Add header and footer
-const header = document.createElement('div');
-header.id = 'header';
-document.body.appendChild(header);
-
-const footer = document.createElement('div');
-footer.id = 'footer';
-document.body.appendChild(footer);
-
 // Scene Setup
 const scene = new THREE.Scene();
 
@@ -92,7 +73,7 @@ const pois = [
 
 // Calculate viewport dimensions after POIs are defined
 const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
-const viewportHeight = poiHeight * 1.2; // Add 20% padding
+const viewportHeight = poiHeight * 1.1; // Change from 1.2 to 1.1 (10% padding)
 const aspect = window.innerWidth / window.innerHeight;
 const viewportWidth = viewportHeight * aspect;
 
