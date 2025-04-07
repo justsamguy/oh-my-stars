@@ -169,22 +169,14 @@ starLayers.forEach(layer => scene.add(layer));
 function createStars(count = 300) {
     const group = new THREE.Group();
     
-    // Create color groups (warm, cool, neutral)
-    const colorGroups = [
-        { base: new THREE.Color(1, 0.98, 0.9), variance: 0.05 },    // Warm whites
-        { base: new THREE.Color(0.9, 0.95, 1), variance: 0.05 },    // Cool whites
-        { base: new THREE.Color(0.98, 0.98, 0.98), variance: 0.02 } // Pure whites
-    ];
+    // Use POI colors for star groups
+    const starColors = pois.map(poi => new THREE.Color(poi.color));
     
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
         
-        // Select color group and apply random variance
-        const colorGroup = colorGroups[Math.floor(i / count * colorGroups.length)];
-        const color = colorGroup.base.clone();
-        color.r += (Math.random() - 0.5) * colorGroup.variance;
-        color.g += (Math.random() - 0.5) * colorGroup.variance;
-        color.b += (Math.random() - 0.5) * colorGroup.variance;
+        // Select color from POI colors
+        const color = starColors[Math.floor(i / count * starColors.length)].clone();
         
         const material = new THREE.ShaderMaterial({
             uniforms: {
@@ -204,9 +196,14 @@ function createStars(count = 300) {
                 varying vec2 vUv;
                 void main() {
                     float dist = length(vUv - vec2(0.5));
-                    float strength = smoothstep(1.0, 0.0, dist * 2.0);
+                    // Create bright core
+                    float core = smoothstep(0.2, 0.0, dist);
+                    // Create smaller glow
+                    float glow = smoothstep(1.0, 0.0, dist * 4.0);
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
-                    gl_FragColor = vec4(color, strength * pulse);
+                    // Combine core and glow
+                    float brightness = core + glow * 0.5;
+                    gl_FragColor = vec4(color, brightness * pulse);
                 }
             `,
             transparent: true,
@@ -216,16 +213,19 @@ function createStars(count = 300) {
 
         const star = new THREE.Mesh(geometry, material);
         
-        // Group stars by color spatially
-        const angle = (i / count) * Math.PI * 2;
-        const radius = Math.random() * viewportWidth;
+        // Group by color spatially in arcs
+        const colorIndex = Math.floor(i / count * starColors.length);
+        const angleOffset = (2 * Math.PI * colorIndex) / starColors.length;
+        const angle = angleOffset + (i / count) * (Math.PI / starColors.length) * 2 + (Math.random() - 0.5) * 0.5;
+        const radius = (0.3 + Math.random() * 0.7) * viewportWidth;
+        
         star.position.set(
             Math.cos(angle) * radius,
             Math.sin(angle) * radius,
             -50
         );
         
-        const size = 2 + Math.random() * 4;
+        const size = 1 + Math.random() * 2; // Smaller size range
         star.scale.set(size, size, 1);
         star.rotation.z = Math.random() * Math.PI;
         
