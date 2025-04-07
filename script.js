@@ -169,14 +169,26 @@ starLayers.forEach(layer => scene.add(layer));
 function createStars(count = 300) {
     const group = new THREE.Group();
     
+    // Create color groups (warm, cool, neutral)
+    const colorGroups = [
+        { base: new THREE.Color(1, 0.98, 0.9), variance: 0.05 },    // Warm whites
+        { base: new THREE.Color(0.9, 0.95, 1), variance: 0.05 },    // Cool whites
+        { base: new THREE.Color(0.98, 0.98, 0.98), variance: 0.02 } // Pure whites
+    ];
+    
     for (let i = 0; i < count; i++) {
-        // Create geometry for each star
         const geometry = new THREE.CircleGeometry(1, 32);
         
-        // Create glow material using same shader as POIs
+        // Select color group and apply random variance
+        const colorGroup = colorGroups[Math.floor(i / count * colorGroups.length)];
+        const color = colorGroup.base.clone();
+        color.r += (Math.random() - 0.5) * colorGroup.variance;
+        color.g += (Math.random() - 0.5) * colorGroup.variance;
+        color.b += (Math.random() - 0.5) * colorGroup.variance;
+        
         const material = new THREE.ShaderMaterial({
             uniforms: {
-                color: { value: new THREE.Color(1, 0.95, 0.8) },
+                color: { value: color },
                 time: { value: 0 }
             },
             vertexShader: `
@@ -204,18 +216,17 @@ function createStars(count = 300) {
 
         const star = new THREE.Mesh(geometry, material);
         
-        // Random position
+        // Group stars by color spatially
+        const angle = (i / count) * Math.PI * 2;
+        const radius = Math.random() * viewportWidth;
         star.position.set(
-            (Math.random() - 0.5) * viewportWidth * 2,
-            (Math.random() - 0.5) * viewportHeight * 2,
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius,
             -50
         );
         
-        // Random size between 2 and 6
         const size = 2 + Math.random() * 4;
         star.scale.set(size, size, 1);
-        
-        // Random rotation for variation
         star.rotation.z = Math.random() * Math.PI;
         
         group.add(star);
