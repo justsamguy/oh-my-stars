@@ -178,31 +178,29 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 color: { value: finalColor },
                 time: { value: 0 },
                 cameraY: { value: 0 },
-                mousePosition: { value: new THREE.Vector3(-10000, -10000, 0) },
-                viewportSize: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+                mousePosition: { value: new THREE.Vector3(-10000, -10000, 0) }
             },
             vertexShader: `
                 uniform float cameraY;
                 varying vec2 vUv;
-                varying vec3 vWorldPosition;
+                varying vec3 vViewPosition;
                 
                 void main() {
                     vUv = uv;
                     vec3 pos = position;
                     float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0;
                     pos.y -= cameraY * parallaxStrength;
-                    vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
-                    vWorldPosition = worldPosition.xyz;
-                    gl_Position = projectionMatrix * viewMatrix * worldPosition;
+                    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+                    vViewPosition = mvPosition.xyz;
+                    gl_Position = projectionMatrix * mvPosition;
                 }
             `,
             fragmentShader: `
                 uniform vec3 color;
                 uniform float time;
                 uniform vec3 mousePosition;
-                uniform vec2 viewportSize;
                 varying vec2 vUv;
-                varying vec3 vWorldPosition;
+                varying vec3 vViewPosition;
                 
                 void main() {
                     float dist = length(vUv - vec2(0.5));
@@ -211,8 +209,10 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
                     float brightness = core + glow * 0.3;
                     
-                    // Calculate distance to mouse in world coordinates
-                    float mouseDistance = length(mousePosition - vWorldPosition);
+                    // Calculate planar distance to mouse (ignore z-component)
+                    vec3 worldPos = (inverse(viewMatrix) * vec4(vViewPosition, 1.0)).xyz;
+                    vec2 deltaPos = worldPos.xy - mousePosition.xy;
+                    float mouseDistance = length(deltaPos);
                     float colorMix = 1.0 - smoothstep(40.0, 300.0, mouseDistance);
                     
                     vec3 finalColor = mix(vec3(1.0), color, colorMix);
@@ -239,13 +239,29 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
 
 // Add this function after createAllStars
 function getWorldPosition(clientX, clientY) {
+    // Convert mouse position to normalized device coordinates
     const rect = renderer.domElement.getBoundingClientRect();
     const x = ((clientX - rect.left) / rect.width) * 2 - 1;
     const y = -((clientY - rect.top) / rect.height) * 2 + 1;
     
-    const vector = new THREE.Vector3(x, y, 0);
-    vector.unproject(camera);
-    return vector;
+    // Create a vector at the near clipping plane
+    const near = new THREE.Vector3(x, y, -1);
+    near.unproject(camera);
+    
+    // Create a vector at the far clipping plane
+    const far = new THREE.Vector3(x, y, 1);
+    far.unproject(camera);
+    
+    // Calculate the ray direction and normalize it
+    const direction = far.sub(near).normalize();
+    
+    // Calculate intersection with z=0 plane
+    const t = -near.z / direction.z;
+    return new THREE.Vector3(
+        near.x + direction.x * t,
+        near.y + direction.y * t,
+        0
+    );
 }
 
 // Update initial star creation
@@ -530,13 +546,6 @@ function animate() {
         (-mouse.y * viewportHeight / 2) + camera.position.y
     );
 
-    // Update star uniforms
-    stars.children.forEach(star => {
-        star.material.uniforms.time.value = elapsedTime;
-        star.material.uniforms.cameraY.value = camera.position.y;
-        star.material.uniforms.mousePosition.value = mouseWorld;
-    });
-
     updateScroll();
     
     renderer.clear();         // Clear manually
@@ -553,10 +562,6 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     
     renderer.setSize(window.innerWidth, window.innerHeight);
-    
-    stars.children.forEach(star => {
-        star.material.uniforms.viewportSize.value.set(window.innerWidth, window.innerHeight);
-    });
 });
 
 // Add these event listeners after window resize handler
@@ -566,8 +571,9 @@ window.addEventListener('mousemove', (event) => {
     
     const worldPos = getWorldPosition(event.clientX, event.clientY);
     
+    // Update all stars with new mouse position
     stars.children.forEach(star => {
-        star.material.uniforms.mousePosition.value = worldPos;
+        star.material.uniforms.mousePosition.value.copy(worldPos);
     });
     
     if (isDragging) {
