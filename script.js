@@ -35,15 +35,16 @@ const generateSpectralColors = (count) => {
     });
 };
 
-const poiColors = generateSpectralColors(7); // Changed from 10 to 7
+// Update POI data with spectrum colors and new positions
+const poiColors = generateSpectralColors(7);
 const pois = [
-    { position: new THREE.Vector3(-25, 90, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
-    { position: new THREE.Vector3(40, 45, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
+    { position: new THREE.Vector3(-25, 100, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
+    { position: new THREE.Vector3(40, 55, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
     { position: new THREE.Vector3(-10, 20, 0), color: poiColors[2], name: 'K\'tharr Station', description: 'Major trade hub and diplomatic center.' },
     { position: new THREE.Vector3(30, -15, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
-    { position: new THREE.Vector3(-35, -40, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
-    { position: new THREE.Vector3(15, -75, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
-    { position: new THREE.Vector3(-20, -95, 0), color: poiColors[6], name: 'Eden Colony', description: 'Self-sustaining agricultural biosphere.' }
+    { position: new THREE.Vector3(-35, -45, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
+    { position: new THREE.Vector3(15, -85, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
+    { position: new THREE.Vector3(-20, -120, 0), color: poiColors[6], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
 ];
 
 // Camera Setup - Orthographic for 2D-style view
@@ -148,8 +149,8 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
                 float dist = length(center);
                 float core = 1.0 - smoothstep(0.0, 0.2, dist); // Sharp core
                 float glow = 1.0 - smoothstep(0.2, 0.5, dist); // Soft glow
-                float final = (core * 0.6 + glow * 0.4) * 1.7; // 1.7x stronger glow
-                gl_FragColor = vec4(color, final * (0.3 + 0.7 * (vSize/3.0)));
+                float final = core * 0.6 + glow * 0.4;
+                gl_FragColor = vec4(color, final * (0.51 + 1.19 * (vSize/3.0))); // 1.7x stronger glow
             }
         `,
         transparent: true,
@@ -163,7 +164,7 @@ function createStarField(count, minSize, maxSize, depth, speedFactor) {
 const starLayers = [
     createStarField(1000, 0.5, 1.0, -100, 0.1),  // Background
     createStarField(500, 1.0, 2.0, -50, 0.3),    // Middle
-    createStarField(600, 4.0, 6.0, -25, 0.5)     // Foreground (2x size, 3x quantity)
+    createStarField(600, 4.0, 6.0, -25, 0.5)     // Foreground (2x size, 3x count)
 ];
 starLayers.forEach(layer => scene.add(layer));
 
@@ -257,8 +258,7 @@ function createPOI(poiData) {
             varying vec2 vUv;
             void main() {
                 float dist = length(vUv - vec2(0.5));
-                float strength = 1.0 - smoothstep(0.0, 1.0, dist * 1.2); // Smoother edge falloff
-                strength = pow(strength, 2.0);
+                float strength = smoothstep(1.0, 0.0, dist * 2.0); // Smoother falloff
                 float pulse = sin(time * 2.0) * 0.1 + 0.9;
                 gl_FragColor = vec4(color, strength * pulse);
             }
@@ -319,8 +319,9 @@ let currentInfoBox = null;
 
 function showInfoBox(poi) {
     if (currentInfoBox) {
-        infoBoxContainer.removeChild(currentInfoBox);
+        hideInfoBox();
     }
+    isInfoBoxOpen = true;
     
     const div = document.createElement('div');
     div.className = 'info-box';
@@ -373,7 +374,71 @@ function showInfoBox(poi) {
 // Update scroll behavior
 function onWheel(event) {
     event.preventDefault();
-    scrollVelocity += event.deltaY * -0.01;
+    if (!isInfoBoxOpen) {
+        scrollVelocity -= event.deltaY * 0.01; // Inverted direction
+    }
 }
 
-// ...rest of existing code...
+window.addEventListener('wheel', onWheel, { passive: false });
+
+// Modified animation loop
+const clock = new THREE.Clock();
+
+function animate() {
+    requestAnimationFrame(animate);
+    
+    const elapsedTime = clock.getElapsedTime();
+    
+    // Update POI elements
+    poiObjects.forEach(poi => {
+        const ring = poi.children[1];
+        const glow = poi.children[2];
+        ring.rotation.z += 0.005;
+        if (glow && glow.material.uniforms) {
+            glow.material.uniforms.time.value = elapsedTime;
+        }
+        
+        // Add hover effect
+        const intersects = raycaster.intersectObject(poi, true);
+        if (intersects.length > 0) {
+            poi.scale.lerp(new THREE.Vector3(1.2, 1.2, 1.2), 0.1);
+            ring.material.linewidth = ring.userData.hoverWidth;
+            document.body.style.cursor = 'pointer';
+        } else {
+            poi.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+            ring.material.linewidth = ring.userData.baseWidth;
+        }
+    });
+    
+    // Update raycasting
+    raycaster.setFromCamera(mouse, camera);
+    
+    if (raycaster.intersectObjects(poiObjects, true).length === 0) {
+        document.body.style.cursor = 'grab';
+    }
+    
+    const cameraY = camera.position.y;
+    starLayers.forEach(layer => {
+        layer.material.uniforms.cameraY.value = cameraY;
+        layer.material.uniforms.time.value = elapsedTime;
+    });
+    
+    updateScroll();
+    
+    renderer.render(scene, camera);
+}
+
+// Handle Window Resize
+window.addEventListener('resize', () => {
+    const newAspect = window.innerWidth / window.innerHeight;
+    const newWidth = viewportHeight * newAspect;
+    
+    camera.left = newWidth / -2;
+    camera.right = newWidth / 2;
+    camera.updateProjectionMatrix();
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Start Animation
+animate();

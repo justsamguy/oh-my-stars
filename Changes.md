@@ -9,13 +9,11 @@ Invert the scrolling direction, it's backwards right now.
 
 
 
-
 <!-- Agent Output -->
 
-Reduce POIs to 7 with unique positioning
-Increase foreground star size and quantity
-Enhance glow effects for stars
-Smooth POI glow edges
-Invert scroll direction
-Remove info box opening restriction
-
+Triple the number of foreground stars and double their size
+Reduce POIs to 7 with unique positioning and redistributed colors
+Make POI glow edges smoother using smoothstep
+Increase star glow intensity by 1.7x
+Allow info boxes to reopen by removing the early return
+Invert scroll direction by changing += to -=
