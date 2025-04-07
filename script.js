@@ -98,12 +98,11 @@ scene.add(background);
 function createAllStars(count = 5000) {
     const group = new THREE.Group();
     
-    // Sort POIs by Y position first
+    // Sort POIs by Y position for consistent color zones
     const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
     const highestY = sortedPOIs[0].position.y;
     const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y;
     const totalHeight = highestY - lowestY;
-    const zoneHeight = totalHeight / (pois.length - 1);
     
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
@@ -112,24 +111,33 @@ function createAllStars(count = 5000) {
         const x = (Math.random() - 0.5) * viewportWidth * 3;
         const y = (Math.random() - 0.5) * viewportHeight * 6;
         const z = -120 - Math.random() * 60;
-        const position = new THREE.Vector3(x, y, z);
         
-        // Calculate relative position in zones
-        const relativeY = y - lowestY;
-        const zoneIndex = Math.min(
-            Math.max(Math.floor((totalHeight - relativeY) / zoneHeight), 0),
-            pois.length - 2
-        );
-        
-        // Get colors to blend
-        const color1 = new THREE.Color(sortedPOIs[zoneIndex].color);
-        const color2 = new THREE.Color(sortedPOIs[zoneIndex + 1].color);
-        
-        // Calculate blend within zone
-        const zoneY = relativeY - (zoneIndex * zoneHeight);
-        const blendFactor = Math.max(0, Math.min(1, zoneY / zoneHeight));
-        const finalColor = color1.clone().lerp(color2, blendFactor);
+        // Find the two closest POIs for color interpolation
+        let closestPOI1 = sortedPOIs[0];
+        let closestPOI2 = sortedPOIs[1];
+        let minDist1 = Infinity;
+        let minDist2 = Infinity;
 
+        sortedPOIs.forEach(poi => {
+            const dist = Math.abs(y - poi.position.y);
+            if (dist < minDist1) {
+                minDist2 = minDist1;
+                closestPOI2 = closestPOI1;
+                minDist1 = dist;
+                closestPOI1 = poi;
+            } else if (dist < minDist2) {
+                minDist2 = dist;
+                closestPOI2 = poi;
+            }
+        });
+
+        // Calculate blend factor based on relative position
+        const blendFactor = minDist1 / (minDist1 + minDist2);
+        const color1 = new THREE.Color(closestPOI1.color);
+        const color2 = new THREE.Color(closestPOI2.color);
+        const finalColor = color1.clone().lerp(color2, blendFactor);
+        
+        // Rest of star creation (position, material, etc.)
         const material = new THREE.ShaderMaterial({
             uniforms: {
                 color: { value: finalColor },
@@ -166,7 +174,7 @@ function createAllStars(count = 5000) {
         });
 
         const star = new THREE.Mesh(geometry, material);
-        star.position.copy(position);
+        star.position.set(x, y, z);
         
         const size = 1 + Math.random() * (3 - Math.abs(z + 150) / 30);
         star.scale.set(size, size, 1);
