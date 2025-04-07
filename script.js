@@ -178,28 +178,31 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 color: { value: finalColor },
                 time: { value: 0 },
                 cameraY: { value: 0 },
-                mousePosition: { value: new THREE.Vector2(-10000, -10000) }
+                mousePosition: { value: new THREE.Vector3(-10000, -10000, 0) },
+                viewportSize: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
             },
             vertexShader: `
                 uniform float cameraY;
                 varying vec2 vUv;
-                varying vec3 vPosition;
+                varying vec3 vWorldPosition;
                 
                 void main() {
                     vUv = uv;
                     vec3 pos = position;
                     float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0;
                     pos.y -= cameraY * parallaxStrength;
-                    vPosition = pos;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                    vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+                    vWorldPosition = worldPosition.xyz;
+                    gl_Position = projectionMatrix * viewMatrix * worldPosition;
                 }
             `,
             fragmentShader: `
                 uniform vec3 color;
                 uniform float time;
-                uniform vec2 mousePosition;
+                uniform vec3 mousePosition;
+                uniform vec2 viewportSize;
                 varying vec2 vUv;
-                varying vec3 vPosition;
+                varying vec3 vWorldPosition;
                 
                 void main() {
                     float dist = length(vUv - vec2(0.5));
@@ -208,8 +211,8 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
                     float brightness = core + glow * 0.3;
                     
-                    // Calculate distance to mouse in world space
-                    float mouseDistance = length(mousePosition - vec2(vPosition.x, vPosition.y));
+                    // Calculate distance to mouse in world coordinates
+                    float mouseDistance = length(mousePosition - vWorldPosition);
                     float colorMix = 1.0 - smoothstep(40.0, 300.0, mouseDistance);
                     
                     vec3 finalColor = mix(vec3(1.0), color, colorMix);
@@ -232,6 +235,17 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
     }
 
     return group;
+}
+
+// Add this function after createAllStars
+function getWorldPosition(clientX, clientY) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    
+    const vector = new THREE.Vector3(x, y, 0);
+    vector.unproject(camera);
+    return vector;
 }
 
 // Update initial star creation
@@ -539,12 +553,22 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     
     renderer.setSize(window.innerWidth, window.innerHeight);
+    
+    stars.children.forEach(star => {
+        star.material.uniforms.viewportSize.value.set(window.innerWidth, window.innerHeight);
+    });
 });
 
 // Add these event listeners after window resize handler
 window.addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    const worldPos = getWorldPosition(event.clientX, event.clientY);
+    
+    stars.children.forEach(star => {
+        star.material.uniforms.mousePosition.value = worldPos;
+    });
     
     if (isDragging) {
         const deltaY = event.clientY - previousMouseY;
