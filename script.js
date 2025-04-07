@@ -106,48 +106,32 @@ function createAllStars(count = 5000) {
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
         
-        // Random position
+        // Random position with adjusted ranges
         const x = (Math.random() - 0.5) * viewportWidth * 3;
-        const y = (Math.random() - 0.5) * viewportHeight * 6;
+        const y = lowestY + Math.random() * (highestY - lowestY); // Constrain Y to POI range
         const z = -120 - Math.random() * 60;
         
-        // Find which POI segment the star belongs to
-        let upperPOI = sortedPOIs[0];
-        let lowerPOI = sortedPOIs[sortedPOIs.length - 1];
-        
-        // If star is above highest POI, use highest POI color
-        if (y > highestY) {
-            const finalColor = new THREE.Color(upperPOI.color);
-            // ...rest of star creation with finalColor...
-            continue;
-        }
-        
-        // If star is below lowest POI, use lowest POI color
-        if (y < lowestY) {
-            const finalColor = new THREE.Color(lowerPOI.color);
-            // ...rest of star creation with finalColor...
-            continue;
-        }
-        
         // Find the POI segment the star is between
+        let colorIndex = 0;
         for (let j = 0; j < sortedPOIs.length - 1; j++) {
             if (y <= sortedPOIs[j].position.y && y > sortedPOIs[j + 1].position.y) {
-                upperPOI = sortedPOIs[j];
-                lowerPOI = sortedPOIs[j + 1];
+                colorIndex = j;
                 break;
             }
         }
         
-        // Calculate blend factor based on position between POIs
+        // Get the two POIs to blend between
+        const upperPOI = sortedPOIs[colorIndex];
+        const lowerPOI = sortedPOIs[colorIndex + 1];
+        
+        // Calculate blend factor
         const segmentHeight = upperPOI.position.y - lowerPOI.position.y;
-        const relativePos = upperPOI.position.y - y;
-        const blendFactor = relativePos / segmentHeight;
+        const blendFactor = (y - lowerPOI.position.y) / segmentHeight;
         
         const color1 = new THREE.Color(upperPOI.color);
         const color2 = new THREE.Color(lowerPOI.color);
-        const finalColor = color1.clone().lerp(color2, blendFactor);
-
-        // Rest of star creation (material, position, etc.)
+        const finalColor = color2.clone().lerp(color1, blendFactor);
+        
         const material = new THREE.ShaderMaterial({
             uniforms: {
                 color: { value: finalColor },
