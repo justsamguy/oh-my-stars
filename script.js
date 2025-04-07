@@ -106,19 +106,26 @@ function createAllStars(count = 5000) {
     for (let i = 0; i < count; i++) {
         const geometry = new THREE.CircleGeometry(1, 32);
         
-        // Random position with full viewport coverage
-        const x = (Math.random() - 0.5) * viewportWidth * 3;
-        const y = (Math.random() - 0.5) * viewportHeight * 4; // Use viewport height instead of POI range
+        // Keep stars within viewport bounds
+        const x = (Math.random() - 0.5) * viewportWidth * 1.5;
+        const y = lowestY + Math.random() * (highestY - lowestY) * 1.2; // Slightly extend beyond POI range
         const z = -120 - Math.random() * 60;
         
         // Find the nearest POI segment for color interpolation
         let colorIndex = 0;
         const normalizedY = Math.min(Math.max(y, lowestY), highestY);
+        
+        // Find appropriate color segment
         for (let j = 0; j < sortedPOIs.length - 1; j++) {
             if (normalizedY <= sortedPOIs[j].position.y && normalizedY > sortedPOIs[j + 1].position.y) {
                 colorIndex = j;
                 break;
             }
+        }
+        
+        // Handle edge case for lowest segment
+        if (normalizedY <= sortedPOIs[sortedPOIs.length - 1].position.y) {
+            colorIndex = sortedPOIs.length - 2;
         }
         
         // Get the two POIs to blend between
