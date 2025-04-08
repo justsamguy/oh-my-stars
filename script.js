@@ -240,9 +240,9 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float glow = mix(baseGlow, enhancedGlow, proximityFactor);
                     float brightness = (core + glow) * (1.0 + proximityFactor * 2.5);
                     
-                    // Enhanced color blending
-                    vec3 baseColor = mix(color, vec3(1.0), 0.2);
-                    vec3 glowColor = mix(baseColor, vec3(1.0), proximityFactor * 0.7);
+                    // More dramatic color transition
+                    vec3 dimColor = vec3(0.15); // Very dim white/gray when far from mouse
+                    vec3 glowColor = mix(dimColor, color, proximityFactor);
                     gl_FragColor = vec4(glowColor, brightness * pulse);
                 }
             `,
