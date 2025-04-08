@@ -205,36 +205,45 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 void main() {
                     float dist = length(vUv - vec2(0.5));
                     
-                    // Create smoother core with softer edges
-                    float core = smoothstep(0.15, 0.0, dist);
+                    // Enhanced core with softer gradient
+                    float core = smoothstep(0.2, 0.0, dist);
                     
-                    // Multiple overlapping glow layers for smoother falloff
+                    // Multiple layered glow with varying intensities
                     float baseGlow = 
-                        smoothstep(1.0, 0.0, dist * 8.0) * 0.4 +    // Tight glow
-                        smoothstep(1.0, 0.0, dist * 6.0) * 0.3 +    // Medium glow
-                        smoothstep(1.0, 0.0, dist * 4.0) * 0.2;     // Wide glow
+                        smoothstep(1.0, 0.0, dist * 10.0) * 0.3 +   // Tight sharp glow
+                        smoothstep(1.0, 0.0, dist * 7.0) * 0.4 +    // Medium glow
+                        smoothstep(1.0, 0.0, dist * 4.0) * 0.3;     // Wide soft glow
                     
-                    // Super wide enhanced glow for mouse proximity
+                    // Dynamic proximity glow with wave effect
                     float enhancedGlow = 
-                        smoothstep(1.0, 0.0, dist * 1.0) +          // Base wide glow (was 2.0)
-                        smoothstep(1.0, 0.0, dist * 1.5) * 2.0 +    // Medium intense glow (was 3.0)
-                        smoothstep(1.0, 0.0, dist * 2.0) * 3.0;     // Core intense glow (was 4.0)
+                        smoothstep(1.0, 0.0, dist * 2.0) * 2.0 +
+                        smoothstep(1.0, 0.0, dist * 1.5) * 3.0 +
+                        smoothstep(1.0, 0.0, dist * 1.0) * 1.0;
                     
-                    float pulse = sin(time * 2.0) * 0.1 + 0.9;
+                    // Complex pulsing effect
+                    float mainPulse = sin(time * 2.0) * 0.1 + 0.9;
+                    float subPulse = sin(time * 3.0 + dist * 5.0) * 0.05;
+                    float pulse = mainPulse + subPulse;
                     
-                    // Calculate planar distance to mouse
+                    // Enhanced mouse proximity effect
                     vec3 worldPos = (inverse(viewMatrix) * vec4(vViewPosition, 1.0)).xyz;
                     vec2 deltaPos = worldPos.xy - mousePosition.xy;
                     float mouseDistance = length(deltaPos);
-                    float proximityFactor = 1.0 - smoothstep(20.0, 75.0, mouseDistance);
+                    float proximityFactor = 1.0 - smoothstep(15.0, 60.0, mouseDistance);
                     
-                    // Blend between normal and enhanced glow
+                    // Add subtle wave effect based on mouse distance
+                    float waveEffect = sin(mouseDistance * 0.2 - time * 3.0) * 0.15 * proximityFactor;
+                    proximityFactor += waveEffect;
+                    proximityFactor = clamp(proximityFactor, 0.0, 1.0);
+                    
+                    // Dynamic glow blend
                     float glow = mix(baseGlow, enhancedGlow, proximityFactor);
-                    float brightness = (core + glow) * (1.0 + proximityFactor * 2.0);
+                    float brightness = (core + glow) * (1.0 + proximityFactor * 2.5);
                     
-                    // Simple color mix like before, but maintain original color better
-                    vec3 finalColor = mix(vec3(1.0), color, proximityFactor);
-                    gl_FragColor = vec4(finalColor, brightness * pulse);
+                    // Enhanced color blending
+                    vec3 baseColor = mix(color, vec3(1.0), 0.2);
+                    vec3 glowColor = mix(baseColor, vec3(1.0), proximityFactor * 0.7);
+                    gl_FragColor = vec4(glowColor, brightness * pulse);
                 }
             `,
             transparent: true,
