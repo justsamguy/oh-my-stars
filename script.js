@@ -203,19 +203,19 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 varying vec3 vViewPosition;
                 
                 void main() {
-                    float dist = length(vUv - vec2(0.5)) * 1.33; // Scale distance by 1.33 (1/0.75) to make effect 75% size
+                    float dist = length(vUv - vec2(0.5));
                     
-                    // Core with POI-like gradient
+                    // Core with smooth gradient
                     float core = smoothstep(0.2, 0.0, dist);
                     
-                    // POI-style layered glow with scaled distances
+                    // Layered glow matching POI style (at 75% size)
                     float baseGlow = 
-                        smoothstep(1.0, 0.0, dist * 8.0) * 0.2 +    // Tight sharp glow
-                        smoothstep(1.0, 0.0, dist * 5.0) * 0.3 +    // Medium glow
-                        smoothstep(1.0, 0.0, dist * 3.0) * 0.5;     // Wide soft glow
+                        smoothstep(0.75, 0.0, dist * 8.0) * 0.2 +    // Tight sharp glow
+                        smoothstep(0.75, 0.0, dist * 5.0) * 0.3 +    // Medium glow
+                        smoothstep(0.75, 0.0, dist * 3.0) * 0.5;     // Wide soft glow
                     
-                    // Enhanced proximity glow matching POI style
-                    float enhancedGlow = smoothstep(1.0, 0.0, dist * 2.5) * 1.5;
+                    // Rest of the shader remains the same
+                    float enhancedGlow = smoothstep(0.75, 0.0, dist * 2.5) * 1.5;
                     
                     // Simple pulsing effect
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
@@ -297,7 +297,7 @@ function createPOI(poiData) {
     const group = new THREE.Group();
     const scale = 0.3; // Smaller POIs
     
-    // Main POI circle (unchanged)
+    // Main POI circle
     const material = new THREE.MeshBasicMaterial({ 
         color: poiData.color,
         transparent: true,
@@ -312,7 +312,7 @@ function createPOI(poiData) {
     const points = [];
     for (let i = 0; i <= segments; i++) {
         const theta = (i / segments) * Math.PI * 2;
-        points.push(new THREE.Vector3(Math.cos(theta) * 3, Math.sin(theta) * 3, 0)); // Reduced from 4 to 3
+        points.push(new THREE.Vector3(Math.cos(theta) * 3, Math.sin(theta) * 3, 0));
     }
     ringGeometry.setFromPoints(points);
     const ringMaterial = new THREE.LineDashedMaterial({
@@ -323,12 +323,12 @@ function createPOI(poiData) {
         opacity: 0.5
     });
     const ring = new THREE.Line(ringGeometry, ringMaterial);
-    ring.computeLineDistances(); // Required for dashed lines
+    ring.computeLineDistances();
     ring.userData.baseWidth = 0.5;
     ring.userData.hoverWidth = 1.0;
     
     // Enhanced glow effect
-    const glowGeometry = new THREE.CircleGeometry(40 * scale, 32); // Half previous size
+    const glowGeometry = new THREE.CircleGeometry(40, 32); // Remove scale from geometry creation
     const glowMaterial = new THREE.ShaderMaterial({
         uniforms: {
             color: { value: new THREE.Color(poiData.color) },
@@ -347,7 +347,7 @@ function createPOI(poiData) {
             varying vec2 vUv;
             void main() {
                 float dist = length(vUv - vec2(0.5));
-                float strength = smoothstep(1.0, 0.0, dist * 2.0); // Smoother falloff
+                float strength = smoothstep(1.0, 0.0, dist * 2.0);
                 float pulse = sin(time * 2.0) * 0.1 + 0.9;
                 gl_FragColor = vec4(color, strength * pulse);
             }
@@ -356,12 +356,16 @@ function createPOI(poiData) {
         blending: THREE.AdditiveBlending,
         depthWrite: false,
     });
+    
     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    glow.scale.setScalar(scale); // Apply scale after creation
+    
     group.add(mesh);
     group.add(ring);
     group.add(glow);
     group.position.copy(poiData.position);
     group.userData = poiData;
+    
     return group;
 }
 
@@ -390,7 +394,6 @@ function createConnectingLines() {
     }
     return lineGroup;
 }
-
 const connectingLines = createConnectingLines();
 scene.add(connectingLines);
 
@@ -425,7 +428,6 @@ function showInfoBox(poi) {
 
 function createNewInfoBox(poi) {
     isInfoBoxOpen = true;
-    
     const div = document.createElement('div');
     div.className = 'info-box';
     div.style.cssText = `
@@ -442,42 +444,32 @@ function createNewInfoBox(poi) {
         border: 1px solid #${poi.color.toString(16)};
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     `;
-    
     const closeBtn = document.createElement('div');
     closeBtn.className = 'close-btn';
     closeBtn.innerHTML = '×';
     closeBtn.onclick = hideInfoBox;
-    
     const content = document.createElement('div');
     content.style.opacity = '0';
     content.style.transition = 'opacity 0.15s ease-out';
-    
     const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -5);
-    
     content.innerHTML = `
         <h3 style="margin: 0 0 10px 0; color: #${poi.color.toString(16)}">${poi.name}</h3>
         <p style="margin: 0">${poi.description}</p>
         <div class="timestamp">${timestamp}</div>
     `;
-    
     div.appendChild(closeBtn);
     div.appendChild(content);
-    
     const worldPos = poi.position.clone();
     const screenPos = worldPos.project(camera);
     const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
     const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
-    
     div.style.left = `${x + 20}px`;
     div.style.top = `${y - 20}px`;
-    
     infoBoxContainer.appendChild(div);
-    
     requestAnimationFrame(() => {
         div.style.transform = 'scaleX(1)';
         content.style.opacity = '1';
     });
-    
     currentInfoBox = div;
     return div;
 }
@@ -500,17 +492,14 @@ function onWheel(event) {
         scrollVelocity -= event.deltaY * 0.012; // Increased by 20%
     }
 }
-
 window.addEventListener('wheel', onWheel, { passive: false });
 
 // Add this function before animate();
 function updateScroll() {
     // Apply damping
     scrollVelocity *= SCROLL_DAMPING;
-
     // Clamp scroll velocity
     scrollVelocity = Math.max(Math.min(scrollVelocity, MAX_SCROLL_SPEED), -MAX_SCROLL_SPEED);
-
     // Update camera position
     if (Math.abs(scrollVelocity) > 0.01) {
         camera.position.y += scrollVelocity;
@@ -523,11 +512,9 @@ function updateScroll() {
 
 // Modified animation loop
 const clock = new THREE.Clock();
-
 function animate() {
     requestAnimationFrame(animate);
     const elapsedTime = clock.getElapsedTime();
-    
     // Update POI elements
     poiObjects.forEach(poi => {
         const ring = poi.children[1];
@@ -536,7 +523,6 @@ function animate() {
         if (glow && glow.material.uniforms) {
             glow.material.uniforms.time.value = elapsedTime;
         }
-        
         // Add hover effect
         const intersects = raycaster.intersectObject(poi, true);
         if (intersects.length > 0) {
@@ -554,21 +540,17 @@ function animate() {
     if (raycaster.intersectObjects(poiObjects, true).length === 0) {
         document.body.style.cursor = 'grab';
     }
-    
     const cameraY = camera.position.y;
     stars.children.forEach(star => {
         star.material.uniforms.time.value = elapsedTime;
         star.material.uniforms.cameraY.value = cameraY;
     });
-    
     // Convert mouse coordinates to world space
     const mouseWorld = new THREE.Vector2(
         (mouse.x * viewportWidth / 2),
         (-mouse.y * viewportHeight / 2) + camera.position.y
     );
-
     updateScroll();
-    
     renderer.clear();         // Clear manually
     renderer.render(scene, camera);
 }
@@ -577,11 +559,9 @@ function animate() {
 window.addEventListener('resize', () => {
     const newAspect = window.innerWidth / window.innerHeight;
     const newWidth = viewportHeight * newAspect;
-    
     camera.left = newWidth / -2;
     camera.right = newWidth / 2;
     camera.updateProjectionMatrix();
-    
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
@@ -589,32 +569,26 @@ window.addEventListener('resize', () => {
 window.addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    
     const worldPos = getWorldPosition(event.clientX, event.clientY);
-    
     // Update all stars with new mouse position
     stars.children.forEach(star => {
         star.material.uniforms.mousePosition.value.copy(worldPos);
     });
-    
     if (isDragging) {
         const deltaY = event.clientY - previousMouseY;
         scrollVelocity = deltaY * 0.1;
         previousMouseY = event.clientY;
     }
 });
-
 window.addEventListener('mousedown', (event) => {
     isDragging = true;
     previousMouseY = event.clientY;
     document.body.style.cursor = 'grabbing';
 });
-
 window.addEventListener('mouseup', () => {
     isDragging = false;
     document.body.style.cursor = 'grab';
 });
-
 window.addEventListener('click', () => {
     const intersects = raycaster.intersectObjects(poiObjects, true);
     if (intersects.length > 0) {
