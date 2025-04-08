@@ -203,40 +203,39 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 varying vec3 vViewPosition;
                 
                 void main() {
-                    float dist = length(vUv - vec2(0.5));
+                    float dist = length(vUv - vec2(0.5)) * 1.33; // Scale distance by 1.33 (1/0.75) to make effect 75% size
                     
-                    // Enhanced core with softer gradient
+                    // Core with POI-like gradient
                     float core = smoothstep(0.2, 0.0, dist);
                     
-                    // Multiple layered glow with varying intensities
+                    // POI-style layered glow with scaled distances
                     float baseGlow = 
                         smoothstep(1.0, 0.0, dist * 8.0) * 0.2 +    // Tight sharp glow
                         smoothstep(1.0, 0.0, dist * 5.0) * 0.3 +    // Medium glow
                         smoothstep(1.0, 0.0, dist * 3.0) * 0.5;     // Wide soft glow
                     
-                    // Simplified proximity glow
-                    float enhancedGlow = 
-                        smoothstep(1.0, 0.0, dist * 2.5) * 1.5;
+                    // Enhanced proximity glow matching POI style
+                    float enhancedGlow = smoothstep(1.0, 0.0, dist * 2.5) * 1.5;
                     
                     // Simple pulsing effect
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
                     
-                    // Refined mouse proximity effect
+                    // POI-style mouse proximity
                     vec3 worldPos = (inverse(viewMatrix) * vec4(vViewPosition, 1.0)).xyz;
                     vec2 deltaPos = worldPos.xy - mousePosition.xy;
                     float mouseDistance = length(deltaPos);
                     float proximityFactor = 1.0 - smoothstep(30.0, 80.0, mouseDistance);
                     
-                    // Subtle wave effect
+                    // Wave effect from POI
                     float waveEffect = sin(mouseDistance * 0.1 - time * 2.0) * 0.05 * proximityFactor;
                     proximityFactor = clamp(proximityFactor + waveEffect, 0.0, 1.0);
                     
-                    // Gentler glow blend
+                    // POI-style glow blend
                     float glow = mix(baseGlow, enhancedGlow, proximityFactor * 0.5);
-                    float brightness = (core + glow) * (1.0 + proximityFactor);
+                    float brightness = (core + glow) * (1.0 + proximityFactor * 1.5);
                     
-                    // Subtle color transition
-                    vec3 dimColor = mix(vec3(1.0), color, 0.3);  // Less white when far
+                    // POI-matching color transition
+                    vec3 dimColor = mix(vec3(1.0), color, 0.3);
                     vec3 glowColor = mix(dimColor, color, proximityFactor);
                     gl_FragColor = vec4(glowColor, brightness * pulse);
                 }
