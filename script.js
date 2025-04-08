@@ -206,7 +206,7 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float dist = length(vUv - vec2(0.5));
                     float core = smoothstep(0.15, 0.0, dist);
                     float baseGlow = smoothstep(1.0, 0.0, dist * 8.0);
-                    float enhancedGlow = smoothstep(1.0, 0.0, dist * 4.0);
+                    float enhancedGlow = smoothstep(1.0, 0.0, dist * 2.0) * 3.0; // Wider glow and 3x intensity
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
                     
                     // Calculate planar distance to mouse
@@ -218,10 +218,11 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     // Blend between normal and enhanced glow based on mouse proximity
                     float glow = mix(baseGlow, enhancedGlow, proximityFactor);
                     float brightness = core + glow;
+                    brightness *= 1.0 + (proximityFactor * 2.0); // Additional brightness boost near mouse
                     
-                    // Apply color mix
+                    // Apply color mix with increased intensity near mouse
                     float colorMix = proximityFactor;
-                    vec3 finalColor = mix(vec3(1.0), color, colorMix);
+                    vec3 finalColor = mix(vec3(1.0), color * (1.0 + proximityFactor), colorMix);
                     gl_FragColor = vec4(finalColor, brightness * pulse);
                 }
             `,
