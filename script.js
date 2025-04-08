@@ -205,17 +205,20 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 void main() {
                     float dist = length(vUv - vec2(0.5));
                     
-                    // Softer core with multiple layers
-                    float core = smoothstep(0.2, 0.0, dist);
+                    // Create smoother core with softer edges
+                    float core = smoothstep(0.15, 0.0, dist);
                     
-                    // Base glow stays tight
-                    float baseGlow = smoothstep(1.0, 0.0, dist * 8.0);
+                    // Multiple overlapping glow layers for smoother falloff
+                    float baseGlow = 
+                        smoothstep(1.0, 0.0, dist * 8.0) * 0.4 +    // Tight glow
+                        smoothstep(1.0, 0.0, dist * 6.0) * 0.3 +    // Medium glow
+                        smoothstep(1.0, 0.0, dist * 4.0) * 0.2;     // Wide glow
                     
-                    // Enhanced glow with multiple layers for smoother falloff
+                    // Super wide enhanced glow for mouse proximity
                     float enhancedGlow = 
-                        smoothstep(1.0, 0.0, dist * 2.0) * 2.0 +  // Wide glow
-                        smoothstep(1.0, 0.0, dist * 4.0) * 1.5 +  // Medium glow
-                        smoothstep(1.0, 0.0, dist * 6.0);         // Tight glow
+                        smoothstep(1.0, 0.0, dist * 2.0) +          // Base wide glow
+                        smoothstep(1.0, 0.0, dist * 3.0) * 2.0 +    // Medium intense glow
+                        smoothstep(1.0, 0.0, dist * 4.0) * 3.0;     // Core intense glow
                     
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
                     
@@ -225,14 +228,12 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float mouseDistance = length(deltaPos);
                     float proximityFactor = 1.0 - smoothstep(20.0, 75.0, mouseDistance);
                     
-                    // Enhanced glow near mouse
+                    // Blend between normal and enhanced glow
                     float glow = mix(baseGlow, enhancedGlow, proximityFactor);
-                    float brightness = (core + glow) * (1.0 + proximityFactor * 3.0);
+                    float brightness = (core + glow) * (1.0 + proximityFactor * 2.0);
                     
-                    // Preserve color saturation near mouse
-                    vec3 brightColor = color * (1.0 + proximityFactor * 2.0);
-                    vec3 finalColor = mix(vec3(1.0), brightColor, max(0.2, proximityFactor));
-                    
+                    // Simple color mix like before, but maintain original color better
+                    vec3 finalColor = mix(vec3(1.0), color, proximityFactor);
                     gl_FragColor = vec4(finalColor, brightness * pulse);
                 }
             `,
