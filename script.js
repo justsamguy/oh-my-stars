@@ -213,7 +213,7 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     vec3 worldPos = (inverse(viewMatrix) * vec4(vViewPosition, 1.0)).xyz;
                     vec2 deltaPos = worldPos.xy - mousePosition.xy;
                     float mouseDistance = length(deltaPos);
-                    float colorMix = 1.0 - smoothstep(40.0, 300.0, mouseDistance);
+                    float colorMix = 1.0 - smoothstep(20.0, 150.0, mouseDistance);
                     
                     vec3 finalColor = mix(vec3(1.0), color, colorMix);
                     gl_FragColor = vec4(finalColor, brightness * pulse);
