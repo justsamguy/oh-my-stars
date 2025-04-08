@@ -205,22 +205,22 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 void main() {
                     float dist = length(vUv - vec2(0.5));
                     float core = smoothstep(0.15, 0.0, dist);
-                    float glow = smoothstep(1.0, 0.0, dist * 4.0);
+                    float baseGlow = smoothstep(1.0, 0.0, dist * 8.0);
+                    float enhancedGlow = smoothstep(1.0, 0.0, dist * 4.0);
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
-                    float brightness = core + glow * 0.3;
                     
-                    // Calculate planar distance to mouse (ignore z-component)
+                    // Calculate planar distance to mouse
                     vec3 worldPos = (inverse(viewMatrix) * vec4(vViewPosition, 1.0)).xyz;
                     vec2 deltaPos = worldPos.xy - mousePosition.xy;
                     float mouseDistance = length(deltaPos);
+                    float proximityFactor = 1.0 - smoothstep(20.0, 75.0, mouseDistance);
                     
-                    // Separate color and brightness mix factors
-                    float colorMix = 1.0 - smoothstep(20.0, 75.0, mouseDistance);
-                    float brightnessMix = 1.0 - smoothstep(20.0, 75.0, mouseDistance);
+                    // Blend between normal and enhanced glow based on mouse proximity
+                    float glow = mix(baseGlow, enhancedGlow, proximityFactor);
+                    float brightness = core + glow;
                     
-                    // Enhance brightness near mouse
-                    brightness *= 1.0 + brightnessMix * 1.5;
-                    
+                    // Apply color mix
+                    float colorMix = proximityFactor;
                     vec3 finalColor = mix(vec3(1.0), color, colorMix);
                     gl_FragColor = vec4(finalColor, brightness * pulse);
                 }
