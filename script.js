@@ -210,9 +210,9 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     
                     // Layered glow matching POI style (at 75% size)
                     float baseGlow = 
-                        smoothstep(0.75, 0.0, dist * 8.0) * 0.5 +    // Tight sharp glow
-                        smoothstep(0.75, 0.0, dist * 5.0) * 1.0 +    // Medium glow
-                        smoothstep(0.75, 0.0, dist * 3.0) * 2.0;     // Wide soft glow
+                        smoothstep(0.75, 0.0, dist * 1.0) * 0.2 +    // Tight sharp glow
+                        smoothstep(0.75, 0.0, dist * 0.75) * 0.3 +    // Medium glow
+                        smoothstep(0.75, 0.0, dist * 0.5) * 0.5;     // Wide soft glow
                     
                     // Rest of the shader remains the same
                     float enhancedGlow = smoothstep(0.75, 0.0, dist * 2.5) * 1.5;
