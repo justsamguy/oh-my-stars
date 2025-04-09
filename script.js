@@ -215,27 +215,28 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                         smoothstep(0.75, 0.0, dist * 3.0) * 0.5;     // Wide soft glow
                     
                     // Rest of the shader remains the same
-                    float enhancedGlow = smoothstep(0.75, 0.0, dist * 2.5) * 1.5;
-                    
                     // Simple pulsing effect
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
-                    
-                    // POI-style mouse proximity
+                    // POI-style mouse proximity calculation (remains the same)
                     vec3 worldPos = (inverse(viewMatrix) * vec4(vViewPosition, 1.0)).xyz;
                     vec2 deltaPos = worldPos.xy - mousePosition.xy;
                     float mouseDistance = length(deltaPos);
                     // Adjusted smoothstep range for a tighter proximity effect, closer to POI feel
-                    float proximityFactor = 1.0 - smoothstep(20.0, 60.0, mouseDistance); 
-                    
+                    float proximityFactor = 1.0 - smoothstep(20.0, 60.0, mouseDistance);
+
                     // Wave effect from POI (remains the same)
                     float waveEffect = sin(mouseDistance * 0.1 - time * 2.0) * 0.05 * proximityFactor;
                     proximityFactor = clamp(proximityFactor + waveEffect, 0.0, 1.0);
-                    
-                    // POI-style glow blend - Use proximityFactor directly for a stronger transition
-                    float glow = mix(baseGlow, enhancedGlow, proximityFactor); 
-                    // Adjust brightness more significantly based on proximity
-                    float brightness = (core + glow) * (1.0 + proximityFactor * 2.0); // Increased multiplier
-                    
+
+                    // Calculate POI-style glow strength (similar to lines 349-361)
+                    float poiStyleGlow = smoothstep(1.0, 0.0, dist * 2.0);
+
+                    // Mix between base star glow and POI-style glow based on proximity
+                    float glow = mix(baseGlow, poiStyleGlow, proximityFactor);
+
+                    // Adjust brightness based on proximity (original logic retained)
+                    float brightness = (core + glow) * (1.0 + proximityFactor * 2.0);
+
                     // POI-matching color transition (remains the same)
                     vec3 dimColor = mix(vec3(1.0), color, 0.3);
                     vec3 glowColor = mix(dimColor, color, proximityFactor);
