@@ -238,14 +238,21 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     // Mix between base star glow and the new bloom glow based on proximity
                     float glow = mix(baseGlow, bloomGlow, proximityFactor);
 
-                    // Adjust brightness: Make bloom significantly brighter
-                    // Increase the multiplier based on proximityFactor even more aggressively
-                    float brightness = (core + glow) * (1.0 + proximityFactor * 6.0); // Increased multiplier from 4.0 to 6.0
+                    // Calculate intensity multiplier based on proximity
+                    float intensityMultiplier = 1.0 + proximityFactor * 6.0; // Keep high multiplier for brightness
 
                     // POI-matching color transition (remains the same)
                     vec3 dimColor = mix(vec3(1.0), color, 0.3);
-                    vec3 glowColor = mix(dimColor, color, proximityFactor);
-                    gl_FragColor = vec4(glowColor, brightness * pulse);
+                    vec3 baseGlowColor = mix(dimColor, color, proximityFactor);
+
+                    // Apply intensity multiplier ONLY to the color component
+                    vec3 finalGlowColor = baseGlowColor * intensityMultiplier;
+
+                    // Calculate final alpha based on the glow shape (core + glow), preserving the smooth falloff
+                    // Use the mixed glow shape directly for alpha, clamp to avoid exceeding 1.0
+                    float finalAlpha = clamp(core + glow, 0.0, 1.0) * pulse;
+
+                    gl_FragColor = vec4(finalGlowColor, finalAlpha);
                 }
             `,
             transparent: true,
