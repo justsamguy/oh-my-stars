@@ -228,14 +228,19 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float waveEffect = sin(mouseDistance * 0.1 - time * 2.0) * 0.05 * proximityFactor;
                     proximityFactor = clamp(proximityFactor + waveEffect, 0.0, 1.0);
 
-                    // Calculate POI-style glow strength (similar to lines 349-361)
-                    float poiStyleGlow = smoothstep(1.0, 0.0, dist * 2.0);
+                    // Calculate a larger, softer, brighter "bloom" glow for hover (firefly style)
+                    // Use very small dist multipliers for wide spread, layer for softness
+                    float bloomGlow =
+                        smoothstep(1.0, 0.0, dist * 0.5) * 0.3 + // Very wide, faint outer layer
+                        smoothstep(0.8, 0.0, dist * 0.8) * 0.5 + // Wide, soft middle layer
+                        smoothstep(0.5, 0.0, dist * 1.5) * 1.0;  // Bright inner layer (increased intensity)
 
-                    // Mix between base star glow and POI-style glow based on proximity
-                    float glow = mix(baseGlow, poiStyleGlow, proximityFactor);
+                    // Mix between base star glow and the new bloom glow based on proximity
+                    float glow = mix(baseGlow, bloomGlow, proximityFactor);
 
-                    // Adjust brightness based on proximity (original logic retained)
-                    float brightness = (core + glow) * (1.0 + proximityFactor * 2.0);
+                    // Adjust brightness: Make bloom significantly brighter
+                    // Increase the multiplier based on proximityFactor even more aggressively
+                    float brightness = (core + glow) * (1.0 + proximityFactor * 6.0); // Increased multiplier from 4.0 to 6.0
 
                     // POI-matching color transition (remains the same)
                     vec3 dimColor = mix(vec3(1.0), color, 0.3);
