@@ -228,24 +228,21 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float waveEffect = sin(mouseDistance * 0.1 - time * 2.0) * 0.05 * proximityFactor;
                     proximityFactor = clamp(proximityFactor + waveEffect, 0.0, 1.0);
 
-                    // Calculate bloom glow using layered smoothstep for better control over shape/falloff
-                    float bloomGlow =
-                        smoothstep(1.5, 0.0, dist) * 0.4 + // Very wide, faint base
-                        smoothstep(1.0, 0.5, dist) * 0.6 + // Medium layer, softer inner edge
-                        smoothstep(0.6, 0.2, dist) * 1.0;  // Brighter core bloom, softer inner edge
+                    // Calculate bloom glow size factor based on proximity
+                    float bloomSizeFactor = 1.0 + proximityFactor * 1.5; // Increase size up to 2.5x when close
 
-                    // Mix between base star glow and the new bloom glow based on proximity
+                    // Calculate bloom glow using layered smoothstep, scaling distance by size factor
+                    float bloomGlow =
+                        smoothstep(1.5, 0.0, dist / bloomSizeFactor) * 0.4 + // Very wide, faint base
+                        smoothstep(1.0, 0.5, dist / bloomSizeFactor) * 0.6 + // Medium layer, softer inner edge
+                        smoothstep(0.6, 0.2, dist / bloomSizeFactor) * 1.0;  // Brighter core bloom, softer inner edge
+
+                    // Mix between base star glow and the scaled bloom glow based on proximity
                     float glow = mix(baseGlow, bloomGlow, proximityFactor);
 
-                    // POI-matching base color transition
+                    // POI-matching base color transition (no intensity change)
                     vec3 dimColor = mix(vec3(1.0), color, 0.3); // Dimmed color when mouse is far
-                    vec3 baseGlowColor = mix(dimColor, color, proximityFactor); // Transition to full color on proximity
-
-                    // Calculate intensity multiplier based on proximity to brighten the star's own color
-                    float intensityMultiplier = 1.0 + proximityFactor * 3.0; // Adjust multiplier as needed
-
-                    // Apply intensity multiplier to the base color
-                    vec3 finalGlowColor = baseGlowColor * intensityMultiplier;
+                    vec3 finalGlowColor = mix(dimColor, color, proximityFactor); // Transition to full color on proximity
 
                     // Calculate final alpha based on the combined glow shape (core + mixed glow)
                     float finalAlpha = clamp(core + glow, 0.0, 1.0) * pulse; // Clamp to ensure alpha stays <= 1.0
