@@ -205,16 +205,15 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 void main() {
                     float dist = length(vUv - vec2(0.5));
                     
-                    // Core with smooth gradient
-                    float core = smoothstep(0.2, 0.0, dist);
+                    // Core with smooth gradient and increased size
+                    float core = smoothstep(0.4, 0.0, dist);
                     
-                    // Layered glow matching POI style (at 75% size)
+                    // Layered glow with larger scale factors and stronger contribution
                     float baseGlow = 
-                        smoothstep(0.75, 0.0, dist * 8.0) * 0.2 +    // Tight sharp glow
-                        smoothstep(0.75, 0.0, dist * 5.0) * 0.3 +    // Medium glow
-                        smoothstep(0.75, 0.0, dist * 3.0) * 0.5;     // Wide soft glow
+                        smoothstep(0.75, 0.0, dist * 2.0) * 0.6 +    // Wide soft glow
+                        smoothstep(0.75, 0.0, dist * 4.0) * 0.3 +    // Medium glow
+                        smoothstep(0.75, 0.0, dist * 8.0) * 0.1;     // Tight sharp glow
                     
-                    // Rest of the shader remains the same
                     // Simple pulsing effect
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
                     // POI-style mouse proximity calculation (remains the same)
