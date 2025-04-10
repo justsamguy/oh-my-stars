@@ -229,7 +229,7 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     proximityFactor = clamp(proximityFactor + waveEffect, 0.0, 1.0);
 
                     // Calculate bloom glow size factor based on proximity
-                    float bloomSizeFactor = 1.0 + proximityFactor * 1.5; // Increase size up to 2.5x when close
+                    float bloomSizeFactor = 1.0 + proximityFactor * 4.0; // Increase size up to 5x when close (was 1.5)
 
                     // Calculate bloom glow using layered smoothstep, scaling distance by size factor
                     float bloomGlow =
