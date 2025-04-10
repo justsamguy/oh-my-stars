@@ -228,29 +228,30 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float waveEffect = sin(mouseDistance * 0.1 - time * 2.0) * 0.05 * proximityFactor;
                     proximityFactor = clamp(proximityFactor + waveEffect, 0.0, 1.0);
 
-                    // Calculate a larger, softer, brighter "bloom" glow for hover (firefly style)
-                    // Use very small dist multipliers for wide spread, layer for softness
-                    float bloomGlow =
-                        smoothstep(1.0, 0.0, dist * 0.5) * 0.3 + // Very wide, faint outer layer
-                        smoothstep(0.8, 0.0, dist * 0.8) * 0.5 + // Wide, soft middle layer
-                        smoothstep(0.5, 0.0, dist * 1.5) * 1.0;  // Bright inner layer (increased intensity)
+                    // Calculate bloom glow using pow for potentially softer falloff
+                    // Adjust radius (first smoothstep param) and exponent (pow param)
+                    float bloomRadius = 1.5; // How far the bloom extends
+                    float bloomExponent = 2.5; // How soft the falloff is (higher = sharper)
+                    float bloomGlow = pow(smoothstep(bloomRadius, 0.0, dist), bloomExponent) * 1.5; // Multiplier for base intensity
 
                     // Mix between base star glow and the new bloom glow based on proximity
                     float glow = mix(baseGlow, bloomGlow, proximityFactor);
 
-                    // Calculate intensity multiplier based on proximity
-                    float intensityMultiplier = 1.0 + proximityFactor * 6.0; // Keep high multiplier for brightness
+                    // POI-matching base color transition
+                    vec3 dimColor = mix(vec3(1.0), color, 0.3); // Dimmed color when mouse is far
+                    vec3 baseGlowColor = mix(dimColor, color, proximityFactor); // Transition to full color on proximity
 
-                    // POI-matching color transition (remains the same)
-                    vec3 dimColor = mix(vec3(1.0), color, 0.3);
-                    vec3 baseGlowColor = mix(dimColor, color, proximityFactor);
+                    // Calculate additive brightness based on proximity
+                    // Mix white with the star color for the additive part, scale by proximity
+                    float brightnessIntensity = proximityFactor * 2.5; // How bright the additive part gets
+                    vec3 additiveBrightnessColor = mix(color, vec3(1.0), 0.7); // Mostly white, tinted by star color
+                    vec3 addedBrightness = additiveBrightnessColor * brightnessIntensity;
 
-                    // Apply intensity multiplier ONLY to the color component
-                    vec3 finalGlowColor = baseGlowColor * intensityMultiplier;
+                    // Add brightness to the base color (additive approach)
+                    vec3 finalGlowColor = baseGlowColor + addedBrightness;
 
-                    // Calculate final alpha based on the glow shape (core + glow), preserving the smooth falloff
-                    // Use the mixed glow shape directly for alpha, clamp to avoid exceeding 1.0
-                    float finalAlpha = clamp(core + glow, 0.0, 1.0) * pulse;
+                    // Calculate final alpha based on the combined glow shape (core + mixed glow)
+                    float finalAlpha = clamp(core + glow, 0.0, 1.0) * pulse; // Clamp to ensure alpha stays <= 1.0
 
                     gl_FragColor = vec4(finalGlowColor, finalAlpha);
                 }
