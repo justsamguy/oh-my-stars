@@ -205,14 +205,13 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 void main() {
                     float dist = length(vUv - vec2(0.5));
                     
-                    // Core with smooth gradient and increased size
-                    float core = smoothstep(0.4, 0.0, dist);
+                    // Core REMOVED - Glow will define the shape entirely.
                     
-                    // Layered glow with larger scale factors and stronger contribution
+                    // Adjusted baseGlow: Reduced the widest component's contribution for less default fuzziness
                     float baseGlow = 
-                        smoothstep(0.75, 0.0, dist * 2.0) * 0.6 +    // Wide soft glow
-                        smoothstep(0.75, 0.0, dist * 4.0) * 0.3 +    // Medium glow
-                        smoothstep(0.75, 0.0, dist * 8.0) * 0.1;     // Tight sharp glow
+                        smoothstep(0.75, 0.0, dist * 2.0) * 0.3 +    // Reduced wide soft glow contribution
+                        smoothstep(0.75, 0.0, dist * 4.0) * 0.4 +    // Increased medium glow contribution slightly
+                        smoothstep(0.75, 0.0, dist * 8.0) * 0.3;     // Increased tight glow contribution slightly
                     
                     // Simple pulsing effect
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
@@ -247,11 +246,12 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float glow = baseGlow + softBloomGlow * proximityFactor;
                     // --- End New Bloom Logic ---
 
-                    // POI-matching base color transition (no intensity change) - Remains the same
+                    // Adjusted color transition: Blend towards white at high proximity for softer bloom appearance
                     vec3 dimColor = mix(vec3(1.0), color, 0.3); // Dimmed color when mouse is far
-                    vec3 finalGlowColor = mix(dimColor, color, proximityFactor); // Transition to full color on proximity
+                    vec3 brightColor = mix(color, vec3(1.0), 0.5); // Mix star color with white for bloom
+                    vec3 finalGlowColor = mix(dimColor, brightColor, proximityFactor); // Transition to brighter, less saturated color
 
-                    // Calculate final alpha based *only* on the combined glow shape, removing the core addition.
+                    // Calculate final alpha based *only* on the combined glow shape.
                     float finalAlpha = clamp(glow, 0.0, 1.0) * pulse; // Clamp to ensure alpha stays <= 1.0
 
                     gl_FragColor = vec4(finalGlowColor, finalAlpha);
