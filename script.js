@@ -227,19 +227,28 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float waveEffect = sin(mouseDistance * 0.1 - time * 2.0) * 0.05 * proximityFactor;
                     proximityFactor = clamp(proximityFactor + waveEffect, 0.0, 1.0);
 
-                    // Calculate bloom glow size factor based on proximity
-                    float bloomSizeFactor = 1.0 + proximityFactor * 100.0; // Increase size when close
+                    // --- New Bloom Logic ---
+                    // Define how much the bloom expands visually with proximity.
+                    // Adjust this value to match POI visual size at proximityFactor = 1.0
+                    float bloomMagnitude = 35.0; // Increased magnitude for wider bloom
 
-                    // Calculate bloom glow using layered smoothstep, scaling distance by size factor
-                    float bloomGlow =
-                        smoothstep(1.5, 0.0, dist / bloomSizeFactor) * 0.4 + // Very wide, faint base
-                        smoothstep(1.0, 0.5, dist / bloomSizeFactor) * 0.6 + // Medium layer, softer inner edge
-                        smoothstep(0.6, 0.2, dist / bloomSizeFactor) * 1.0;  // Brighter core bloom, softer inner edge
+                    // Calculate an effective distance that shrinks as proximity increases, making the glow larger.
+                    // When proximityFactor = 0, effectiveDist = dist.
+                    // When proximityFactor = 1, effectiveDist = dist / (1 + bloomMagnitude).
+                    // Adding a small epsilon to prevent division by zero if dist is exactly 0.
+                    float effectiveDist = dist / (1.0 + proximityFactor * bloomMagnitude + 0.0001);
 
-                    // Mix between base star glow and the scaled bloom glow based on proximity
-                    float glow = mix(baseGlow, bloomGlow, proximityFactor);
+                    // Calculate the soft bloom glow based on the effective distance.
+                    // Fades from full intensity near the center (effectiveDist approx 0)
+                    // to zero intensity further out (effectiveDist reaches 0.6).
+                    // Using 0.6 as the outer edge for a wide, soft falloff.
+                    float softBloomGlow = smoothstep(0.6, 0.0, effectiveDist);
 
-                    // POI-matching base color transition (no intensity change)
+                    // Mix between the original base star glow and the new soft bloom glow based on proximity.
+                    float glow = mix(baseGlow, softBloomGlow, proximityFactor);
+                    // --- End New Bloom Logic ---
+
+                    // POI-matching base color transition (no intensity change) - Remains the same
                     vec3 dimColor = mix(vec3(1.0), color, 0.3); // Dimmed color when mouse is far
                     vec3 finalGlowColor = mix(dimColor, color, proximityFactor); // Transition to full color on proximity
 
