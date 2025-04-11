@@ -238,22 +238,21 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     // Adding a small epsilon to prevent division by zero if dist is exactly 0.
                     float effectiveDist = dist / (1.0 + proximityFactor * bloomMagnitude + 0.0001);
 
-                    // Calculate the soft bloom glow based on the effective distance.
+                    // Calculate the soft bloom glow based on the effective distance, matching POI falloff.
                     // Fades from full intensity near the center (effectiveDist approx 0)
-                    // to zero intensity further out (effectiveDist reaches 0.6).
-                    // Using 0.6 as the outer edge for a wide, soft falloff.
-                    float softBloomGlow = smoothstep(0.6, 0.0, effectiveDist);
+                    // to zero intensity further out (effectiveDist * 2.0 reaches 1.0).
+                    float softBloomGlow = smoothstep(1.0, 0.0, effectiveDist * 2.0);
 
-                    // Mix between the original base star glow and the new soft bloom glow based on proximity.
-                    float glow = mix(baseGlow, softBloomGlow, proximityFactor);
+                    // Add the proximity-scaled bloom glow to the base glow.
+                    float glow = baseGlow + softBloomGlow * proximityFactor;
                     // --- End New Bloom Logic ---
 
                     // POI-matching base color transition (no intensity change) - Remains the same
                     vec3 dimColor = mix(vec3(1.0), color, 0.3); // Dimmed color when mouse is far
                     vec3 finalGlowColor = mix(dimColor, color, proximityFactor); // Transition to full color on proximity
 
-                    // Calculate final alpha based on the combined glow shape (core + mixed glow)
-                    float finalAlpha = clamp(core + glow, 0.0, 1.0) * pulse; // Clamp to ensure alpha stays <= 1.0
+                    // Calculate final alpha based *only* on the combined glow shape, removing the core addition.
+                    float finalAlpha = clamp(glow, 0.0, 1.0) * pulse; // Clamp to ensure alpha stays <= 1.0
 
                     gl_FragColor = vec4(finalGlowColor, finalAlpha);
                 }
