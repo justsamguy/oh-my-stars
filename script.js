@@ -238,18 +238,18 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     float effectiveDist = dist / (1.0 + proximityFactor * bloomMagnitude + 0.0001);
 
                     // Calculate the soft bloom glow based on the effective distance with a softer falloff.
+                    // Adjusted smoothstep ranges and multipliers for a softer effect
                     float softBloomGlow =
-                        smoothstep(1.0, 0.0, effectiveDist * 1.5) * 0.5 + // Wider, softer component
-                        smoothstep(1.0, 0.0, effectiveDist * 3.0) * 0.3 + // Medium component
-                        smoothstep(1.0, 0.0, effectiveDist * 6.0) * 0.2;  // Tighter component
+                        smoothstep(0.8, 0.0, effectiveDist * 1.0) * 0.6 + // Wider, gentler base
+                        smoothstep(0.6, 0.0, effectiveDist * 2.0) * 0.4;  // Softer inner glow
 
                     // Add the proximity-scaled bloom glow to the base glow.
                     float glow = baseGlow + softBloomGlow * proximityFactor;
                     // --- End New Bloom Logic ---
 
-                    // Adjusted color transition: Blend towards white at high proximity for softer bloom appearance
+                    // Adjusted color transition: Blend less towards white for a softer, more colorful bloom
                     vec3 dimColor = mix(vec3(1.0), color, 0.3); // Dimmed color when mouse is far
-                    vec3 brightColor = mix(color, vec3(1.0), 0.5); // Mix star color with white for bloom
+                    vec3 brightColor = mix(color, vec3(1.0), 0.3); // Mix LESS white for bloom (was 0.5)
                     vec3 finalGlowColor = mix(dimColor, brightColor, proximityFactor); // Transition to brighter, less saturated color
 
                     // Calculate final alpha based *only* on the combined glow shape.
