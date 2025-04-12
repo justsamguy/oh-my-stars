@@ -229,7 +229,7 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     // --- New Bloom Logic ---
                     // Define how much the bloom expands visually with proximity.
                     // Adjust this value to match POI visual size at proximityFactor = 1.0
-                    float bloomMagnitude = 35.0; // Increased magnitude for wider bloom
+                    float bloomMagnitude = 40.0; // Increased magnitude for larger bloom (was 35.0)
 
                     // Calculate an effective distance that shrinks as proximity increases, making the glow larger.
                     // When proximityFactor = 0, effectiveDist = dist.
@@ -237,11 +237,9 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     // Adding a small epsilon to prevent division by zero if dist is exactly 0.
                     float effectiveDist = dist / (1.0 + proximityFactor * bloomMagnitude + 0.0001);
 
-                    // Calculate the soft bloom glow based on the effective distance with a softer falloff.
-                    // Adjusted smoothstep ranges and multipliers for a softer effect
-                    float softBloomGlow =
-                        smoothstep(0.8, 0.0, effectiveDist * 1.0) * 0.6 + // Wider, gentler base
-                        smoothstep(0.6, 0.0, effectiveDist * 2.0) * 0.4;  // Softer inner glow
+                    // Calculate the soft bloom glow using smoothstep and pow for a softer, more natural falloff
+                    float bloomFalloff = smoothstep(1.0, 0.0, effectiveDist * 0.8); // Wider range for smoothstep
+                    float softBloomGlow = pow(bloomFalloff, 2.0) * 0.8; // Square the result for softer curve, adjust multiplier
 
                     // Add the proximity-scaled bloom glow to the base glow.
                     float glow = baseGlow + softBloomGlow * proximityFactor;
