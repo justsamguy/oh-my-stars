@@ -237,10 +237,11 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     // Adding a small epsilon to prevent division by zero if dist is exactly 0.
                     float effectiveDist = dist / (1.0 + proximityFactor * bloomMagnitude + 0.0001);
 
-                    // Calculate the soft bloom glow based on the effective distance, matching POI falloff.
-                    // Fades from full intensity near the center (effectiveDist approx 0)
-                    // to zero intensity further out (effectiveDist * 2.0 reaches 1.0).
-                    float softBloomGlow = smoothstep(1.0, 0.0, effectiveDist * 2.0);
+                    // Calculate the soft bloom glow based on the effective distance with a softer falloff.
+                    float softBloomGlow =
+                        smoothstep(1.0, 0.0, effectiveDist * 1.5) * 0.5 + // Wider, softer component
+                        smoothstep(1.0, 0.0, effectiveDist * 3.0) * 0.3 + // Medium component
+                        smoothstep(1.0, 0.0, effectiveDist * 6.0) * 0.2;  // Tighter component
 
                     // Add the proximity-scaled bloom glow to the base glow.
                     float glow = baseGlow + softBloomGlow * proximityFactor;
