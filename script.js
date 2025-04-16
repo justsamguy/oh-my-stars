@@ -204,54 +204,20 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 
                 void main() {
                     float dist = length(vUv - vec2(0.5));
-                    
-                    // Core REMOVED - Glow will define the shape entirely.
-                    
-                    // Adjusted baseGlow: Reduced the widest component's contribution for less default fuzziness
-                    float baseGlow = 
-                        smoothstep(0.75, 0.0, dist * 2.0) * 0.3 +    // Reduced wide soft glow contribution
-                        smoothstep(0.75, 0.0, dist * 4.0) * 0.4 +    // Increased medium glow contribution slightly
-                        smoothstep(0.75, 0.0, dist * 8.0) * 0.3;     // Increased tight glow contribution slightly
-                    
-                    // Simple pulsing effect
+
+                    // Simple pulsing effect (kept from original)
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
-                    // POI-style mouse proximity calculation (remains the same)
-                    vec3 worldPos = (inverse(viewMatrix) * vec4(vViewPosition, 1.0)).xyz;
-                    vec2 deltaPos = worldPos.xy - mousePosition.xy;
-                    float mouseDistance = length(deltaPos);
-                    // Adjusted smoothstep range for a tighter proximity effect, closer to POI feel
-                    float proximityFactor = 1.0 - smoothstep(20.0, 60.0, mouseDistance);
 
-                    // Wave effect from POI (remains the same)
-                    float waveEffect = sin(mouseDistance * 0.1 - time * 2.0) * 0.05 * proximityFactor;
-                    proximityFactor = clamp(proximityFactor + waveEffect, 0.0, 1.0);
+                    // --- POI-style Glow Logic ---
+                    // Calculate strength using smoothstep, similar to POI glow
+                    // Parameters (1.0, 0.0, dist * 2.0) match the POI shader. May need tuning.
+                    float strength = smoothstep(1.0, 0.0, dist * 2.0);
 
-                    // --- New Bloom Logic ---
-                    // Define how much the bloom expands visually with proximity.
-                    // Adjust this value to match POI visual size at proximityFactor = 1.0
-                    float bloomMagnitude = 40.0; // Increased magnitude for larger bloom (was 35.0)
+                    // Calculate final alpha (mouse proximity effect removed for now)
+                    float finalAlpha = clamp(strength, 0.0, 1.0) * pulse; // Use strength directly
 
-                    // Calculate an effective distance that shrinks as proximity increases, making the glow larger.
-                    // When proximityFactor = 0, effectiveDist = dist.
-                    // When proximityFactor = 1, effectiveDist = dist / (1 + bloomMagnitude).
-                    // Adding a small epsilon to prevent division by zero if dist is exactly 0.
-                    float effectiveDist = dist / (1.0 + proximityFactor * bloomMagnitude + 0.0001);
-
-                    // Calculate the soft bloom glow using exponential decay for a smooth, edge-less falloff
-                    float decayRate = 3.0; // Controls how quickly the glow fades. Adjust as needed.
-                    float softBloomGlow = exp(-decayRate * effectiveDist * effectiveDist) * 0.9; // Exponential decay, adjust multiplier
-
-                    // Add the proximity-scaled bloom glow to the base glow.
-                    float glow = baseGlow + softBloomGlow * proximityFactor;
-                    // --- End New Bloom Logic ---
-
-                    // Adjusted color transition: Blend less towards white for a softer, more colorful bloom
-                    vec3 dimColor = mix(vec3(1.0), color, 0.3); // Dimmed color when mouse is far
-                    vec3 brightColor = mix(color, vec3(1.0), 0.3); // Mix LESS white for bloom (was 0.5)
-                    vec3 finalGlowColor = mix(dimColor, brightColor, proximityFactor); // Transition to brighter, less saturated color
-
-                    // Calculate final alpha based *only* on the combined glow shape.
-                    float finalAlpha = clamp(glow, 0.0, 1.0) * pulse; // Clamp to ensure alpha stays <= 1.0
+                    // Use the star's interpolated color directly (mouse proximity effect removed for now)
+                    vec3 finalGlowColor = color;
 
                     gl_FragColor = vec4(finalGlowColor, finalAlpha);
                 }
