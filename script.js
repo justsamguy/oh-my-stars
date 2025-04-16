@@ -237,9 +237,9 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     // Adding a small epsilon to prevent division by zero if dist is exactly 0.
                     float effectiveDist = dist / (1.0 + proximityFactor * bloomMagnitude + 0.0001);
 
-                    // Calculate the soft bloom glow using smoothstep and pow for a softer, more natural falloff
-                    float bloomFalloff = smoothstep(1.0, 0.0, effectiveDist * 0.8); // Wider range for smoothstep
-                    float softBloomGlow = pow(bloomFalloff, 2.0) * 0.8; // Square the result for softer curve, adjust multiplier
+                    // Calculate the soft bloom glow using exponential decay for a smooth, edge-less falloff
+                    float decayRate = 3.0; // Controls how quickly the glow fades. Adjust as needed.
+                    float softBloomGlow = exp(-decayRate * effectiveDist * effectiveDist) * 0.9; // Exponential decay, adjust multiplier
 
                     // Add the proximity-scaled bloom glow to the base glow.
                     float glow = baseGlow + softBloomGlow * proximityFactor;
