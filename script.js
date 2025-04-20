@@ -137,7 +137,7 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
     const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y - 50; // Add padding
     
     for (let i = 0; i < count; i++) {
-        const geometry = new THREE.CircleGeometry(1, 32);
+        const geometry = new THREE.CircleGeometry(3, 32); // Increased radius from 1 to 3 for larger glow canvas
         
         // Generate positions across full range
         const x = (Math.random() - 0.5) * viewportWidth * 2;
@@ -210,13 +210,10 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
 
                     // --- POI-style Glow Logic ---
                     // Calculate glow strength based on distance from the center (dist).
-                    // We want strength = 1.0 at the center (dist=0) and strength = 0.0 at the outer edge.
-                    // smoothstep(edge0, edge1, x) creates a smooth transition from 0.0 to 1.0 as x goes from edge0 to edge1.
-                    float strength = 1.0 - smoothstep(
-                        0.0,  // edge0: The distance where the transition *starts*. At dist=0 (center), smoothstep is 0, so strength is 1.0 (1.0 - 0.0).
-                        1.25, // edge1: The distance where the transition *ends*. At dist=1.25, smoothstep is 1.0, so strength is 0.0 (1.0 - 1.0). Controls the outer radius/size of the glow.
-                        dist  // x: The input value, which is the distance from the center of the star's UV coordinates.
-                    );
+                    // dist ranges from 0.0 (center) to 0.5 (edge of UV space).
+                    // smoothstep(1.0, 0.0, x) transitions from 1.0 down to 0.0 as x goes from 0.0 to 1.0.
+                    // By using dist * 2.0, the input ranges from 0.0 to 1.0, creating a smooth falloff across the entire geometry UV space.
+                    float strength = smoothstep(1.0, 0.0, dist * 2.0); // Reverted to original smooth falloff logic
 
                     // Calculate final alpha (mouse proximity effect removed for now)
                     float finalAlpha = clamp(strength, 0.0, 1.0) * pulse; // Use strength directly
