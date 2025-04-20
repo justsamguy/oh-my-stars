@@ -137,7 +137,7 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
     const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y - 50; // Add padding
     
     for (let i = 0; i < count; i++) {
-        const geometry = new THREE.CircleGeometry(3, 32); // Increased radius from 1 to 3 for larger glow canvas
+        const geometry = new THREE.CircleGeometry(4, 32); // first integer controls radius of glow canvas
         
         // Generate positions across full range
         const x = (Math.random() - 0.5) * viewportWidth * 2;
@@ -183,46 +183,67 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
             vertexShader: `
                 uniform float cameraY;
                 varying vec2 vUv;
-                varying vec3 vViewPosition;
-                
+                // varying vec3 vViewPosition; // No longer needed directly in fragment shader
+                varying vec3 vWorldPosition; // Pass world position
+
                 void main() {
                     vUv = uv;
-                    vec3 pos = position;
-                    float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0;
-                    pos.y -= cameraY * parallaxStrength;
-                    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-                    vViewPosition = mvPosition.xyz;
-                    gl_Position = projectionMatrix * mvPosition;
+                    vec3 pos = position; // Use original position for parallax calculation relative to cameraY
+                    float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0; // Keep original Z for parallax strength
+                    vec3 worldPos = (modelMatrix * vec4(position, 1.0)).xyz; // Calculate base world position
+
+                    // Apply parallax offset in world space Y based on cameraY
+                    worldPos.y -= cameraY * parallaxStrength;
+
+                    vWorldPosition = worldPos; // Pass final world position
+
+                    vec4 mvPosition = viewMatrix * vec4(vWorldPosition, 1.0); // Calculate model-view position
+                    gl_Position = projectionMatrix * mvPosition; // Calculate final screen position
                 }
             `,
             fragmentShader: `
                 uniform vec3 color;
                 uniform float time;
-                uniform vec3 mousePosition;
+                uniform vec3 mousePosition; // World space position of mouse on z=0 plane
                 varying vec2 vUv;
-                varying vec3 vViewPosition;
-                
+                varying vec3 vWorldPosition; // Star's world position
+
+                // Define interaction radii
+                const float MAX_INTERACTION_RADIUS = 75.0;
+                const float MIN_INTERACTION_RADIUS = 15.0; // Radius for maximum effect
+
                 void main() {
-                    float dist = length(vUv - vec2(0.5));
+                    // --- Calculate distance from mouse ---
+                    // Use only X and Y for 2D screen distance
+                    float mouseDist = length(vWorldPosition.xy - mousePosition.xy);
 
-                    // Simple pulsing effect (kept from original)
-                    float pulse = sin(time * 2.0) * 0.1 + 0.9;
+                    // --- Calculate mouse proximity factor (0 = far, 1 = close) ---
+                    // smoothstep(edge0, edge1, x): 0 if x <= edge0, 1 if x >= edge1, smooth transition between
+                    // We want the opposite: 1 if dist <= MIN, 0 if dist >= MAX
+                    // So, use smoothstep(MAX, MIN, mouseDist)
+                    float mouseProximityFactor = smoothstep(MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, mouseDist);
 
-                    // --- POI-style Glow Logic ---
-                    // Calculate glow strength based on distance from the center (dist).
-                    // dist ranges from 0.0 (center) to 0.5 (edge of UV space).
-                    // smoothstep(1.0, 0.0, x) transitions from 1.0 down to 0.0 as x goes from 0.0 to 1.0.
-                    // By using dist * 2.0, the input ranges from 0.0 to 1.0, creating a smooth falloff across the entire geometry UV space.
-                    float strength = smoothstep(1.0, 0.0, dist * 2.0); // Reverted to original smooth falloff logic
+                    // --- Calculate base dot appearance (small, sharp white dot) ---
+                    float coreDist = length(vUv - vec2(0.5)); // Distance from center of the star's geometry UVs
+                    float coreAlpha = smoothstep(0.15, 0.05, coreDist); // Sharp falloff for a small dot
+                    vec3 coreColor = vec3(1.0); // White
 
-                    // Calculate final alpha (mouse proximity effect removed for now)
-                    float finalAlpha = clamp(strength, 0.0, 1.0) * pulse; // Use strength directly
+                    // --- Calculate glow appearance (original logic, but modulated by mouse) ---
+                    float glowShape = smoothstep(0.5, 0.0, coreDist); // Glow falloff (adjust 0.5 for glow size)
+                    float pulse = sin(time * 2.0) * 0.1 + 0.9; // Original pulsing
+                    float glowAlpha = clamp(glowShape, 0.0, 1.0) * pulse;
+                    vec3 glowColor = color; // Star's inherent color
 
-                    // Use the star's interpolated color directly (mouse proximity effect removed for now)
-                    vec3 finalGlowColor = color;
+                    // --- Combine core dot and glow based on mouse proximity ---
+                    // Interpolate color from white to star color
+                    vec3 finalColor = mix(coreColor, glowColor, mouseProximityFactor);
+                    // Combine alphas: core is always there, glow fades in
+                    // Make core alpha also slightly affected by proximity to avoid harsh white dots when glow is active
+                    float finalAlpha = mix(coreAlpha * 0.5, coreAlpha, 1.0 - mouseProximityFactor) + glowAlpha * mouseProximityFactor;
+                    // Clamp final alpha to avoid exceeding 1.0
+                    finalAlpha = clamp(finalAlpha, 0.0, 1.0);
 
-
-                    gl_FragColor = vec4(finalGlowColor, finalAlpha);
+                    gl_FragColor = vec4(finalColor, finalAlpha);
                 }
             `,
             transparent: true,
