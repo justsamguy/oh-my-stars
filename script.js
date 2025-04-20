@@ -253,11 +253,12 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
 
         const star = new THREE.Mesh(geometry, material);
         star.position.set(x, y, z);
-        
+
         const size = 0.5 + Math.random() * (2.25 - Math.abs(z + 150) / 60); // Increased max size by 50%
-        star.scale.set(size, size, 1);
+        star.userData.originalScale = size; // Store original scale
+        star.scale.set(size / 3, size / 3, 1); // Set initial smaller scale
         star.rotation.z = Math.random() * Math.PI;
-        
+
         group.add(star);
     }
 
@@ -547,15 +548,40 @@ function animate() {
         document.body.style.cursor = 'grab';
     }
     const cameraY = camera.position.y;
+    // Define interaction radii constants accessible here
+    const MAX_INTERACTION_RADIUS = 75.0;
+    const MIN_INTERACTION_RADIUS = 15.0;
+
     stars.children.forEach(star => {
         star.material.uniforms.time.value = elapsedTime;
         star.material.uniforms.cameraY.value = cameraY;
+
+        // --- Scale interpolation based on mouse proximity ---
+        const originalScale = star.userData.originalScale;
+        if (originalScale) { // Ensure originalScale exists
+            const mousePos = star.material.uniforms.mousePosition.value; // Get current mouse world pos from uniform
+            const starPos = star.position;
+
+            // Calculate 2D distance (ignoring Z)
+            const dx = starPos.x - mousePos.x;
+            const dy = starPos.y - mousePos.y;
+            const mouseDist = Math.sqrt(dx * dx + dy * dy);
+
+            // Calculate proximity factor (0=far, 1=close) - mirroring shader logic
+            const factor = Math.max(0.0, Math.min(1.0, (mouseDist - MIN_INTERACTION_RADIUS) / (MAX_INTERACTION_RADIUS - MIN_INTERACTION_RADIUS)));
+            const mouseProximityFactor = 1.0 - factor; // Invert to get 1.0 when close
+
+            // Interpolate scale: target is originalScale when factor is 1, originalScale / 3 when factor is 0
+            const targetScale = (originalScale / 3) + (originalScale * 2 / 3) * mouseProximityFactor;
+
+            // Smoothly interpolate current scale towards target scale
+            const lerpFactor = 0.1; // Adjust for faster/slower transition
+            star.scale.x += (targetScale - star.scale.x) * lerpFactor;
+            star.scale.y += (targetScale - star.scale.y) * lerpFactor;
+            // star.scale.lerp(new THREE.Vector3(targetScale, targetScale, 1), lerpFactor); // Using lerp directly might be smoother
+        }
     });
-    // Convert mouse coordinates to world space
-    const mouseWorld = new THREE.Vector2(
-        (mouse.x * viewportWidth / 2),
-        (-mouse.y * viewportHeight / 2) + camera.position.y
-    );
+
     updateScroll();
     renderer.clear();         // Clear manually
     renderer.render(scene, camera);
