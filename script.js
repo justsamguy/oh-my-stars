@@ -208,31 +208,17 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     // Simple pulsing effect (kept from original)
                     float pulse = sin(time * 2.0) * 0.1 + 0.9;
 
-                    // --- Re-introducing Mouse Proximity ---
-                    // Calculate mouse proximity factor (same as before)
-                    vec3 worldPos = (inverse(viewMatrix) * vec4(vViewPosition, 1.0)).xyz;
-                    vec2 deltaPos = worldPos.xy - mousePosition.xy;
-                    float mouseDistance = length(deltaPos);
-                    float proximityFactor = 1.0 - smoothstep(20.0, 60.0, mouseDistance); // Reveal range
-
-                    // Wave effect (optional, kept from original logic)
-                    float waveEffect = sin(mouseDistance * 0.1 - time * 2.0) * 0.05 * proximityFactor;
-                    proximityFactor = clamp(proximityFactor + waveEffect, 0.0, 1.0);
-
-                    // --- POI-style Glow Logic (Size Adjusted) ---
-                    // Calculate base strength using smoothstep with the larger size
+                    // --- POI-style Glow Logic ---
+                    // Calculate strength using smoothstep, similar to POI glow
+                    // Reduced multiplier from 2.0 to 0.67 to make glow ~3x larger
                     float strength = smoothstep(1.0, 0.0, dist * 0.67);
 
-                    // --- Combine Glow & Proximity ---
-                    // Modulate final alpha by proximityFactor to reveal glow near mouse
-                    // Also add a minimum base alpha so stars aren't completely invisible
-                    float baseAlpha = 0.1; // Small minimum visibility
-                    float finalAlpha = clamp(baseAlpha + strength * proximityFactor, 0.0, 1.0) * pulse;
+                    // Calculate final alpha (mouse proximity effect removed for now)
+                    float finalAlpha = clamp(strength, 0.0, 1.0) * pulse; // Use strength directly
 
-                    // Re-introduce color transition based on proximity (same as before)
-                    vec3 dimColor = mix(vec3(1.0), color, 0.3); // Dimmed color when mouse is far
-                    vec3 brightColor = mix(color, vec3(1.0), 0.3); // Mix LESS white for bloom
-                    vec3 finalGlowColor = mix(dimColor, brightColor, proximityFactor); // Transition based on proximity
+                    // Use the star's interpolated color directly (mouse proximity effect removed for now)
+                    vec3 finalGlowColor = color;
+
 
                     gl_FragColor = vec4(finalGlowColor, finalAlpha);
                 }
