@@ -242,9 +242,10 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     vec3 glowColor = color; // Star's inherent color
 
                     // --- Calculate random twinkle parameters ---
-                    float randomFrequency = mix(0.5, 3.0, vRandomSeed); // Random frequency range (0.5Hz to 3Hz)
-                    float randomSpeed = mix(0.8, 2.5, fract(vRandomSeed * 10.0)); // Random speed multiplier
-                    float randomMaxIntensityFactor = mix(0.5, 1.0, fract(vRandomSeed * 100.0)); // Random max strength (50% to 100%)
+                    // Reduced frequency and speed ranges for a smoother pulse effect
+                    float randomFrequency = mix(0.3, 1.2, vRandomSeed); // Slower frequency range (0.3Hz to 1.2Hz)
+                    float randomSpeed = mix(0.7, 1.5, fract(vRandomSeed * 10.0)); // Narrower speed multiplier range
+                    float randomMaxIntensityFactor = mix(0.5, 1.0, fract(vRandomSeed * 100.0)); // Random max strength (50% to 100%) - Kept the same
 
                     // --- Calculate twinkle modulation value (0 to 1 range, scaled by random max intensity) ---
                     // Use time * speed * frequency for the sin wave
