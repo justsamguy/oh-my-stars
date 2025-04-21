@@ -242,23 +242,77 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     vec3 glowColor = color; // Star's inherent color
 
                     // --- Calculate random twinkle parameters ---
-                    // Reduced frequency and speed ranges for a smoother pulse effect
-                    float randomFrequency = mix(0.3, 1.2, vRandomSeed); // Slower frequency range (0.3Hz to 1.2Hz)
-                    float randomSpeed = mix(0.7, 1.5, fract(vRandomSeed * 10.0)); // Narrower speed multiplier range
-                    float randomMaxIntensityFactor = mix(0.5, 1.0, fract(vRandomSeed * 100.0)); // Random max strength (50% to 100%) - Kept the same
+                    // Reverted to original random ranges for desired motion dynamics
+                    float randomFrequency = mix(0.5, 3.0, vRandomSeed); // Original frequency range (0.5Hz to 3Hz)
+                    float randomSpeed = mix(0.8, 2.5, fract(vRandomSeed * 10.0)); // Original speed multiplier range
+                    float randomMaxIntensityFactor = mix(0.5, 1.0, fract(vRandomSeed * 100.0)); // Original max strength (50% to 100%)
 
-                    // --- Calculate twinkle modulation value (0 to 1 range, scaled by random max intensity) ---
-                    // Use time * speed * frequency for the sin wave
-                    float twinkleValue = (sin(time * randomSpeed * randomFrequency * 6.28318) * 0.5 + 0.5); // Base pulse 0 to 1 (using 2*PI)
-                    twinkleValue *= randomMaxIntensityFactor; // Scale by random max intensity factor
+                    // --- Calculate smooth pulse modulation value ---
+                    float cycleLength = 1.0 / randomFrequency; // Time for one cycle
+                    float currentTimeInCycle = mod(time * randomSpeed, cycleLength);
 
-                    // --- Calculate base glow alpha (without old pulse) ---
+                    // Define pulse duration (e.g., 30% of the cycle length)
+                    float pulseDuration = cycleLength * 0.3;
+                    float pulseStartTime = 0.0; // Pulse starts at the beginning of the cycle
+
+                    // Calculate smooth pulse shape using smoothstep for rise and fall
+                    float riseEndTime = pulseStartTime + pulseDuration * 0.5;
+                    float fallStartTime = riseEndTime;
+                    float fallEndTime = pulseStartTime + pulseDuration;
+
+                    // Smooth rise from 0 to 1 during the first half of pulseDuration
+                    float riseFactor = smoothstep(pulseStartTime, riseEndTime, currentTimeInCycle);
+                    // Smooth fall from 1 to 0 during the second half of pulseDuration
+                    float fallFactor = 1.0 - smoothstep(fallStartTime, fallEndTime, currentTimeInCycle);
+
+                    // Combine rise and fall (only one will be active non-zero/non-one at a time)
+                    // Multiply by max intensity factor
+                    float pulseValue = riseFactor * fallFactor * randomMaxIntensityFactor;
+
+                    // --- Calculate base glow alpha ---
                     float baseGlowAlpha = clamp(glowShape, 0.0, 1.0);
 
-                    // --- Modulate glow alpha with twinkle based on mouse proximity ---
+                    // --- Modulate glow alpha with smooth pulse based on mouse proximity ---
                     // When mouse is far (factor=0), use 1.0 (no modulation).
-                    // When close (factor=1), use twinkleValue.
-                    float finalGlowAlpha = baseGlowAlpha * mix(1.0, twinkleValue, mouseProximityFactor);
+                    // When close (factor=1), use the calculated pulseValue.
+                    // We want the glow to be *at least* its base alpha, and pulse *up* from there
+                    // So, mix between baseGlowAlpha and baseGlowAlpha * (1.0 + pulseValue * some_boost_factor)? No, that's complex.
+                    // Let's try mixing the *modulator*: mix between 1.0 (no pulse) and pulseValue (full pulse effect).
+                    // The pulseValue is already 0-1 scaled by intensity. Let's use it to modulate the base glow.
+                    // Mix between 1.0 (no effect) and pulseValue (apply pulse intensity) based on proximity.
+                    float pulseModulator = mix(1.0, pulseValue, mouseProximityFactor);
+                    // Apply the modulator. If pulseValue is 0, modulator is 1. If pulseValue is 1, modulator is 1.
+                    // This isn't right. Let's rethink the mix.
+
+                    // Alternative: Calculate the target alpha during pulse: baseGlowAlpha * pulseValue
+                    // Calculate the target alpha without pulse: baseGlowAlpha
+                    // Interpolate between non-pulsed and pulsed alpha based on proximity? Still feels wrong.
+
+                    // Let's stick to the original idea: modulate the base alpha.
+                    // When proximity is 0, factor is 1.0. When proximity is 1, factor is pulseValue.
+                    // But pulseValue can be 0, making the star disappear.
+                    // We want the pulse to *add* to the base glow, up to the max intensity.
+
+                    // Try this: The final alpha is the base glow, potentially increased by the pulse.
+                    // pulseValue ranges from 0 to randomMaxIntensityFactor.
+                    // Let the final glow alpha be baseGlowAlpha * (1.0 + pulseValue * mouseProximityFactor)?
+                    // This might make it too bright.
+
+                    // Simpler: Use the pulseValue (0 to randomMaxFactor) directly as the glow multiplier when close.
+                    // Mix between 1.0 (normal glow) and pulseValue (pulsed glow) based on proximity.
+                    float finalGlowAlpha = baseGlowAlpha * mix(1.0, pulseValue, mouseProximityFactor);
+                    // Clamp to ensure it doesn't exceed baseGlowAlpha if pulseValue is somehow > 1 (it shouldn't be)
+                    // Actually, pulseValue can be 0, making it disappear. Need base + pulse.
+
+                    // Let's define the pulse as an *additive* factor, controlled by proximity.
+                    // pulseValue is 0 to randomMaxFactor.
+                    float additivePulse = pulseValue * mouseProximityFactor; // Pulse strength scaled by proximity
+                    // Add this to the base glow alpha.
+                    finalGlowAlpha = baseGlowAlpha + additivePulse;
+                    // Clamp final alpha to avoid exceeding 1.0 (or maybe baseGlowAlpha * max_possible_factor?)
+                    // Let's just clamp to 1.0 for safety.
+                    finalGlowAlpha = clamp(finalGlowAlpha, 0.0, 1.0);
+
 
                     // --- Combine core dot and modulated glow ---
                     // Interpolate color from white core to star's glow color based on proximity
