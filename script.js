@@ -234,7 +234,7 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                     vec3 coreColor = vec3(1.0); // White
 
                     // --- Calculate base glow shape ---
-                    float glowShape = smoothstep(0.5, 0.0, coreDist); // Glow falloff (adjust 0.5 for glow size)
+                    float glowShape = smoothstep(0.2, 0.0, coreDist); // Glow falloff (adjust first value for glow size)
                     vec3 glowColor = color; // Star's inherent color
 
                     // --- Remove random twinkle/pulse effect ---
