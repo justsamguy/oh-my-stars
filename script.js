@@ -263,7 +263,7 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
         const star = new THREE.Mesh(geometry, material);
         star.position.set(x, y, z);
 
-        const size = (0.5 + Math.random() * (2.25 - Math.abs(z + 150) / 60)) * 0.75; // Reduce size to 75%
+        const size = (0.5 + Math.random() * (2.25 - Math.abs(z + 150) / 60)) * 0.5; // Use multiplier for size
         star.userData.originalScale = size; // Store original scale
         star.scale.set(size / 3, size / 3, 1); // Set initial smaller scale
         star.rotation.z = Math.random() * Math.PI;
