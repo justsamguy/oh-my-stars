@@ -178,7 +178,9 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 color: { value: finalColor },
                 time: { value: 0 },
                 cameraY: { value: 0 },
-                mousePosition: { value: new THREE.Vector3(-10000, -10000, 0) }
+                mousePosition: { value: new THREE.Vector3(-10000, -10000, 0) },
+                twinkleFrequency: { value: 2.5 + Math.random() * 1.5 }, // Per-star twinkle speed
+                twinklePhase: { value: Math.random() * Math.PI * 2 } // Per-star phase offset
             },
             vertexShader: `
                 uniform float cameraY;
@@ -186,70 +188,63 @@ function createAllStars(count = 9000) { // Reduced to 75% of original count
                 varying vec3 vWorldPosition; // Pass world position
                 varying float vRandomSeed; // Pass random seed per star
 
-                // Simple hash function for pseudo-randomness in vertex shader
                 float hash(vec2 p) {
                     return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
                 }
 
                 void main() {
                     vUv = uv;
-                    // Calculate a random seed based on initial position (before parallax)
                     vRandomSeed = hash(position.xy);
-
-                    vec3 pos = position; // Use original position for parallax calculation relative to cameraY
-                    float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0; // Keep original Z for parallax strength
-                    vec3 worldPos = (modelMatrix * vec4(position, 1.0)).xyz; // Calculate base world position
-
-                    // Apply parallax offset in world space Y based on cameraY
+                    vec3 pos = position;
+                    float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0;
+                    vec3 worldPos = (modelMatrix * vec4(position, 1.0)).xyz;
                     worldPos.y -= cameraY * parallaxStrength;
-
-                    vWorldPosition = worldPos; // Pass final world position
-
-                    vec4 mvPosition = viewMatrix * vec4(vWorldPosition, 1.0); // Calculate model-view position
-                    gl_Position = projectionMatrix * mvPosition; // Calculate final screen position
+                    vWorldPosition = worldPos;
+                    vec4 mvPosition = viewMatrix * vec4(vWorldPosition, 1.0);
+                    gl_Position = projectionMatrix * mvPosition;
                 }
             `,
             fragmentShader: `
                 uniform vec3 color;
                 uniform float time;
-                uniform vec3 mousePosition; // World space position of mouse on z=0 plane
+                uniform vec3 mousePosition;
+                uniform float twinkleFrequency;
+                uniform float twinklePhase;
                 varying vec2 vUv;
-                varying vec3 vWorldPosition; // Star's world position
-                varying float vRandomSeed; // Receive random seed
+                varying vec3 vWorldPosition;
+                varying float vRandomSeed;
 
-                // Define interaction radii
                 const float MAX_INTERACTION_RADIUS = 75.0;
-                const float MIN_INTERACTION_RADIUS = 15.0; // Radius for maximum effect
+                const float MIN_INTERACTION_RADIUS = 15.0;
+                const float BASE_GLOW_RADIUS = 0.2; // Default glow size
+                const float MAX_GLOW_RADIUS = 0.45; // Max glow size when mouse is close
+                const float BASE_GLOW_ALPHA = 0.7;
+                const float MAX_GLOW_ALPHA = 1.0;
+                const float TWINKLE_AMPLITUDE = 0.35; // How much the twinkle modulates the glow
 
                 void main() {
-                    // --- Calculate distance from mouse ---
                     float mouseDist = length(vWorldPosition.xy - mousePosition.xy);
+                    float mouseProximity = smoothstep(MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, mouseDist);
 
-                    // --- Calculate mouse proximity factor (0 = far, 1 = close) ---
-                    float mouseProximityFactor = smoothstep(MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, mouseDist);
+                    float coreDist = length(vUv - vec2(0.5));
+                    float coreAlpha = smoothstep(0.15, 0.05, coreDist);
+                    vec3 coreColor = vec3(1.0);
 
-                    // --- Calculate base dot appearance (small, sharp white dot) ---
-                    float coreDist = length(vUv - vec2(0.5)); // Distance from center of the star's geometry UVs
-                    float coreAlpha = smoothstep(0.15, 0.05, coreDist); // Sharp falloff for a small dot
-                    vec3 coreColor = vec3(1.0); // White
+                    // Sine-wave twinkle, only on proximity
+                    float twinkle = 0.0;
+                    if (mouseProximity > 0.0) {
+                        twinkle = 0.5 + 0.5 * sin(time * twinkleFrequency + twinklePhase);
+                    }
 
-                    // --- Calculate base glow shape ---
-                    float glowShape = smoothstep(0.2, 0.0, coreDist); // Glow falloff (adjust first value for glow size)
-                    vec3 glowColor = color; // Star's inherent color
+                    // Glow radius and alpha modulated by proximity and twinkle
+                    float glowRadius = mix(BASE_GLOW_RADIUS, MAX_GLOW_RADIUS, mouseProximity * (0.7 + 0.3 * twinkle));
+                    float glowShape = smoothstep(glowRadius, 0.0, coreDist);
+                    float glowAlpha = mix(BASE_GLOW_ALPHA, MAX_GLOW_ALPHA, mouseProximity * (0.7 + 0.3 * twinkle));
+                    glowAlpha *= glowShape;
 
-                    // --- Remove random twinkle/pulse effect ---
-
-                    // --- Calculate base glow alpha ---
-                    float baseGlowAlpha = clamp(glowShape, 0.0, 1.0);
-
-                    // --- Final glow alpha: just base glow, no pulse ---
-                    float finalGlowAlpha = baseGlowAlpha;
-
-                    // --- Combine core dot and final glow ---
-                    vec3 finalColor = mix(coreColor, glowColor, mouseProximityFactor);
-
-                    // Combine alphas:
-                    float combinedAlpha = mix(coreAlpha * 0.5, coreAlpha, 1.0 - mouseProximityFactor) + finalGlowAlpha;
+                    // Final color: blend white core and colored glow by proximity
+                    vec3 finalColor = mix(coreColor, color, mouseProximity);
+                    float combinedAlpha = mix(coreAlpha * 0.5, coreAlpha, 1.0 - mouseProximity) + glowAlpha;
                     combinedAlpha = clamp(combinedAlpha, 0.0, 1.0);
 
                     gl_FragColor = vec4(finalColor, combinedAlpha);
