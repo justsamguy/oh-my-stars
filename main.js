@@ -4,7 +4,7 @@ import { pois, STAR_COUNT, SCROLL_DAMPING, MAX_SCROLL_SPEED } from './config.js'
 import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
-import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollVelocity, raycaster } from './interaction.js';
+import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster } from './interaction.js';
 
 // Create stars
 const starsGroup = createAllStars(STAR_COUNT, pois, viewportWidth, viewportHeight);
@@ -32,11 +32,11 @@ function animate() {
     lastTime = now;
     // Camera scroll
     // Clamp scrollVelocity before applying
-    if (scrollVelocity > MAX_SCROLL_SPEED) scrollVelocity = MAX_SCROLL_SPEED;
-    if (scrollVelocity < -MAX_SCROLL_SPEED) scrollVelocity = -MAX_SCROLL_SPEED;
-    if (Math.abs(scrollVelocity) > 0.001) {
-        camera.position.y += scrollVelocity;
-        scrollVelocity *= SCROLL_DAMPING;
+    if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
+    if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
+    if (Math.abs(scrollState.velocity) > 0.001) {
+        camera.position.y += scrollState.velocity;
+        scrollState.velocity *= SCROLL_DAMPING;
     }
     // Clamp camera
     const minY = pois[pois.length - 1].position.y;

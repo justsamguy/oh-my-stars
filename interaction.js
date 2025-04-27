@@ -4,7 +4,7 @@ import { infoBoxContainer, camera, renderer } from './sceneSetup.js';
 
 // State
 export let mouseWorldPosition = new THREE.Vector3(-10000, -10000, 0);
-export let scrollVelocity = 0;
+export const scrollState = { velocity: 0 };
 export let cameraTargetY = camera.position.y;
 
 // Raycaster for POI hover
@@ -142,7 +142,7 @@ export function setupClickHandler(poiObjects) {
 // Scroll event
 export function setupScrollHandler() {
     window.addEventListener('wheel', (e) => {
-        scrollVelocity -= e.deltaY * 0.01;
+        scrollState.velocity -= e.deltaY * 0.01;
     });
 }
 
