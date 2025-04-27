@@ -100,6 +100,7 @@ function openInfoBox(poi, poiPosition) {
     content.style.transition = `opacity ${contentFadeDuration}ms`;
     content.style.maxWidth = '220px';
     content.style.boxSizing = 'border-box';
+    content.style.position = 'relative'; // Ensure close button is positioned relative to content
     content.innerHTML = `
         <h3 style=\"margin:0 0 10px 0; color:#${poi.color.toString(16)}\">${poi.name}</h3>
         <p style=\"margin:0\">${poi.description}</p>
@@ -109,6 +110,18 @@ function openInfoBox(poi, poiPosition) {
     const closeBtn = document.createElement('div');
     closeBtn.className = 'close-btn';
     closeBtn.innerHTML = '&times;';
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '10px';
+    closeBtn.style.right = '10px';
+    closeBtn.style.width = '20px';
+    closeBtn.style.height = '20px';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.lineHeight = '20px';
+    closeBtn.style.textAlign = 'center';
+    closeBtn.style.fontSize = '22px';
+    closeBtn.style.color = `#${poi.color.toString(16)}`;
+    closeBtn.style.background = 'transparent';
+    closeBtn.style.border = 'none';
     closeBtn.onclick = () => {
         queueAndHideInfoBox(null); // Close only
     };
@@ -124,10 +137,10 @@ function openInfoBox(poi, poiPosition) {
     // Animate panel unfold (width)
     setTimeout(() => {
         panel.style.width = contentWidth + 'px';
-        // Remove the seed line immediately after unfold
+        // Remove the seed line after unfold and after content is visible
         setTimeout(() => {
             if (seedLine.parentNode) seedLine.parentNode.removeChild(seedLine);
-        }, unfoldDuration - contentFadeDuration); // Remove before content fade-in
+        }, unfoldDuration + contentFadeDuration); // Remove after content fade-in
     }, seedLineDuration + 10);
     // Fade in content
     setTimeout(() => {
