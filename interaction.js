@@ -39,8 +39,9 @@ function openInfoBox(poi, poiPosition) {
     box.style.overflow = 'visible';
     box.style.transformOrigin = 'center center';
     box.style.zIndex = '1000';
-    box.style.transform = 'scaleX(0) scaleY(0.7)';
-    box.style.transition = 'transform 0.22s cubic-bezier(.5,1.7,.7,1)';
+    box.style.opacity = '0';
+    box.style.transform = 'scale(0.95)';
+    box.style.transition = 'transform 0.22s cubic-bezier(.5,1.7,.7,1), opacity 0.18s';
     infoBoxContainer.appendChild(box);
     currentInfoBox = box;
     // Content
@@ -64,7 +65,8 @@ function openInfoBox(poi, poiPosition) {
     box.appendChild(content);
     // Animate open
     setTimeout(() => {
-        box.style.transform = 'scaleX(1) scaleY(1)';
+        box.style.transform = 'scale(1)';
+        box.style.opacity = '1';
         setTimeout(() => {
             content.style.opacity = '1';
             infoBoxAnimating = false;
@@ -91,8 +93,9 @@ function closeCurrentInfoBox() {
     const box = currentInfoBox;
     const content = box.querySelector('div');
     if (content) content.style.opacity = '0';
-    box.style.transition = 'transform 0.18s cubic-bezier(.5,1.7,.7,1)';
-    box.style.transform = 'scaleX(0) scaleY(0.7)';
+    box.style.transition = 'transform 0.18s cubic-bezier(.5,1.7,.7,1), opacity 0.18s';
+    box.style.transform = 'scale(0.95)';
+    box.style.opacity = '0';
     setTimeout(() => {
         if (box.parentNode) box.parentNode.removeChild(box);
         currentInfoBox = null;
