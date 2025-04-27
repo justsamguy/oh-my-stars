@@ -15,14 +15,28 @@ let currentInfoBox = null;
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
+function processQueuedInfoBox() {
+    if (queuedInfoBox) {
+        const { poi, poiPosition } = queuedInfoBox;
+        queuedInfoBox = null;
+        showInfoBox(poi, poiPosition);
+    }
+}
+
 export function showInfoBox(poi, poiPosition) {
     if (infoBoxAnimating) {
-        // Queue this info box to show after current closes
-        queuedInfoBox = { poi, poiPosition };
-        hideInfoBox();
+        // Only queue if not already queued for this POI
+        if (!queuedInfoBox || queuedInfoBox.poi !== poi) {
+            queuedInfoBox = { poi, poiPosition };
+        }
         return;
     }
-    hideInfoBox(true); // true = don't clear queued
+    if (currentInfoBox) {
+        // If a box is open, close it and queue the new one
+        queuedInfoBox = { poi, poiPosition };
+        hideInfoBox(true); // Don't clear the queue
+        return;
+    }
     infoBoxAnimating = true;
     // Project POI position to screen
     const pos = poiPosition.clone();
@@ -73,12 +87,7 @@ export function showInfoBox(poi, poiPosition) {
         setTimeout(() => {
             content.style.opacity = '1';
             infoBoxAnimating = false;
-            // If a box was queued, show it now
-            if (queuedInfoBox) {
-                const { poi, poiPosition } = queuedInfoBox;
-                queuedInfoBox = null;
-                showInfoBox(poi, poiPosition);
-            }
+            processQueuedInfoBox();
         }, 220);
     }, 10);
 }
@@ -94,10 +103,8 @@ export function hideInfoBox(dontClearQueued) {
             }
             currentInfoBox = null;
             infoBoxAnimating = false;
-            if (!dontClearQueued && queuedInfoBox) {
-                const { poi, poiPosition } = queuedInfoBox;
-                queuedInfoBox = null;
-                showInfoBox(poi, poiPosition);
+            if (!dontClearQueued) {
+                processQueuedInfoBox();
             }
         }, 180);
     }
