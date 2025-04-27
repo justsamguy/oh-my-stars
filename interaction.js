@@ -142,7 +142,7 @@ export function setupClickHandler(poiObjects) {
 // Scroll event
 export function setupScrollHandler() {
     window.addEventListener('wheel', (e) => {
-        scrollVelocity += e.deltaY * 0.01;
+        scrollVelocity -= e.deltaY * 0.01;
     });
 }
 
