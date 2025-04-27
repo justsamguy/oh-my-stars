@@ -37,7 +37,7 @@ function openInfoBox(poi, poiPosition) {
     box.style.border = `1px solid #${poi.color.toString(16)}`;
     box.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
     box.style.overflow = 'visible';
-    box.style.transformOrigin = 'left center';
+    box.style.transformOrigin = 'center center';
     box.style.zIndex = '1000';
     box.style.transform = 'scaleX(0) scaleY(0.7)';
     box.style.transition = 'transform 0.22s cubic-bezier(.5,1.7,.7,1)';
