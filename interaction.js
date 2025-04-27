@@ -22,37 +22,62 @@ function openInfoBox(poi, poiPosition) {
     pos.project(camera);
     const screenX = (pos.x * 0.5 + 0.5) * window.innerWidth + 20;
     const screenY = (-pos.y * 0.5 + 0.5) * window.innerHeight - 20;
-    // Create info box container
-    const box = document.createElement('div');
-    box.className = 'info-box';
-    box.style.position = 'absolute';
-    box.style.left = `${screenX}px`;
-    box.style.top = `${screenY}px`;
-    box.style.background = 'rgba(0,20,40,0.92)';
-    box.style.color = '#fff';
-    box.style.padding = '15px';
-    box.style.borderRadius = '5px';
-    box.style.maxWidth = '220px';
-    box.style.pointerEvents = 'auto';
-    box.style.border = `1px solid #${poi.color.toString(16)}`;
-    box.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-    box.style.overflow = 'visible';
-    box.style.transformOrigin = 'center center';
-    box.style.zIndex = '1000';
-    box.style.opacity = '0';
-    box.style.transform = 'scale(0.95)';
-    box.style.transition = 'transform 0.22s cubic-bezier(.5,1.7,.7,1), opacity 0.18s';
-    infoBoxContainer.appendChild(box);
-    currentInfoBox = box;
-    // Content
+    // Animation timing
+    const totalDuration = 420; // ms
+    const seedLineDuration = Math.round(totalDuration * 0.4); // 40%
+    const unfoldDuration = Math.round(totalDuration * 0.6); // 60%
+    const contentFadeStart = Math.round(totalDuration * 0.7); // 70% in
+    const contentFadeDuration = totalDuration - contentFadeStart;
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'info-box-wrapper';
+    wrapper.style.position = 'absolute';
+    wrapper.style.left = `${screenX}px`;
+    wrapper.style.top = `${screenY}px`;
+    wrapper.style.zIndex = '1000';
+    wrapper.style.pointerEvents = 'auto';
+    wrapper.style.overflow = 'visible';
+    // Seed line
+    const seedLine = document.createElement('div');
+    seedLine.className = 'info-box-seedline';
+    seedLine.style.position = 'absolute';
+    seedLine.style.left = '0';
+    seedLine.style.top = '50%';
+    seedLine.style.width = '1px';
+    seedLine.style.height = '0';
+    seedLine.style.background = `#${poi.color.toString(16)}`;
+    seedLine.style.transform = 'translateY(-50%)';
+    seedLine.style.transition = `height ${seedLineDuration}ms cubic-bezier(.5,1.7,.7,1)`;
+    wrapper.appendChild(seedLine);
+    // Panel (unfolds horizontally)
+    const panel = document.createElement('div');
+    panel.className = 'info-box';
+    panel.style.position = 'absolute';
+    panel.style.left = '0';
+    panel.style.top = '0';
+    panel.style.height = '100%';
+    panel.style.width = '1px';
+    panel.style.background = 'rgba(0,20,40,0.92)';
+    panel.style.color = '#fff';
+    panel.style.padding = '15px 15px 15px 15px';
+    panel.style.borderRadius = '5px';
+    panel.style.maxWidth = '220px';
+    panel.style.pointerEvents = 'auto';
+    panel.style.border = `1px solid #${poi.color.toString(16)}`;
+    panel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
+    panel.style.overflow = 'hidden';
+    panel.style.transformOrigin = 'left center';
+    panel.style.opacity = '1';
+    panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(.5,1.7,.7,1)`;
+    // Content (fades in)
     const content = document.createElement('div');
     content.style.opacity = '0';
-    content.style.transition = 'opacity 0.18s';
+    content.style.transition = `opacity ${contentFadeDuration}ms`;
     const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -5);
     content.innerHTML = `
-        <h3 style="margin:0 0 10px 0; color:#${poi.color.toString(16)}">${poi.name}</h3>
-        <p style="margin:0">${poi.description}</p>
-        <div class="timestamp">${timestamp}</div>
+        <h3 style=\"margin:0 0 10px 0; color:#${poi.color.toString(16)}\">${poi.name}</h3>
+        <p style=\"margin:0\">${poi.description}</p>
+        <div class=\"timestamp\">${timestamp}</div>
     `;
     // Close button
     const closeBtn = document.createElement('div');
@@ -62,16 +87,29 @@ function openInfoBox(poi, poiPosition) {
         queueAndHideInfoBox(null); // Close only
     };
     content.appendChild(closeBtn);
-    box.appendChild(content);
-    // Animate open
+    panel.appendChild(content);
+    wrapper.appendChild(panel);
+    infoBoxContainer.appendChild(wrapper);
+    currentInfoBox = wrapper;
+    // Animate seed line (height)
     setTimeout(() => {
-        box.style.transform = 'scale(1)';
-        box.style.opacity = '1';
+        seedLine.style.height = '100px'; // Will be adjusted below
+        // Adjust to match panel height after DOM is ready
         setTimeout(() => {
-            content.style.opacity = '1';
-            infoBoxAnimating = false;
-        }, 220);
+            const panelHeight = panel.scrollHeight;
+            seedLine.style.height = panelHeight + 'px';
+            panel.style.height = panelHeight + 'px';
+        }, 10);
     }, 10);
+    // Animate panel unfold (width)
+    setTimeout(() => {
+        panel.style.width = panel.scrollWidth + 'px';
+    }, seedLineDuration + 10);
+    // Fade in content
+    setTimeout(() => {
+        content.style.opacity = '1';
+        infoBoxAnimating = false;
+    }, contentFadeStart + 10);
 }
 
 function queueAndHideInfoBox(nextInfoBox) {
@@ -90,14 +128,20 @@ function queueAndHideInfoBox(nextInfoBox) {
 function closeCurrentInfoBox() {
     if (!currentInfoBox) return;
     infoBoxAnimating = true;
-    const box = currentInfoBox;
-    const content = box.querySelector('div');
+    const wrapper = currentInfoBox;
+    const panel = wrapper.querySelector('.info-box');
+    const seedLine = wrapper.querySelector('.info-box-seedline');
+    const content = panel.querySelector('div');
+    // Fade out content
     if (content) content.style.opacity = '0';
-    box.style.transition = 'transform 0.18s cubic-bezier(.5,1.7,.7,1), opacity 0.18s';
-    box.style.transform = 'scale(0.95)';
-    box.style.opacity = '0';
+    // Animate panel fold (width)
+    panel.style.width = '1px';
+    // Animate seed line (height)
     setTimeout(() => {
-        if (box.parentNode) box.parentNode.removeChild(box);
+        seedLine.style.height = '0';
+    }, 120); // Start shrinking after panel fold
+    setTimeout(() => {
+        if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
         currentInfoBox = null;
         infoBoxAnimating = false;
         // After closing, open the queued box if any
@@ -106,7 +150,7 @@ function closeCurrentInfoBox() {
             queuedInfoBox = null;
             openInfoBox(poi, poiPosition);
         }
-    }, 180);
+    }, 320);
 }
 
 export function showInfoBox(poi, poiPosition) {
