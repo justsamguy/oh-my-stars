@@ -28,6 +28,27 @@ function openInfoBox(poi, poiPosition) {
     const unfoldDuration = Math.round(totalDuration * 0.6); // 60%
     const contentFadeStart = Math.round(totalDuration * 0.7); // 70% in
     const contentFadeDuration = totalDuration - contentFadeStart;
+    // Create a measurer for accurate sizing
+    const measurer = document.createElement('div');
+    measurer.style.position = 'absolute';
+    measurer.style.visibility = 'hidden';
+    measurer.style.pointerEvents = 'none';
+    measurer.style.zIndex = '-1';
+    measurer.style.boxSizing = 'border-box';
+    measurer.style.maxWidth = '220px';
+    measurer.style.padding = '15px';
+    measurer.style.border = `1px solid #${poi.color.toString(16)}`;
+    measurer.style.fontFamily = 'Courier New, monospace';
+    measurer.innerHTML = `
+        <h3 style=\"margin:0 0 10px 0; color:#${poi.color.toString(16)}\">${poi.name}</h3>
+        <p style=\"margin:0\">${poi.description}</p>
+        <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+        <div class=\"close-btn\" style=\"position:absolute;top:10px;right:10px;width:20px;height:20px;\">&times;</div>
+    `;
+    document.body.appendChild(measurer);
+    const contentWidth = measurer.offsetWidth;
+    const contentHeight = measurer.offsetHeight;
+    document.body.removeChild(measurer);
     // Create wrapper
     const wrapper = document.createElement('div');
     wrapper.className = 'info-box-wrapper';
@@ -37,6 +58,9 @@ function openInfoBox(poi, poiPosition) {
     wrapper.style.zIndex = '1000';
     wrapper.style.pointerEvents = 'auto';
     wrapper.style.overflow = 'visible';
+    wrapper.style.width = contentWidth + 'px';
+    wrapper.style.height = contentHeight + 'px';
+    wrapper.style.boxSizing = 'border-box';
     // Seed line
     const seedLine = document.createElement('div');
     seedLine.className = 'info-box-seedline';
@@ -55,11 +79,11 @@ function openInfoBox(poi, poiPosition) {
     panel.style.position = 'absolute';
     panel.style.left = '0';
     panel.style.top = '0';
-    panel.style.height = '100%';
+    panel.style.height = contentHeight + 'px';
     panel.style.width = '1px';
     panel.style.background = 'rgba(0,20,40,0.92)';
     panel.style.color = '#fff';
-    panel.style.padding = '15px 15px 15px 15px';
+    panel.style.padding = '15px';
     panel.style.borderRadius = '5px';
     panel.style.maxWidth = '220px';
     panel.style.pointerEvents = 'auto';
@@ -69,15 +93,17 @@ function openInfoBox(poi, poiPosition) {
     panel.style.transformOrigin = 'left center';
     panel.style.opacity = '1';
     panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(.5,1.7,.7,1)`;
+    panel.style.boxSizing = 'border-box';
     // Content (fades in)
     const content = document.createElement('div');
     content.style.opacity = '0';
     content.style.transition = `opacity ${contentFadeDuration}ms`;
-    const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -5);
+    content.style.maxWidth = '220px';
+    content.style.boxSizing = 'border-box';
     content.innerHTML = `
         <h3 style=\"margin:0 0 10px 0; color:#${poi.color.toString(16)}\">${poi.name}</h3>
         <p style=\"margin:0\">${poi.description}</p>
-        <div class=\"timestamp\">${timestamp}</div>
+        <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
     `;
     // Close button
     const closeBtn = document.createElement('div');
@@ -93,29 +119,21 @@ function openInfoBox(poi, poiPosition) {
     currentInfoBox = wrapper;
     // Animate seed line (height)
     setTimeout(() => {
-        // Set panel height to content height
-        const contentHeight = content.scrollHeight + 30; // 15px top/bottom padding
         seedLine.style.height = contentHeight + 'px';
-        panel.style.height = contentHeight + 'px';
-        wrapper.style.height = contentHeight + 'px';
     }, 10);
     // Animate panel unfold (width)
     setTimeout(() => {
-        // Set panel width to content width
-        const contentWidth = content.scrollWidth + 30; // 15px left/right padding
         panel.style.width = contentWidth + 'px';
-        wrapper.style.width = contentWidth + 'px';
+        // Remove the seed line immediately after unfold
+        setTimeout(() => {
+            if (seedLine.parentNode) seedLine.parentNode.removeChild(seedLine);
+        }, unfoldDuration - contentFadeDuration); // Remove before content fade-in
     }, seedLineDuration + 10);
     // Fade in content
     setTimeout(() => {
         content.style.opacity = '1';
         infoBoxAnimating = false;
-        // Remove the seed line after unfold
-        if (seedLine.parentNode) seedLine.parentNode.removeChild(seedLine);
     }, contentFadeStart + 10);
-    // Ensure proper sizing and box model
-    panel.style.boxSizing = 'border-box';
-    wrapper.style.boxSizing = 'border-box';
 }
 
 function queueAndHideInfoBox(nextInfoBox) {
