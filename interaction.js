@@ -24,8 +24,7 @@ function openInfoBox(poi, poiPosition) {
     const screenY = (-pos.y * 0.5 + 0.5) * window.innerHeight - 20;
     // Animation timing
     const totalDuration = 420; // ms
-    const seedLineDuration = Math.round(totalDuration * 0.4); // 40%
-    const unfoldDuration = Math.round(totalDuration * 0.6); // 60%
+    const unfoldDuration = totalDuration; // Use full duration for unfold
     const contentFadeStart = Math.round(totalDuration * 0.7); // 70% in
     const contentFadeDuration = totalDuration - contentFadeStart;
     // Create a measurer for accurate sizing
@@ -36,14 +35,14 @@ function openInfoBox(poi, poiPosition) {
     measurer.style.zIndex = '-1';
     measurer.style.boxSizing = 'border-box';
     measurer.style.maxWidth = '220px';
-    measurer.style.padding = '15px';
+    measurer.style.padding = '15px 20px 15px 15px'; // Extra right padding for close button
     measurer.style.border = `1px solid #${poi.color.toString(16)}`;
     measurer.style.fontFamily = 'Courier New, monospace';
     measurer.innerHTML = `
         <h3 style=\"margin:0 0 10px 0; color:#${poi.color.toString(16)}\">${poi.name}</h3>
         <p style=\"margin:0\">${poi.description}</p>
         <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
-        <div class=\"close-btn\" style=\"position:absolute;top:10px;right:10px;width:20px;height:20px;\">&times;</div>
+        <div class=\"close-btn\" style=\"position:absolute;top:10px;right:10px;width:28px;height:28px;padding:0;\">&times;</div>
     `;
     document.body.appendChild(measurer);
     const contentWidth = measurer.offsetWidth;
@@ -61,18 +60,6 @@ function openInfoBox(poi, poiPosition) {
     wrapper.style.width = contentWidth + 'px';
     wrapper.style.height = contentHeight + 'px';
     wrapper.style.boxSizing = 'border-box';
-    // Seed line
-    const seedLine = document.createElement('div');
-    seedLine.className = 'info-box-seedline';
-    seedLine.style.position = 'absolute';
-    seedLine.style.left = '0';
-    seedLine.style.top = '50%';
-    seedLine.style.width = '1px';
-    seedLine.style.height = '0';
-    seedLine.style.background = `#${poi.color.toString(16)}`;
-    seedLine.style.transform = 'translateY(-50%)';
-    seedLine.style.transition = `height ${seedLineDuration}ms cubic-bezier(.5,1.7,.7,1)`;
-    wrapper.appendChild(seedLine);
     // Panel (unfolds horizontally)
     const panel = document.createElement('div');
     panel.className = 'info-box';
@@ -83,7 +70,7 @@ function openInfoBox(poi, poiPosition) {
     panel.style.width = '1px';
     panel.style.background = 'rgba(0,20,40,0.92)';
     panel.style.color = '#fff';
-    panel.style.padding = '15px';
+    panel.style.padding = '15px 20px 15px 15px'; // Extra right padding for close button
     panel.style.borderRadius = '5px';
     panel.style.maxWidth = '220px';
     panel.style.pointerEvents = 'auto';
@@ -100,7 +87,7 @@ function openInfoBox(poi, poiPosition) {
     content.style.transition = `opacity ${contentFadeDuration}ms`;
     content.style.maxWidth = '220px';
     content.style.boxSizing = 'border-box';
-    content.style.position = 'relative'; // Ensure close button is positioned relative to content
+    content.style.position = 'relative';
     content.innerHTML = `
         <h3 style=\"margin:0 0 10px 0; color:#${poi.color.toString(16)}\">${poi.name}</h3>
         <p style=\"margin:0\">${poi.description}</p>
@@ -113,35 +100,28 @@ function openInfoBox(poi, poiPosition) {
     closeBtn.style.position = 'absolute';
     closeBtn.style.top = '10px';
     closeBtn.style.right = '10px';
-    closeBtn.style.width = '20px';
-    closeBtn.style.height = '20px';
+    closeBtn.style.width = '28px';
+    closeBtn.style.height = '28px';
     closeBtn.style.cursor = 'pointer';
-    closeBtn.style.lineHeight = '20px';
+    closeBtn.style.lineHeight = '28px';
     closeBtn.style.textAlign = 'center';
-    closeBtn.style.fontSize = '22px';
+    closeBtn.style.fontSize = '26px';
     closeBtn.style.color = `#${poi.color.toString(16)}`;
     closeBtn.style.background = 'transparent';
     closeBtn.style.border = 'none';
+    closeBtn.style.padding = '0';
     closeBtn.onclick = () => {
-        queueAndHideInfoBox(null); // Close only
+        queueAndHideInfoBox(null);
     };
     content.appendChild(closeBtn);
     panel.appendChild(content);
     wrapper.appendChild(panel);
     infoBoxContainer.appendChild(wrapper);
     currentInfoBox = wrapper;
-    // Animate seed line (height)
-    setTimeout(() => {
-        seedLine.style.height = contentHeight + 'px';
-    }, 10);
     // Animate panel unfold (width)
     setTimeout(() => {
         panel.style.width = contentWidth + 'px';
-        // Remove the seed line after unfold and after content is visible
-        setTimeout(() => {
-            if (seedLine.parentNode) seedLine.parentNode.removeChild(seedLine);
-        }, unfoldDuration + contentFadeDuration); // Remove after content fade-in
-    }, seedLineDuration + 10);
+    }, 10);
     // Fade in content
     setTimeout(() => {
         content.style.opacity = '1';
@@ -167,16 +147,11 @@ function closeCurrentInfoBox() {
     infoBoxAnimating = true;
     const wrapper = currentInfoBox;
     const panel = wrapper.querySelector('.info-box');
-    const seedLine = wrapper.querySelector('.info-box-seedline');
     const content = panel.querySelector('div');
     // Fade out content
     if (content) content.style.opacity = '0';
     // Animate panel fold (width)
     panel.style.width = '1px';
-    // Animate seed line (height)
-    setTimeout(() => {
-        seedLine.style.height = '0';
-    }, 120); // Start shrinking after panel fold
     setTimeout(() => {
         if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
         currentInfoBox = null;
