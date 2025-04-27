@@ -1,0 +1,98 @@
+# Modularization Plan for script.js
+
+**Goal:** Refactor the existing monolithic `script.js` into multiple JavaScript modules to improve code organization, maintainability, and ease of feature development/modification.
+
+**Current State:** A single `script.js` file (~500 lines) containing all Three.js logic, including scene setup, object creation (stars, POIs), interaction handling (mouse, scroll), UI elements (info box), and the main animation loop.
+
+**Proposed Structure:**
+
+1.  **`main.js` (Entry Point)**
+    *   **Purpose:** Orchestrates the application initialization and runs the main animation loop.
+    *   **Responsibilities:**
+        *   Import necessary modules (`sceneSetup`, `stars`, `poi`, `interaction`, `config`, `utils`).
+        *   Import `THREE` and `TWEEN`.
+        *   Initialize the scene, camera, renderer by calling functions from `sceneSetup.js`.
+        *   Create starfield by calling functions/methods from `stars.js`.
+        *   Create POIs and connecting lines by calling functions/methods from `poi.js`.
+        *   Set up event listeners (mouse, wheel, resize) by calling functions from `interaction.js`.
+        *   Define and run the main `animate()` loop.
+        *   The `animate()` loop will call update functions from imported modules (e.g., `stars.update()`, `poi.update()`, `interaction.updateScroll()`, `TWEEN.update()`).
+    *   **Dependencies:** `THREE`, `TWEEN`, `sceneSetup.js`, `stars.js`, `poi.js`, `interaction.js`, `config.js`, `utils.js`.
+
+2.  **`config.js` (Configuration)**
+    *   **Purpose:** Centralize configuration data and constants.
+    *   **Responsibilities:**
+        *   Export POI data array (`pois`).
+        *   Export constants like `SCROLL_DAMPING`, `MAX_SCROLL_SPEED`, interaction radii (`MAX_INTERACTION_RADIUS`, `MIN_INTERACTION_RADIUS`), star count, etc.
+        *   May include color generation logic (`generateSpectralColors`) or this could move to `utils.js`.
+    *   **Dependencies:** `THREE` (for `Vector3`, `Color`).
+
+3.  **`sceneSetup.js` (Scene, Camera, Renderer)**
+    *   **Purpose:** Handle the initial setup of the core Three.js components and related DOM elements.
+    *   **Responsibilities:**
+        *   Create and export the `THREE.Scene`.
+        *   Calculate viewport dimensions based on POI data (imported from `config.js`).
+        *   Create and export the `THREE.OrthographicCamera`.
+        *   Create and export the `THREE.WebGLRenderer`, configure its settings, and append its canvas (`#bg`) to the DOM.
+        *   Create and export the `infoBoxContainer` DOM element.
+        *   Create and add the background plane.
+        *   Inject initial CSS styles into the `<head>`.
+    *   **Dependencies:** `THREE`, `config.js`.
+
+4.  **`stars.js` (Starfield Logic)**
+    *   **Purpose:** Encapsulate all logic related to creating, managing, and rendering the starfield.
+    *   **Responsibilities:**
+        *   Define vertex and fragment shaders for stars (potentially as string constants or imported from `.glsl` files if desired later).
+        *   Export a function `createAllStars(count, pois, viewportWidth)` that generates the star `THREE.Group` based on POI positions and viewport.
+        *   Export an `updateStars(starsGroup, elapsedTime, cameraY, mouseWorldPosition)` function to be called in the main animation loop. This function will update uniforms (time, cameraY, mousePosition) and handle star scaling based on mouse proximity.
+    *   **Dependencies:** `THREE`, `config.js` (for POI data, constants), `utils.js` (potentially for `getWorldPosition` if needed internally, though likely passed in).
+
+5.  **`poi.js` (Points of Interest Logic)**
+    *   **Purpose:** Encapsulate all logic related to creating, managing, and rendering the POIs and connecting lines.
+    *   **Responsibilities:**
+        *   Define POI geometry (`THREE.CircleGeometry`).
+        *   Define shaders for POI glow effect.
+        *   Export a function `createPOI(poiData)` that creates a single POI group (mesh, ring, glow).
+        *   Export a function `createAllPOIs(pois, scene)` that iterates through POI data, creates each POI using `createPOI`, adds them to the scene, and returns an array of the POI groups.
+        *   Export a function `createConnectingLines(pois)` that generates the connecting lines `THREE.Group`.
+        *   Export an `updatePOIs(poiObjects, elapsedTime, raycaster)` function to handle hover effects (scaling, cursor change) and glow/ring animations within the main loop.
+    *   **Dependencies:** `THREE`, `config.js` (for POI data).
+
+6.  **`interaction.js` (User Interaction)**
+    *   **Purpose:** Handle all user input events and related state management.
+    *   **Responsibilities:**
+        *   Initialize `Raycaster` and mouse `Vector2`.
+        *   Manage interaction state variables (`isDragging`, `previousMouseY`, `scrollVelocity`, `isInfoBoxOpen`, `currentInfoBox`).
+        *   Export functions to set up event listeners (`setupEventListeners(camera, renderer, poiObjects, starsGroup, infoBoxContainer)`). This function will attach listeners for `mousemove`, `mousedown`, `mouseup`, `click`, `wheel`, and `resize`.
+        *   Define event handler logic:
+            *   `onMouseMove`: Update mouse vector, update world mouse position (using `utils.getWorldPosition`), update star uniforms, handle dragging scroll.
+            *   `onMouseDown`/`onMouseUp`: Manage `isDragging` state and cursor style.
+            *   `onClick`: Perform raycasting against POIs, call `showInfoBox` or `hideInfoBox`.
+            *   `onWheel`: Update `scrollVelocity`.
+            *   `onWindowResize`: Update camera aspect ratio, renderer size.
+        *   Define and export `updateScroll(camera)` function to apply scroll velocity and damping in the animation loop.
+        *   Define and export `showInfoBox(poi, camera, infoBoxContainer)` and `hideInfoBox()` functions to manage the info box DOM element.
+    *   **Dependencies:** `THREE`, `config.js` (for POI data, constants), `utils.js` (for `getWorldPosition`), `poi.js` (potentially for POI objects array reference), `stars.js` (for stars group reference).
+
+7.  **`utils.js` (Utility Functions)**
+    *   **Purpose:** Contain reusable helper functions.
+    *   **Responsibilities:**
+        *   Export `generateSpectralColors(count)`.
+        *   Export `getWorldPosition(clientX, clientY, camera, renderer)`.
+        *   May include other common mathematical or helper functions as needed.
+    *   **Dependencies:** `THREE`.
+
+**Implementation Steps:**
+
+1.  Create the new directory structure/files as outlined above.
+2.  Modify `index.html` to load `main.js` as a module: `<script type="module" src="main.js"></script>`. Remove the old `<script src="script.js"></script>`.
+3.  Carefully move code sections from the original `script.js` into their respective new modules.
+4.  Add necessary `export` statements in each module for the functions, classes, or variables that need to be accessed by other modules.
+5.  Add necessary `import` statements at the top of each module to bring in dependencies from other modules or libraries (`THREE`, `TWEEN`).
+6.  Refactor function calls and variable access to use the imported modules (e.g., instead of calling `createAllStars()` directly, call `stars.createAllStars()`).
+7.  Ensure variables previously defined globally (like `scene`, `camera`, `renderer`, `pois`, `stars`, `poiObjects`) are correctly passed as arguments to functions or accessed via imports where needed.
+8.  Test thoroughly to ensure all functionality remains intact after refactoring.
+
+**HTML Change:**
+
+*   In `index.html`, replace `<script src="script.js"></script>` with `<script type="module" src="main.js"></script>`.
