@@ -15,28 +15,7 @@ let currentInfoBox = null;
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
-function processQueuedInfoBox() {
-    if (queuedInfoBox) {
-        const { poi, poiPosition } = queuedInfoBox;
-        queuedInfoBox = null;
-        showInfoBox(poi, poiPosition);
-    }
-}
-
-export function showInfoBox(poi, poiPosition) {
-    if (infoBoxAnimating) {
-        // Only queue if not already queued for this POI
-        if (!queuedInfoBox || queuedInfoBox.poi !== poi) {
-            queuedInfoBox = { poi, poiPosition };
-        }
-        return;
-    }
-    if (currentInfoBox) {
-        // If a box is open, close it and queue the new one
-        queuedInfoBox = { poi, poiPosition };
-        hideInfoBox(true); // Don't clear the queue
-        return;
-    }
+function openInfoBox(poi, poiPosition) {
     infoBoxAnimating = true;
     // Project POI position to screen
     const pos = poiPosition.clone();
@@ -78,7 +57,9 @@ export function showInfoBox(poi, poiPosition) {
     const closeBtn = document.createElement('div');
     closeBtn.className = 'close-btn';
     closeBtn.innerHTML = '&times;';
-    closeBtn.onclick = hideInfoBox;
+    closeBtn.onclick = () => {
+        queueAndHideInfoBox(null); // Close only
+    };
     content.appendChild(closeBtn);
     box.appendChild(content);
     // Animate open
@@ -87,28 +68,57 @@ export function showInfoBox(poi, poiPosition) {
         setTimeout(() => {
             content.style.opacity = '1';
             infoBoxAnimating = false;
-            processQueuedInfoBox();
         }, 220);
     }, 10);
 }
 
-export function hideInfoBox(dontClearQueued) {
-    if (currentInfoBox) {
-        infoBoxAnimating = true;
-        currentInfoBox.style.transition = 'transform 0.18s cubic-bezier(.5,1.7,.7,1)';
-        currentInfoBox.style.transform = 'scaleX(0) scaleY(0.7)';
-        setTimeout(() => {
-            if (currentInfoBox && currentInfoBox.parentNode) {
-                currentInfoBox.parentNode.removeChild(currentInfoBox);
-            }
-            currentInfoBox = null;
-            infoBoxAnimating = false;
-            if (!dontClearQueued) {
-                processQueuedInfoBox();
-            }
-        }, 180);
+function queueAndHideInfoBox(nextInfoBox) {
+    // Always set the queue, then close the current box
+    queuedInfoBox = nextInfoBox;
+    if (currentInfoBox && !infoBoxAnimating) {
+        closeCurrentInfoBox();
+    } else if (!currentInfoBox && queuedInfoBox) {
+        // If nothing is open, open the queued box immediately
+        const { poi, poiPosition } = queuedInfoBox;
+        queuedInfoBox = null;
+        openInfoBox(poi, poiPosition);
     }
-    if (!dontClearQueued) infoBoxContainer.innerHTML = '';
+}
+
+function closeCurrentInfoBox() {
+    if (!currentInfoBox) return;
+    infoBoxAnimating = true;
+    const box = currentInfoBox;
+    const content = box.querySelector('div');
+    if (content) content.style.opacity = '0';
+    box.style.transition = 'transform 0.18s cubic-bezier(.5,1.7,.7,1)';
+    box.style.transform = 'scaleX(0) scaleY(0.7)';
+    setTimeout(() => {
+        if (box.parentNode) box.parentNode.removeChild(box);
+        currentInfoBox = null;
+        infoBoxAnimating = false;
+        // After closing, open the queued box if any
+        if (queuedInfoBox) {
+            const { poi, poiPosition } = queuedInfoBox;
+            queuedInfoBox = null;
+            openInfoBox(poi, poiPosition);
+        }
+    }, 180);
+}
+
+export function showInfoBox(poi, poiPosition) {
+    // If animating or open, queue the new box and close current
+    if (infoBoxAnimating || currentInfoBox) {
+        queueAndHideInfoBox({ poi, poiPosition });
+        return;
+    }
+    // Otherwise, open immediately
+    openInfoBox(poi, poiPosition);
+}
+
+export function hideInfoBox() {
+    // Queue nothing and close current
+    queueAndHideInfoBox(null);
 }
 
 // Mouse move event (no info box on hover)
