@@ -93,23 +93,29 @@ function openInfoBox(poi, poiPosition) {
     currentInfoBox = wrapper;
     // Animate seed line (height)
     setTimeout(() => {
-        seedLine.style.height = '100px'; // Will be adjusted below
-        // Adjust to match panel height after DOM is ready
-        setTimeout(() => {
-            const panelHeight = panel.scrollHeight;
-            seedLine.style.height = panelHeight + 'px';
-            panel.style.height = panelHeight + 'px';
-        }, 10);
+        // Set panel height to content height
+        const contentHeight = content.scrollHeight + 30; // 15px top/bottom padding
+        seedLine.style.height = contentHeight + 'px';
+        panel.style.height = contentHeight + 'px';
+        wrapper.style.height = contentHeight + 'px';
     }, 10);
     // Animate panel unfold (width)
     setTimeout(() => {
-        panel.style.width = panel.scrollWidth + 'px';
+        // Set panel width to content width
+        const contentWidth = content.scrollWidth + 30; // 15px left/right padding
+        panel.style.width = contentWidth + 'px';
+        wrapper.style.width = contentWidth + 'px';
     }, seedLineDuration + 10);
     // Fade in content
     setTimeout(() => {
         content.style.opacity = '1';
         infoBoxAnimating = false;
+        // Remove the seed line after unfold
+        if (seedLine.parentNode) seedLine.parentNode.removeChild(seedLine);
     }, contentFadeStart + 10);
+    // Ensure proper sizing and box model
+    panel.style.boxSizing = 'border-box';
+    wrapper.style.boxSizing = 'border-box';
 }
 
 function queueAndHideInfoBox(nextInfoBox) {
