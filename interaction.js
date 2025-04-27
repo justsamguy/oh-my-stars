@@ -12,10 +12,18 @@ export const raycaster = new THREE.Raycaster();
 
 // Info box logic
 let currentInfoBox = null;
+let infoBoxAnimating = false;
+let queuedInfoBox = null;
 
 export function showInfoBox(poi, poiPosition) {
-    // Remove any existing info box
-    hideInfoBox();
+    if (infoBoxAnimating) {
+        // Queue this info box to show after current closes
+        queuedInfoBox = { poi, poiPosition };
+        hideInfoBox();
+        return;
+    }
+    hideInfoBox(true); // true = don't clear queued
+    infoBoxAnimating = true;
     // Project POI position to screen
     const pos = poiPosition.clone();
     pos.project(camera);
@@ -35,59 +43,65 @@ export function showInfoBox(poi, poiPosition) {
     box.style.pointerEvents = 'auto';
     box.style.border = `1px solid #${poi.color.toString(16)}`;
     box.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-    box.style.overflow = 'hidden';
+    box.style.overflow = 'visible';
     box.style.transformOrigin = 'left center';
     box.style.zIndex = '1000';
-    // --- Animation: Seed-line phase ---
-    box.style.width = '2px';
-    box.style.height = '0px';
-    box.style.transition = 'height 0.18s cubic-bezier(.5,1.7,.7,1), width 0s';
+    box.style.transform = 'scaleX(0) scaleY(0.7)';
+    box.style.transition = 'transform 0.22s cubic-bezier(.5,1.7,.7,1)';
     infoBoxContainer.appendChild(box);
     currentInfoBox = box;
-    // Grow the vertical line
+    // Content
+    const content = document.createElement('div');
+    content.style.opacity = '0';
+    content.style.transition = 'opacity 0.18s';
+    const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -5);
+    content.innerHTML = `
+        <h3 style="margin:0 0 10px 0; color:#${poi.color.toString(16)}">${poi.name}</h3>
+        <p style="margin:0">${poi.description}</p>
+        <div class="timestamp">${timestamp}</div>
+    `;
+    // Close button
+    const closeBtn = document.createElement('div');
+    closeBtn.className = 'close-btn';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = hideInfoBox;
+    content.appendChild(closeBtn);
+    box.appendChild(content);
+    // Animate open
     setTimeout(() => {
-        box.style.height = '90px'; // Final height
+        box.style.transform = 'scaleX(1) scaleY(1)';
+        setTimeout(() => {
+            content.style.opacity = '1';
+            infoBoxAnimating = false;
+            // If a box was queued, show it now
+            if (queuedInfoBox) {
+                const { poi, poiPosition } = queuedInfoBox;
+                queuedInfoBox = null;
+                showInfoBox(poi, poiPosition);
+            }
+        }, 220);
     }, 10);
-    // Unfold phase
-    setTimeout(() => {
-        box.style.transition = 'width 0.22s cubic-bezier(.5,1.7,.7,1), height 0s';
-        box.style.width = '220px';
-    }, 200);
-    // Content reveal (fade in)
-    setTimeout(() => {
-        const content = document.createElement('div');
-        content.style.opacity = '0';
-        content.style.transition = 'opacity 0.18s';
-        const timestamp = new Date().toISOString().replace('T', ' ').slice(0, -5);
-        content.innerHTML = `
-            <h3 style="margin:0 0 10px 0; color:#${poi.color.toString(16)}">${poi.name}</h3>
-            <p style="margin:0">${poi.description}</p>
-            <div class="timestamp">${timestamp}</div>
-        `;
-        // Close button
-        const closeBtn = document.createElement('div');
-        closeBtn.className = 'close-btn';
-        closeBtn.innerHTML = '&times;';
-        closeBtn.onclick = hideInfoBox;
-        content.appendChild(closeBtn);
-        box.appendChild(content);
-        setTimeout(() => { content.style.opacity = '1'; }, 60);
-    }, 350);
 }
 
-export function hideInfoBox() {
+export function hideInfoBox(dontClearQueued) {
     if (currentInfoBox) {
-        currentInfoBox.style.transition = 'width 0.18s, height 0.18s';
-        currentInfoBox.style.width = '2px';
-        currentInfoBox.style.height = '0px';
+        infoBoxAnimating = true;
+        currentInfoBox.style.transition = 'transform 0.18s cubic-bezier(.5,1.7,.7,1)';
+        currentInfoBox.style.transform = 'scaleX(0) scaleY(0.7)';
         setTimeout(() => {
             if (currentInfoBox && currentInfoBox.parentNode) {
                 currentInfoBox.parentNode.removeChild(currentInfoBox);
             }
             currentInfoBox = null;
-        }, 200);
+            infoBoxAnimating = false;
+            if (!dontClearQueued && queuedInfoBox) {
+                const { poi, poiPosition } = queuedInfoBox;
+                queuedInfoBox = null;
+                showInfoBox(poi, poiPosition);
+            }
+        }, 180);
     }
-    infoBoxContainer.innerHTML = '';
+    if (!dontClearQueued) infoBoxContainer.innerHTML = '';
 }
 
 // Mouse move event (no info box on hover)

@@ -31,16 +31,16 @@ function animate() {
     const elapsed = (now - lastTime) / 1000;
     lastTime = now;
     // Camera scroll
+    // Clamp scrollVelocity before applying
+    if (scrollVelocity > MAX_SCROLL_SPEED) scrollVelocity = MAX_SCROLL_SPEED;
+    if (scrollVelocity < -MAX_SCROLL_SPEED) scrollVelocity = -MAX_SCROLL_SPEED;
     if (Math.abs(scrollVelocity) > 0.001) {
         camera.position.y += scrollVelocity;
         scrollVelocity *= SCROLL_DAMPING;
-        if (scrollVelocity > MAX_SCROLL_SPEED) scrollVelocity = MAX_SCROLL_SPEED;
-        if (scrollVelocity < -MAX_SCROLL_SPEED) scrollVelocity = -MAX_SCROLL_SPEED;
     }
     // Clamp camera
     const minY = pois[pois.length - 1].position.y;
     const maxY = pois[0].position.y;
-    // NOTE: If POIs are added/removed dynamically, update these clamp values accordingly.
     camera.position.y = Math.max(minY, Math.min(maxY, camera.position.y));
     camera.updateProjectionMatrix();
     // Update stars
