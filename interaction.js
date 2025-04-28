@@ -100,6 +100,9 @@ function openInfoBox(poi, poiPosition) {
     panel.style.opacity = '1';
     panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(.5,1.7,.7,1)`;
     panel.style.boxSizing = 'border-box';
+    // Force reflow to ensure initial width is applied before transition
+    // This prevents the "bounce" effect
+    void panel.offsetWidth;
     // --- Content (fades in) ---
     const content = document.createElement('div');
     content.style.opacity = '0';
