@@ -180,56 +180,56 @@ function closeCurrentInfoBox() {
     infoBoxAnimating = true;
     const wrapper = currentInfoBox;
     const panel = wrapper.querySelector('.info-box');
-    const content = panel.querySelector('.info-box-content'); // Select by class
-    const originalBoxWidth = parseFloat(panel.dataset.boxWidth || '0');
-    const padding = 22 * 2; // Left + Right padding
+    const content = panel.querySelector('.info-box-content');
+    const closeBtn = panel.querySelector('.close-btn');
 
-    // Prevent content reflow before animating panel
-    if (content) {
-        content.style.transition = 'opacity 0.1s ease-out'; // Faster fade out
-        content.style.opacity = '0';
-        content.style.width = `${originalBoxWidth - padding}px`; // Set fixed width
-        content.style.maxWidth = `${originalBoxWidth - padding}px`; // Set fixed max width
-        content.style.whiteSpace = 'nowrap'; // Prevent wrapping
-        content.style.overflow = 'hidden'; // Hide overflow
+    // --- Prepare for animation ---
+
+    // 1. Hide close button immediately
+    if (closeBtn) {
+        closeBtn.style.display = 'none';
     }
 
-    // Ensure the same transition is used for closing as for opening
-    const openTransitionDuration = 420; // Match totalDuration from openInfoBox
-    panel.style.transition = `width ${openTransitionDuration}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+    // 2. Fade out content quickly, but don't change layout properties
+    if (content) {
+        content.style.transition = 'opacity 0.1s ease-out';
+        content.style.opacity = '0';
+        // DO NOT change position, whitespace, or overflow here.
+        // Rely on panel's overflow:hidden to clip.
+    }
 
-    // Add a transitionend listener to remove the element *after* the animation
+    // 3. Set up panel transitions for width, padding, and border
+    const openTransitionDuration = 420; // Match totalDuration from openInfoBox
+    const easing = 'cubic-bezier(0.25, 1, 0.5, 1)';
+    panel.style.transition = `width ${openTransitionDuration}ms ${easing}, padding ${openTransitionDuration}ms ${easing}, border-width ${openTransitionDuration}ms ${easing}`;
+
+    // 4. Add transitionend listener for cleanup
     panel.addEventListener('transitionend', function handleTransitionEnd(event) {
-        // Ensure we only react to the 'width' property transition ending
+        // Only act when the width transition finishes
         if (event.propertyName === 'width') {
             if (wrapper.parentNode) {
                 wrapper.parentNode.removeChild(wrapper);
             }
             currentInfoBox = null;
             infoBoxAnimating = false;
-            // After closing, open the queued box if any
+            // Open queued box if necessary
             if (queuedInfoBox) {
                 const { poi, poiPosition } = queuedInfoBox;
                 queuedInfoBox = null;
                 openInfoBox(poi, poiPosition);
             }
-            // Clean up the listener
+            // Clean up listener
             panel.removeEventListener('transitionend', handleTransitionEnd);
         }
-    }, { once: false }); // Use once: false initially, remove manually inside
+    }, { once: false }); // Use once: false, remove manually
 
-    // Start the closing animation immediately (no delay needed)
+    // --- Start animation ---
+    // Trigger reflow before starting animation might help ensure styles apply correctly
+    void panel.offsetWidth;
+
+    panel.style.borderWidth = '0px';
+    panel.style.padding = '0px';
     panel.style.width = '1px';
-
-    // NOTE: The old setTimeout for removal is replaced by the transitionend listener above
-    /* Old removal logic:
-    const panelTransitionDuration = 320; // Match the original timeout
-    setTimeout(() => {
-        if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
-        currentInfoBox = null;
-        infoBoxAnimating = false;
-    }); // Added missing closing parenthesis for setTimeout
-    */ // Added missing closing comment tag
 }
 
 export function showInfoBox(poi, poiPosition) {
