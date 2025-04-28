@@ -118,24 +118,26 @@ function openInfoBox(poi, poiPosition) {
     closeBtn.className = 'close-btn';
     closeBtn.innerHTML = '&times;';
     closeBtn.style.position = 'absolute';
-    closeBtn.style.top = '10px';
-    closeBtn.style.right = '10px';
-    closeBtn.style.width = '36px';
-    closeBtn.style.height = '36px';
+    closeBtn.style.top = '6px';    // closer to top
+    closeBtn.style.right = '6px';  // closer to right
+    closeBtn.style.width = '32px';
+    closeBtn.style.height = '32px';
     closeBtn.style.cursor = 'pointer';
-    closeBtn.style.lineHeight = '36px';
+    closeBtn.style.lineHeight = '32px';
     closeBtn.style.textAlign = 'center';
-    closeBtn.style.fontSize = '28px';
+    closeBtn.style.fontSize = '24px';
     closeBtn.style.color = `#${poi.color.toString(16)}`;
     closeBtn.style.background = 'rgba(0,0,0,0.10)';
     closeBtn.style.borderRadius = '50%';
     closeBtn.style.border = 'none';
     closeBtn.style.padding = '0';
     closeBtn.style.boxShadow = '0 1px 4px rgba(0,0,0,0.12)';
+    closeBtn.style.zIndex = '10';
     closeBtn.onclick = () => {
         queueAndHideInfoBox(null);
     };
-    content.appendChild(closeBtn);
+    // Append closeBtn directly to panel, not content
+    panel.appendChild(closeBtn);
     panel.appendChild(content);
     wrapper.appendChild(panel);
     infoBoxContainer.appendChild(wrapper);
@@ -143,13 +145,8 @@ function openInfoBox(poi, poiPosition) {
     // Animate panel unfold (width)
     setTimeout(() => {
         panel.style.width = boxWidth + 'px';
+        // Do not set width or transition again after this
     }, 10);
-    // After animation, fix width and remove transition for both panel and content
-    setTimeout(() => {
-        panel.style.transition = 'none';
-        panel.style.width = boxWidth + 'px';
-        content.style.transition = 'none';
-    }, unfoldDuration + 20);
     // Fade in content
     setTimeout(() => {
         content.style.opacity = '1';
