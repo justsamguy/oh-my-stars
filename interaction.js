@@ -106,6 +106,7 @@ function openInfoBox(poi, poiPosition) {
     content.style.maxWidth = '100%';
     content.style.boxSizing = 'border-box';
     content.style.position = 'relative';
+    content.className = 'info-box-content'; // Add class
     content.innerHTML = `
         <h3 style=\"margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}\">${poi.name}</h3>
         <p style=\"margin:0\">${poi.description}</p>
@@ -138,6 +139,7 @@ function openInfoBox(poi, poiPosition) {
     wrapper.appendChild(panel);
     infoBoxContainer.appendChild(wrapper);
     currentInfoBox = wrapper;
+    panel.dataset.boxWidth = boxWidth; // Store original width
 
     // Set transition before width
     panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(0.25, 1, 0.5, 1)`; // Use ease-out curve to prevent overshoot
@@ -178,11 +180,27 @@ function closeCurrentInfoBox() {
     infoBoxAnimating = true;
     const wrapper = currentInfoBox;
     const panel = wrapper.querySelector('.info-box');
-    const content = panel.querySelector('div');
-    // Fade out content
-    if (content) content.style.opacity = '0';
-    // Animate panel fold (width)
-    panel.style.width = '1px';
+    const content = panel.querySelector('.info-box-content'); // Select by class
+    const originalBoxWidth = parseFloat(panel.dataset.boxWidth || '0');
+    const padding = 22 * 2; // Left + Right padding
+
+    // Prevent content reflow before animating panel
+    if (content) {
+        content.style.transition = 'opacity 0.1s ease-out'; // Faster fade out
+        content.style.opacity = '0';
+        content.style.width = `${originalBoxWidth - padding}px`; // Set fixed width
+        content.style.maxWidth = `${originalBoxWidth - padding}px`; // Set fixed max width
+        content.style.whiteSpace = 'nowrap'; // Prevent wrapping
+        content.style.overflow = 'hidden'; // Hide overflow
+    }
+
+    // Animate panel fold (width) after a tiny delay to let content styles apply
+    setTimeout(() => {
+        panel.style.width = '1px';
+    }, 10); // Small delay
+
+    // Remove after animation completes (use panel transition duration)
+    const panelTransitionDuration = 320; // Match the original timeout
     setTimeout(() => {
         if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
         currentInfoBox = null;
