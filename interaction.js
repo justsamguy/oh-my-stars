@@ -139,17 +139,21 @@ function openInfoBox(poi, poiPosition) {
     infoBoxContainer.appendChild(wrapper);
     currentInfoBox = wrapper;
 
-    // Now set initial width and transition after DOM insertion
-    panel.style.width = '1px';
-    // Force reflow to ensure initial width is applied before transition
-    void panel.offsetWidth;
+    // Set transition before width
     panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(.5,1.7,.7,1)`;
+    panel.style.width = '1px';
 
-    // Animate panel unfold (width)
-    setTimeout(() => {
-        panel.style.width = boxWidth + 'px';
-        // Do not set width or transition again after this
-    }, 10);
+    // Force reflow
+    void panel.offsetWidth;
+
+    // Use double requestAnimationFrame to ensure browser paints initial state
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            panel.style.width = boxWidth + 'px';
+            // Do not set width or transition again after this
+        });
+    });
+
     // Fade in content
     setTimeout(() => {
         content.style.opacity = '1';
