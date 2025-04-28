@@ -94,7 +94,7 @@ function openInfoBox(poi, poiPosition) {
     panel.style.pointerEvents = 'auto';
     panel.style.border = `1px solid #${poi.color.toString(16)}`;
     panel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-    panel.style.overflow = 'visible'; // allow close button to overflow visually
+    panel.style.overflow = 'hidden'; // was 'visible'
     panel.style.transformOrigin = 'left center';
     panel.style.opacity = '1';
     panel.style.boxSizing = 'border-box';
@@ -102,7 +102,7 @@ function openInfoBox(poi, poiPosition) {
     const content = document.createElement('div');
     content.style.opacity = '0';
     content.style.transition = `opacity ${contentFadeDuration}ms`;
-    content.style.width = '100%';
+    content.style.width = '100%'; // ensure content stays inside panel
     content.style.maxWidth = '100%';
     content.style.boxSizing = 'border-box';
     content.style.position = 'relative';
