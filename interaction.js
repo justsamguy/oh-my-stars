@@ -86,7 +86,6 @@ function openInfoBox(poi, poiPosition) {
     panel.style.left = '0';
     panel.style.top = '0';
     panel.style.height = contentHeight + 'px';
-    panel.style.width = '1px';
     panel.style.background = 'rgba(0,20,40,0.92)';
     panel.style.color = '#fff';
     panel.style.padding = '22px 22px 18px 22px'; // <-- all padding here
@@ -98,12 +97,8 @@ function openInfoBox(poi, poiPosition) {
     panel.style.overflow = 'visible'; // allow close button to overflow visually
     panel.style.transformOrigin = 'left center';
     panel.style.opacity = '1';
-    panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(.5,1.7,.7,1)`;
     panel.style.boxSizing = 'border-box';
-    // Force reflow to ensure initial width is applied before transition
-    // This prevents the "bounce" effect
-    void panel.offsetWidth;
-    // --- Content (fades in) ---
+    // Append closeBtn and content
     const content = document.createElement('div');
     content.style.opacity = '0';
     content.style.transition = `opacity ${contentFadeDuration}ms`;
@@ -116,7 +111,6 @@ function openInfoBox(poi, poiPosition) {
         <p style=\"margin:0\">${poi.description}</p>
         <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
     `;
-    // --- Close button ---
     const closeBtn = document.createElement('div');
     closeBtn.className = 'close-btn';
     closeBtn.innerHTML = '&times;';
@@ -139,12 +133,18 @@ function openInfoBox(poi, poiPosition) {
     closeBtn.onclick = () => {
         queueAndHideInfoBox(null);
     };
-    // Append closeBtn directly to panel, not content
     panel.appendChild(closeBtn);
     panel.appendChild(content);
     wrapper.appendChild(panel);
     infoBoxContainer.appendChild(wrapper);
     currentInfoBox = wrapper;
+
+    // Now set initial width and transition after DOM insertion
+    panel.style.width = '1px';
+    // Force reflow to ensure initial width is applied before transition
+    void panel.offsetWidth;
+    panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(.5,1.7,.7,1)`;
+
     // Animate panel unfold (width)
     setTimeout(() => {
         panel.style.width = boxWidth + 'px';
