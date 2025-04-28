@@ -40,11 +40,14 @@ function openInfoBox(poi, poiPosition) {
     const titleWidth = titleMeasurer.offsetWidth;
     document.body.removeChild(titleMeasurer);
     // --- Calculate box width ---
-    const closeBtnSpace = 38; // px, for button + margin
+    const closeBtnSpace = 36; // px, for button (matches closeBtn width)
+    const closeBtnMargin = 10; // px, for negative offset
     const sidePadding = 22; // px, left and right
     const minBoxWidth = 180;
     const maxBoxWidth = 340;
     let boxWidth = titleWidth + closeBtnSpace + sidePadding;
+    // Ensure enough space for close button's negative offset
+    boxWidth += closeBtnMargin;
     boxWidth = Math.max(minBoxWidth, Math.min(maxBoxWidth, boxWidth));
     // --- Measure content height ---
     const measurer = document.createElement('div');
@@ -86,13 +89,13 @@ function openInfoBox(poi, poiPosition) {
     panel.style.width = '1px';
     panel.style.background = 'rgba(0,20,40,0.92)';
     panel.style.color = '#fff';
-    panel.style.padding = '22px 22px 18px 22px';
+    panel.style.padding = '22px 22px 18px 22px'; // <-- all padding here
     panel.style.borderRadius = '5px';
     panel.style.maxWidth = maxBoxWidth + 'px';
     panel.style.pointerEvents = 'auto';
     panel.style.border = `1px solid #${poi.color.toString(16)}`;
     panel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-    panel.style.overflow = 'hidden';
+    panel.style.overflow = 'visible'; // allow close button to overflow visually
     panel.style.transformOrigin = 'left center';
     panel.style.opacity = '1';
     panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(.5,1.7,.7,1)`;
@@ -101,7 +104,8 @@ function openInfoBox(poi, poiPosition) {
     const content = document.createElement('div');
     content.style.opacity = '0';
     content.style.transition = `opacity ${contentFadeDuration}ms`;
-    content.style.maxWidth = boxWidth + 'px';
+    content.style.width = '100%';
+    content.style.maxWidth = '100%';
     content.style.boxSizing = 'border-box';
     content.style.position = 'relative';
     content.innerHTML = `
@@ -114,8 +118,8 @@ function openInfoBox(poi, poiPosition) {
     closeBtn.className = 'close-btn';
     closeBtn.innerHTML = '&times;';
     closeBtn.style.position = 'absolute';
-    closeBtn.style.top = '-10px'; // Move closer to the corner, slightly outside
-    closeBtn.style.right = '-10px';
+    closeBtn.style.top = '10px';
+    closeBtn.style.right = '10px';
     closeBtn.style.width = '36px';
     closeBtn.style.height = '36px';
     closeBtn.style.cursor = 'pointer';
