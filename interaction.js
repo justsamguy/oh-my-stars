@@ -139,16 +139,12 @@ function openInfoBox(poi, poiPosition) {
     // Animate panel unfold (width)
     setTimeout(() => {
         panel.style.width = boxWidth + 'px';
-        content.style.width = boxWidth + 'px';
-        content.style.maxWidth = boxWidth + 'px';
     }, 10);
     // After animation, fix width and remove transition for both panel and content
     setTimeout(() => {
         panel.style.transition = 'none';
         panel.style.width = boxWidth + 'px';
         content.style.transition = 'none';
-        content.style.width = boxWidth + 'px';
-        content.style.maxWidth = boxWidth + 'px';
     }, unfoldDuration + 20);
     // Fade in content
     setTimeout(() => {
