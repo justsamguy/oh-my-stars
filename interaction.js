@@ -24,31 +24,47 @@ function openInfoBox(poi, poiPosition) {
     const screenY = (-pos.y * 0.5 + 0.5) * window.innerHeight - 20;
     // Animation timing
     const totalDuration = 420; // ms
-    const unfoldDuration = totalDuration; // Use full duration for unfold
-    const contentFadeStart = Math.round(totalDuration * 0.7); // 70% in
+    const unfoldDuration = totalDuration;
+    const contentFadeStart = Math.round(totalDuration * 0.7);
     const contentFadeDuration = totalDuration - contentFadeStart;
-    // Create a measurer for accurate sizing
+    // --- Measure title width (no wrap) ---
+    const titleMeasurer = document.createElement('span');
+    titleMeasurer.style.position = 'absolute';
+    titleMeasurer.style.visibility = 'hidden';
+    titleMeasurer.style.whiteSpace = 'nowrap';
+    titleMeasurer.style.fontFamily = 'Courier New, monospace';
+    titleMeasurer.style.fontSize = '20px';
+    titleMeasurer.style.fontWeight = 'bold';
+    titleMeasurer.innerText = poi.name;
+    document.body.appendChild(titleMeasurer);
+    const titleWidth = titleMeasurer.offsetWidth;
+    document.body.removeChild(titleMeasurer);
+    // --- Calculate box width ---
+    const closeBtnSpace = 38; // px, for button + margin
+    const sidePadding = 22; // px, left and right
+    const minBoxWidth = 180;
+    const maxBoxWidth = 340;
+    let boxWidth = titleWidth + closeBtnSpace + sidePadding;
+    boxWidth = Math.max(minBoxWidth, Math.min(maxBoxWidth, boxWidth));
+    // --- Measure content height ---
     const measurer = document.createElement('div');
     measurer.style.position = 'absolute';
     measurer.style.visibility = 'hidden';
     measurer.style.pointerEvents = 'none';
     measurer.style.zIndex = '-1';
     measurer.style.boxSizing = 'border-box';
-    measurer.style.maxWidth = '220px';
-    measurer.style.padding = '15px 20px 15px 15px'; // Extra right padding for close button
-    measurer.style.border = `1px solid #${poi.color.toString(16)}`;
+    measurer.style.width = boxWidth + 'px';
+    measurer.style.padding = '22px 22px 18px 22px';
     measurer.style.fontFamily = 'Courier New, monospace';
     measurer.innerHTML = `
-        <h3 style=\"margin:0 0 10px 0; color:#${poi.color.toString(16)}\">${poi.name}</h3>
+        <h3 style=\"margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}\">${poi.name}</h3>
         <p style=\"margin:0\">${poi.description}</p>
         <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
-        <div class=\"close-btn\" style=\"position:absolute;top:10px;right:10px;width:28px;height:28px;padding:0;\">&times;</div>
     `;
     document.body.appendChild(measurer);
-    const contentWidth = measurer.offsetWidth;
     const contentHeight = measurer.offsetHeight;
     document.body.removeChild(measurer);
-    // Create wrapper
+    // --- Create wrapper ---
     const wrapper = document.createElement('div');
     wrapper.className = 'info-box-wrapper';
     wrapper.style.position = 'absolute';
@@ -57,10 +73,10 @@ function openInfoBox(poi, poiPosition) {
     wrapper.style.zIndex = '1000';
     wrapper.style.pointerEvents = 'auto';
     wrapper.style.overflow = 'visible';
-    wrapper.style.width = contentWidth + 'px';
+    wrapper.style.width = boxWidth + 'px';
     wrapper.style.height = contentHeight + 'px';
     wrapper.style.boxSizing = 'border-box';
-    // Panel (unfolds horizontally)
+    // --- Panel (unfolds horizontally) ---
     const panel = document.createElement('div');
     panel.className = 'info-box';
     panel.style.position = 'absolute';
@@ -70,9 +86,9 @@ function openInfoBox(poi, poiPosition) {
     panel.style.width = '1px';
     panel.style.background = 'rgba(0,20,40,0.92)';
     panel.style.color = '#fff';
-    panel.style.padding = '15px 20px 15px 15px'; // Extra right padding for close button
+    panel.style.padding = '22px 22px 18px 22px';
     panel.style.borderRadius = '5px';
-    panel.style.maxWidth = '220px';
+    panel.style.maxWidth = maxBoxWidth + 'px';
     panel.style.pointerEvents = 'auto';
     panel.style.border = `1px solid #${poi.color.toString(16)}`;
     panel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
@@ -81,35 +97,37 @@ function openInfoBox(poi, poiPosition) {
     panel.style.opacity = '1';
     panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(.5,1.7,.7,1)`;
     panel.style.boxSizing = 'border-box';
-    // Content (fades in)
+    // --- Content (fades in) ---
     const content = document.createElement('div');
     content.style.opacity = '0';
     content.style.transition = `opacity ${contentFadeDuration}ms`;
-    content.style.maxWidth = '220px';
+    content.style.maxWidth = boxWidth + 'px';
     content.style.boxSizing = 'border-box';
     content.style.position = 'relative';
     content.innerHTML = `
-        <h3 style=\"margin:0 0 10px 0; color:#${poi.color.toString(16)}\">${poi.name}</h3>
+        <h3 style=\"margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}\">${poi.name}</h3>
         <p style=\"margin:0\">${poi.description}</p>
         <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
     `;
-    // Close button
+    // --- Close button ---
     const closeBtn = document.createElement('div');
     closeBtn.className = 'close-btn';
     closeBtn.innerHTML = '&times;';
     closeBtn.style.position = 'absolute';
-    closeBtn.style.top = '10px';
-    closeBtn.style.right = '10px';
-    closeBtn.style.width = '28px';
-    closeBtn.style.height = '28px';
+    closeBtn.style.top = '-10px'; // Move closer to the corner, slightly outside
+    closeBtn.style.right = '-10px';
+    closeBtn.style.width = '36px';
+    closeBtn.style.height = '36px';
     closeBtn.style.cursor = 'pointer';
-    closeBtn.style.lineHeight = '28px';
+    closeBtn.style.lineHeight = '36px';
     closeBtn.style.textAlign = 'center';
-    closeBtn.style.fontSize = '26px';
+    closeBtn.style.fontSize = '28px';
     closeBtn.style.color = `#${poi.color.toString(16)}`;
-    closeBtn.style.background = 'transparent';
+    closeBtn.style.background = 'rgba(0,0,0,0.10)';
+    closeBtn.style.borderRadius = '50%';
     closeBtn.style.border = 'none';
     closeBtn.style.padding = '0';
+    closeBtn.style.boxShadow = '0 1px 4px rgba(0,0,0,0.12)';
     closeBtn.onclick = () => {
         queueAndHideInfoBox(null);
     };
@@ -120,7 +138,7 @@ function openInfoBox(poi, poiPosition) {
     currentInfoBox = wrapper;
     // Animate panel unfold (width)
     setTimeout(() => {
-        panel.style.width = contentWidth + 'px';
+        panel.style.width = boxWidth + 'px';
     }, 10);
     // Fade in content
     setTimeout(() => {
@@ -128,7 +146,6 @@ function openInfoBox(poi, poiPosition) {
         infoBoxAnimating = false;
     }, contentFadeStart + 10);
 }
-
 function queueAndHideInfoBox(nextInfoBox) {
     // Always set the queue, then close the current box
     queuedInfoBox = nextInfoBox;
