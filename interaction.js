@@ -140,6 +140,11 @@ function openInfoBox(poi, poiPosition) {
     setTimeout(() => {
         panel.style.width = boxWidth + 'px';
     }, 10);
+    // After animation, fix width and remove transition
+    setTimeout(() => {
+        panel.style.transition = 'none';
+        panel.style.width = boxWidth + 'px';
+    }, unfoldDuration + 20);
     // Fade in content
     setTimeout(() => {
         content.style.opacity = '1';
