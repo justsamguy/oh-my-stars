@@ -194,24 +194,42 @@ function closeCurrentInfoBox() {
         content.style.overflow = 'hidden'; // Hide overflow
     }
 
-    // Animate panel fold (width) after a tiny delay to let content styles apply
-    setTimeout(() => {
-        panel.style.width = '1px';
-    }, 10); // Small delay
+    // Ensure the same transition is used for closing as for opening
+    const openTransitionDuration = 420; // Match totalDuration from openInfoBox
+    panel.style.transition = `width ${openTransitionDuration}ms cubic-bezier(0.25, 1, 0.5, 1)`;
 
-    // Remove after animation completes (use panel transition duration)
+    // Add a transitionend listener to remove the element *after* the animation
+    panel.addEventListener('transitionend', function handleTransitionEnd(event) {
+        // Ensure we only react to the 'width' property transition ending
+        if (event.propertyName === 'width') {
+            if (wrapper.parentNode) {
+                wrapper.parentNode.removeChild(wrapper);
+            }
+            currentInfoBox = null;
+            infoBoxAnimating = false;
+            // After closing, open the queued box if any
+            if (queuedInfoBox) {
+                const { poi, poiPosition } = queuedInfoBox;
+                queuedInfoBox = null;
+                openInfoBox(poi, poiPosition);
+            }
+            // Clean up the listener
+            panel.removeEventListener('transitionend', handleTransitionEnd);
+        }
+    }, { once: false }); // Use once: false initially, remove manually inside
+
+    // Start the closing animation immediately (no delay needed)
+    panel.style.width = '1px';
+
+    // NOTE: The old setTimeout for removal is replaced by the transitionend listener above
+    /* Old removal logic:
     const panelTransitionDuration = 320; // Match the original timeout
     setTimeout(() => {
         if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
         currentInfoBox = null;
         infoBoxAnimating = false;
-        // After closing, open the queued box if any
-        if (queuedInfoBox) {
-            const { poi, poiPosition } = queuedInfoBox;
-            queuedInfoBox = null;
-            openInfoBox(poi, poiPosition);
-        }
-    }, 320);
+    }); // Added missing closing parenthesis for setTimeout
+    */ // Added missing closing comment tag
 }
 
 export function showInfoBox(poi, poiPosition) {
