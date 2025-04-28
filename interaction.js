@@ -140,7 +140,7 @@ function openInfoBox(poi, poiPosition) {
     currentInfoBox = wrapper;
 
     // Set transition before width
-    panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(.5,1.7,.7,1)`;
+    panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(0.25, 1, 0.5, 1)`; // Use ease-out curve to prevent overshoot
     panel.style.width = '1px';
 
     // Force reflow
