@@ -12,11 +12,11 @@ export function generateSpectralColors(count) {
 
 export const poiColors = generateSpectralColors(7);
 export const pois = [
-    { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'Solara Prime', description: 'Ancient homeworld of the Lumina civilization.' },
-    { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Nebula X-7', description: 'Dense stellar nursery, home to new star formation.' },
-    { position: new THREE.Vector3(35, -20, 0), color: poiColors[2], name: "K'tharr Station", description: 'Major trade hub and diplomatic center.' },
-    { position: new THREE.Vector3(40, -80, 0), color: poiColors[3], name: 'Void Gate Alpha', description: 'Primary FTL transit point for the sector.' },
-    { position: new THREE.Vector3(-35, -130, 0), color: poiColors[4], name: 'Research Post 7', description: 'Advanced xenoarchaeological research facility.' },
+    { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'JustSanGuy', description: 'Sam\'s first brand. Initially concieved as an online alias, it has since grown to represent creations that fall into art & entertainment.' },
+    { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Clarenova', description: 'What started as the financial operations for Sam\'s body of work has become a brand that represents the values of clarity and simplicity in a world of complex technicalities.' },
+    { position: new THREE.Vector3(35, -20, 0), color: poiColors[2], name: "S&A", description: 'S&A is the brand representing the mastermind duo. All individual brands are managed directly by Sam and Allena.' },
+    { position: new THREE.Vector3(40, -80, 0), color: poiColors[3], name: 'WoodLab Database', description: 'What started as a garage business has become a national leader in a nearly unscalable industry.' },
+    { position: new THREE.Vector3(-35, -130, 0), color: poiColors[4], name: 'WoodLab Configurator UI', description: 'What was just another experiment went successful - I\'ll let the app speak for itself.' },
     { position: new THREE.Vector3(15, -190, 0), color: poiColors[5], name: 'Mining Colony Beta', description: 'Rich in rare earth elements and deuterium.' },
     { position: new THREE.Vector3(-20, -240, 0), color: poiColors[6], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
 ];
