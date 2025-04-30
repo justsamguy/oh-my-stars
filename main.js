@@ -50,8 +50,7 @@ headerDiv.style.background = 'none';
 headerDiv.style.color = '#fff';
 headerDiv.style.pointerEvents = 'auto';
 const headerObj = new CSS3DObject(headerDiv);
-// Vertically center header in the padding area
-const headerWorldHeight = 80; // Sets the height of the header in the world space
+const headerWorldHeight = 70; // Sets the height of the header in the world space
 headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
@@ -61,8 +60,8 @@ const footerDiv = document.createElement('div');
 footerDiv.className = 'css3d-element css3d-footer';
 footerDiv.innerHTML = `
     <nav>
-        <a href="#">Link 1</a>
-        <a href="#">Link 2</a>
+        <a href="#">JustSamGuy</a>
+        <a href="#">Clarenova</a>
         <a href="#">Link 3</a>
         <a href="#">Link 4</a>
         <a href="#">Link 5</a>
@@ -70,12 +69,12 @@ footerDiv.innerHTML = `
     <p>&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
-footerDiv.style.fontSize = '0.27em';
+footerDiv.style.fontSize = '0.125em';
 footerDiv.style.background = 'none';
 footerDiv.style.color = '#ccc';
 footerDiv.style.pointerEvents = 'auto';
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY + 80, 0);
+footerObj.position.set(0, minY - paddingY - 70 0, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
