@@ -41,8 +41,8 @@ html, body {
 /* Canvas Styles */
 #bg {
     position: absolute;
-    top: 60px; /* Below header */
-    bottom: 60px; /* Above footer */
+    top: 0; /* Extend behind header */
+    bottom: 0; /* Extend behind footer */
     left: 0;
     width: 100%;
     height: auto; /* Height is determined by top/bottom */
@@ -101,8 +101,8 @@ html, body {
     }
 
     #bg {
-        top: 50px; /* Adjust canvas position */
-        bottom: 70px; /* Adjust canvas position (footer might wrap) */
+        top: 0; /* Extend behind header */
+        bottom: 0; /* Extend behind footer */
     }
 
     #main-footer {
