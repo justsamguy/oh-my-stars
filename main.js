@@ -75,7 +75,7 @@ footerDiv.innerHTML = `
     <p style="font-size:0.1em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.55;">&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
-footerDiv.style.fontSize = '.05em'; // font size, not sure if p is affected
+footerDiv.style.fontSize = '.01em'; // font size, not sure if p is affected
 footerDiv.style.background = 'rgba(0,0,0,0.5)';
 footerDiv.style.color = '#9f9f9f';
 footerDiv.style.pointerEvents = 'auto';
