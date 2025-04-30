@@ -45,7 +45,8 @@ const headerDiv = document.createElement('div');
 headerDiv.className = 'css3d-element css3d-header';
 headerDiv.innerHTML = '<h1>Editable Header Title</h1>';
 headerDiv.style.width = '500px';
-headerDiv.style.fontSize = '1.5em';
+// Smaller font size
+headerDiv.style.fontSize = '1em';
 headerDiv.style.background = 'none';
 headerDiv.style.color = '#fff';
 headerDiv.style.pointerEvents = 'auto';
@@ -67,8 +68,9 @@ footerDiv.innerHTML = `
     </nav>
     <p>&copy; S&A 2025</p>
 `;
+// Smaller font size
 footerDiv.style.width = '600px';
-footerDiv.style.fontSize = '0.9em';
+footerDiv.style.fontSize = '0.7em';
 footerDiv.style.background = 'none';
 footerDiv.style.color = '#ccc';
 footerDiv.style.pointerEvents = 'auto';
@@ -182,5 +184,8 @@ function onWindowResize() {
 
 // Initial call to set size correctly
 onWindowResize();
+
+// Set initial camera position to top (just below header)
+camera.position.y = maxY + paddingY - camera.top;
 
 animate();
