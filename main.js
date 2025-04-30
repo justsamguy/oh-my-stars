@@ -74,7 +74,7 @@ footerDiv.style.background = 'none';
 footerDiv.style.color = '#ccc';
 footerDiv.style.pointerEvents = 'auto';
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY - 70 0, 0);
+footerObj.position.set(0, minY - paddingY - 70, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
