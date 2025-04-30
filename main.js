@@ -59,6 +59,12 @@ scene.add(headerObj);
 const footerDiv = document.createElement('div');
 footerDiv.className = 'css3d-element css3d-footer';
 footerDiv.innerHTML = `
+    <style>
+        .css3d-footer nav a {
+            text-decoration: underline;
+            margin: 0 12px;
+        }
+    </style>
     <nav style="margin-bottom: 8px;">
         <a href="#">JustSamGuy</a>
         <a href="#">Clarenova</a>
@@ -66,7 +72,7 @@ footerDiv.innerHTML = `
         <a href="#">Link 4</a>
         <a href="#">Link 5</a>
     </nav>
-    <p style="font-size:0.8em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.85;">&copy; S&A 2025</p>
+    <p style="font-size:0.4em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.85;">&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
 footerDiv.style.fontSize = '.05em'; // font size, not sure if p is affected
