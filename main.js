@@ -43,15 +43,15 @@ const paddingY = 100; // Keep this for positioning
 // Header
 const headerDiv = document.createElement('div');
 headerDiv.className = 'css3d-element css3d-header';
-headerDiv.innerHTML = '<h1>Editable Header Title</h1>';
+headerDiv.innerHTML = '<h1>Oh My Stars</h1>';
 headerDiv.style.width = '250px';
-headerDiv.style.fontSize = '0.25em';
+headerDiv.style.fontSize = '0.125em';
 headerDiv.style.background = 'none';
 headerDiv.style.color = '#fff';
 headerDiv.style.pointerEvents = 'auto';
 const headerObj = new CSS3DObject(headerDiv);
 // Vertically center header in the padding area
-const headerWorldHeight = 40; // Sets the height of the header in the world space
+const headerWorldHeight = 80; // Sets the height of the header in the world space
 headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
@@ -69,14 +69,13 @@ footerDiv.innerHTML = `
     </nav>
     <p>&copy; S&A 2025</p>
 `;
-// Smaller font size
 footerDiv.style.width = '600px';
-footerDiv.style.fontSize = '0.7em';
+footerDiv.style.fontSize = '0.27em';
 footerDiv.style.background = 'none';
 footerDiv.style.color = '#ccc';
 footerDiv.style.pointerEvents = 'auto';
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY, 0);
+footerObj.position.set(0, minY - paddingY + 80, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
