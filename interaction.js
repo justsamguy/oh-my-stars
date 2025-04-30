@@ -11,7 +11,7 @@ export let cameraTargetY = camera.position.y;
 export const raycaster = new THREE.Raycaster();
 
 // Info box logic
-let currentInfoBox = null;
+export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
