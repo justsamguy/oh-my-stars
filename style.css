@@ -17,105 +17,69 @@ html, body {
     overflow: hidden; /* Contain absolutely positioned elements */
 }
 
-/* Header Styles */
-#main-header {
-    position: absolute;
+/* Canvas Styles */
+#bg {
+    position: absolute; /* Take up space within the container */
     top: 0;
     left: 0;
     width: 100%;
-    height: 60px; /* Fixed height */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    /* background-color: rgba(20, 20, 20, 0.8); Optional background */
-    z-index: 10;
-    box-sizing: border-box; /* Include padding/border in height */
+    height: 100%; /* Fill the container */
+    display: block;
+    z-index: 1; /* Base layer */
 }
 
-#main-header h1 {
-    margin: 0;
+/* Styles for CSS3DObjects (Header/Footer) */
+.css3d-element {
+    /* Basic styling for elements mapped to 3D */
+    background-color: rgba(30, 30, 30, 0.85); /* Semi-transparent background */
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: #fff;
+    text-align: center;
+    box-sizing: border-box;
+    /* Prevent pointer events from blocking raycasting on the main canvas */
+    /* pointer-events: none; */ /* We might need events for links */
+}
+
+.css3d-header {
+    /* Specific header styles */
+    width: 500px; /* Example width, adjust as needed */
     font-size: 1.5em;
 }
 
-/* Canvas Styles */
-#bg {
-    position: absolute;
-    top: 0; /* Extend behind header */
-    bottom: 0; /* Extend behind footer */
-    left: 0;
-    width: 100%;
-    height: auto; /* Height is determined by top/bottom */
-    display: block;
-    z-index: 1; /* Behind header/footer if they have backgrounds */
+.css3d-footer {
+    /* Specific footer styles */
+    width: 600px; /* Example width, adjust as needed */
+    font-size: 0.9em;
 }
 
-/* Footer Styles */
-#main-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px; /* Fixed height */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    /* background-color: rgba(20, 20, 20, 0.8); Optional background */
-    z-index: 10;
-    box-sizing: border-box; /* Include padding/border in height */
-    padding-bottom: 5px; /* Small padding at the bottom */
-}
-
-#main-footer nav {
+.css3d-footer nav {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin-bottom: 5px; /* Space between nav and copyright */
+    gap: 15px;
+    margin-bottom: 8px;
 }
 
-#main-footer nav a {
-    color: #aaa;
+.css3d-footer nav a {
+    color: #ccc;
     text-decoration: none;
     transition: color 0.3s ease;
+    pointer-events: auto; /* Allow clicks on links */
 }
 
-#main-footer nav a:hover {
+.css3d-footer nav a:hover {
     color: #fff;
 }
 
-#main-footer p {
+.css3d-footer p {
     margin: 0;
     font-size: 0.8em;
-    color: #888;
+    color: #aaa;
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 600px) {
-    #main-header {
-        height: 50px; /* Slightly smaller header */
-    }
-    #main-header h1 {
-        font-size: 1.2em;
-    }
 
-    #bg {
-        top: 0; /* Extend behind header */
-        bottom: 0; /* Extend behind footer */
-    }
-
-    #main-footer {
-        height: 70px; /* Allow more space for vertical nav */
-        padding-top: 5px;
-    }
-
-    #main-footer nav {
-        flex-direction: column; /* Stack links vertically */
-        gap: 5px; /* Adjust gap */
-        margin-bottom: 8px;
-    }
-    #main-footer nav a {
-        font-size: 0.9em;
-    }
-}
+/* Mobile Responsiveness - Adjust if needed for 3D elements */
+/* @media (max-width: 600px) { ... } */
+/* Note: Responsiveness for CSS3DObjects might need JS adjustments */
+/* based on viewport size rather than pure CSS media queries */
+/* depending on how their size/position is calculated. */

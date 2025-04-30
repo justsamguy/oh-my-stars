@@ -11,27 +11,16 @@
             "imports": {
                 "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
                 "three/examples/jsm/": "https://unpkg.com/three@0.163.0/examples/jsm/",
-                "@tweenjs/tween.js": "https://unpkg.com/@tweenjs/tween.js@^21/dist/tween.esm.js"
+                "@tweenjs/tween.js": "https://unpkg.com/@tweenjs/tween.js@^21/dist/tween.esm.js",
+                "three/examples/jsm/renderers/CSS3DRenderer.js": "https://unpkg.com/three@0.163.0/examples/jsm/renderers/CSS3DRenderer.js"
             }
         }
     </script>
 </head>
 <body>
     <div id="app-container"> <!-- Added container -->
-        <header id="main-header">
-            <h1>Editable Header Title</h1>
-        </header>
         <canvas id="bg"></canvas>
-        <footer id="main-footer">
-            <nav>
-                <a href="#">Link 1</a>
-            <a href="#">Link 2</a>
-            <a href="#">Link 3</a>
-            <a href="#">Link 4</a>
-                <a href="#">Link 5</a>
-            </nav>
-            <p>&copy; S&A 2025</p>
-        </footer>
+        <!-- Header and Footer will be added via JS -->
     </div> <!-- Close container -->
     <script type="module" src="main.js"></script>
 </body>
