@@ -1,64 +1,78 @@
 /* Basic Reset & Body Layout */
-body {
+html, body {
     margin: 0;
     padding: 0;
+    height: 100%; /* Ensure html and body take full height */
     font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Ensure body takes full viewport height */
     background-color: #000; /* Match starfield background */
     color: #fff; /* Default text color */
-    overflow: hidden; /* Prevent scrollbars from body */
+    overflow: hidden; /* Prevent scrollbars */
+}
+
+/* App Container */
+#app-container {
+    position: relative; /* Context for absolute positioning */
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Contain absolutely positioned elements */
 }
 
 /* Header Styles */
 #main-header {
-    height: 10vh; /* Placeholder height - 10% of viewport height */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px; /* Fixed height */
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     /* background-color: rgba(20, 20, 20, 0.8); Optional background */
-    width: 100%;
-    z-index: 10; /* Ensure header is above canvas if needed */
-    position: relative; /* Needed for z-index */
+    z-index: 10;
+    box-sizing: border-box; /* Include padding/border in height */
 }
 
 #main-header h1 {
     margin: 0;
-    font-size: 1.5em; /* Adjust as needed */
+    font-size: 1.5em;
 }
 
 /* Canvas Styles */
 #bg {
-    display: block; /* Keep this */
-    flex-grow: 1; /* Allow canvas to take remaining vertical space */
+    position: absolute;
+    top: 60px; /* Below header */
+    bottom: 60px; /* Above footer */
+    left: 0;
     width: 100%;
-    height: auto; /* Adjust height automatically based on flex container */
-    /* Ensure canvas doesn't cause overflow if header/footer have fixed height */
-    max-height: calc(100vh - 20vh); /* Example: 100vh - header_height - footer_height */
+    height: auto; /* Height is determined by top/bottom */
+    display: block;
+    z-index: 1; /* Behind header/footer if they have backgrounds */
 }
 
 /* Footer Styles */
 #main-footer {
-    height: 10vh; /* Placeholder height - 10% of viewport height */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px; /* Fixed height */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
     /* background-color: rgba(20, 20, 20, 0.8); Optional background */
-    width: 100%;
-    z-index: 10; /* Ensure footer is above canvas if needed */
-    position: relative; /* Needed for z-index */
-    padding-bottom: 10px; /* Add some padding at the very bottom */
+    z-index: 10;
+    box-sizing: border-box; /* Include padding/border in height */
+    padding-bottom: 5px; /* Small padding at the bottom */
 }
 
 #main-footer nav {
     display: flex;
     justify-content: center;
-    gap: 20px; /* Space between links */
-    margin-bottom: 10px; /* Space between nav and copyright */
+    gap: 20px;
+    margin-bottom: 5px; /* Space between nav and copyright */
 }
 
 #main-footer nav a {
@@ -77,29 +91,31 @@ body {
     color: #888;
 }
 
-/* Mobile Responsiveness for Footer */
+/* Mobile Responsiveness */
 @media (max-width: 600px) {
     #main-header {
-        height: 8vh; /* Slightly smaller header on mobile */
+        height: 50px; /* Slightly smaller header */
     }
     #main-header h1 {
         font-size: 1.2em;
     }
 
+    #bg {
+        top: 50px; /* Adjust canvas position */
+        bottom: 70px; /* Adjust canvas position (footer might wrap) */
+    }
+
     #main-footer {
-        height: auto; /* Allow footer height to adjust based on content */
-        padding: 15px 0; /* Adjust padding */
+        height: 70px; /* Allow more space for vertical nav */
+        padding-top: 5px;
     }
 
     #main-footer nav {
         flex-direction: column; /* Stack links vertically */
-        gap: 8px; /* Adjust gap for vertical layout */
-        margin-bottom: 15px; /* More space before copyright */
+        gap: 5px; /* Adjust gap */
+        margin-bottom: 8px;
     }
-
-     /* Adjust canvas max-height if header/footer height changes significantly */
-     #bg {
-        max-height: calc(100vh - 8vh - auto); /* Need to recalculate if footer is auto */
-        /* Or remove max-height if flex-grow handles it well */
+    #main-footer nav a {
+        font-size: 0.9em;
     }
 }
