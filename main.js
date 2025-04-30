@@ -80,8 +80,9 @@ function animate() {
     }
     // Clamp camera based on POI positions, not header/footer
     const cameraViewHeight = camera.top - camera.bottom;
-    const clampMinY = minY + cameraViewHeight / 2 - paddingY;
-    const clampMaxY = maxY - cameraViewHeight / 2 + paddingY;
+    // Ensure minY < maxY
+    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingY;
+    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingY;
     camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
 
     // No need to update projection matrix here unless zoom changes

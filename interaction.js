@@ -288,8 +288,9 @@ export function setupClickHandler(poiObjects) {
 // Scroll event
 export function setupScrollHandler() {
     window.addEventListener('wheel', (e) => {
+        e.preventDefault(); // Prevent default browser scroll
         scrollState.velocity -= e.deltaY * 0.01;
-    });
+    }, { passive: false }); // Set passive to false so preventDefault works
 }
 
 // Resize event

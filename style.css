@@ -6,7 +6,6 @@ html, body {
     font-family: sans-serif;
     background-color: #000; /* Match starfield background */
     color: #fff; /* Default text color */
-    overflow: hidden; /* Prevent scrollbars */
 }
 
 /* App Container */
