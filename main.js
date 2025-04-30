@@ -58,9 +58,9 @@ setupResizeHandler(onWindowResize);
 setupClickHandler(poiObjects);
 
 // --- Fix scroll clamping: clamp camera based on POI positions, not header/footer ---
-const yPositions = pois.map(p => p.position.y);
-const maxY = Math.max(...yPositions);
-const minY = Math.min(...yPositions);
+let yPositions = pois.map(p => p.position.y);
+let maxY = Math.max(...yPositions);
+let minY = Math.min(...yPositions);
 const paddingY = 5; // For some margin
 
 // Animation loop
@@ -124,30 +124,32 @@ function onWindowResize() {
     const canvasWidth = canvas.clientWidth;
     const canvasHeight = canvas.clientHeight;
 
-    // Recalculate viewport dimensions based on canvas size if needed
-    // Assuming getViewportHeight/Width are related to camera's view,
-    // they might not need direct change unless the desired view scale changes.
-    // If they ARE tied to pixel dimensions, they would need adjustment.
-    // For now, let's focus on aspect ratio and renderer size.
-    // const newViewportHeight = getViewportHeight(); // Re-evaluate if needed
-    // const newViewportWidth = getViewportWidth(); // Re-evaluate if needed
-
+    // --- Recalculate viewport dimensions based on POI data and aspect ratio ---
+    // Get new aspect ratio
     const aspect = canvasWidth / canvasHeight;
 
-    // Adjust camera frustum based on new aspect ratio
-    // We need to decide whether to adjust width or height bounds.
-    // Adjusting width based on fixed height is common:
-    const currentViewportHeight = camera.top - camera.bottom; // Get current ortho height
-    camera.left = currentViewportHeight * aspect / -2;
-    camera.right = currentViewportHeight * aspect / 2;
-    // camera.top remains camera.top
-    // camera.bottom remains camera.bottom
-    // OR adjust height based on fixed width:
-    // const currentViewportWidth = camera.right - camera.left;
-    // camera.top = currentViewportWidth / aspect / 2;
-    // camera.bottom = currentViewportWidth / aspect / -2;
+    // Get POI Y range
+    yPositions = pois.map(p => p.position.y);
+    maxY = Math.max(...yPositions);
+    minY = Math.min(...yPositions);
 
+    // Calculate new viewport height (span of POIs plus margin)
+    const poiSpan = Math.abs(maxY - minY);
+    const margin = 0.1 * poiSpan;
+    const newViewportHeight = poiSpan + margin;
+    const newViewportWidth = newViewportHeight * aspect;
+
+    // Update camera frustum
+    camera.top = newViewportHeight / 2;
+    camera.bottom = -newViewportHeight / 2;
+    camera.left = -newViewportWidth / 2;
+    camera.right = newViewportWidth / 2;
     camera.updateProjectionMatrix();
+
+    // Optionally, keep camera centered on POIs
+    camera.position.x = 0;
+    // camera.position.y = (maxY + minY) / 2; // Don't reset Y, let scroll logic handle it
+
     renderer.setSize(canvasWidth, canvasHeight); // Resize WebGL renderer
     cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
 }
