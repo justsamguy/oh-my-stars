@@ -1,29 +1,24 @@
 // Entry point for the modularized star map app
 import * as THREE from 'three';
-import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js'; // Import CSS3D modules
+import { CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer.js'; // Only import, don't use for header/footer
 import { pois, STAR_COUNT, SCROLL_DAMPING, MAX_SCROLL_SPEED } from './config.js';
 import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
 import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox } from './interaction.js'; // Import currentInfoBox
 
-// --- CSS3D Renderer Setup ---
-const cssRenderer = new CSS3DRenderer();
-cssRenderer.setSize(window.innerWidth, window.innerHeight); // Initial size
-cssRenderer.domElement.style.position = 'absolute';
-cssRenderer.domElement.style.top = '0px';
-cssRenderer.domElement.style.pointerEvents = 'none'; // Allow clicks to pass through to canvas by default
-cssRenderer.domElement.style.zIndex = '5'; // Ensure it's above the WebGL canvas but potentially below UI elements if needed
-document.getElementById('app-container').appendChild(cssRenderer.domElement);
+// --- Add header/footer as HTML elements outside the canvas ---
+const appContainer = document.getElementById('app-container');
 
-// --- Create Header/Footer HTML Elements ---
+// Create header
 const headerElement = document.createElement('div');
-headerElement.className = 'css3d-element css3d-header';
+headerElement.className = 'app-header';
 headerElement.innerHTML = '<h1>Editable Header Title</h1>';
-headerElement.style.pointerEvents = 'auto'; // Allow interaction with header if needed
+appContainer.insertBefore(headerElement, appContainer.firstChild);
 
+// Create footer
 const footerElement = document.createElement('div');
-footerElement.className = 'css3d-element css3d-footer';
+footerElement.className = 'app-footer';
 footerElement.innerHTML = `
     <nav>
         <a href="#">Link 1</a>
@@ -34,27 +29,16 @@ footerElement.innerHTML = `
     </nav>
     <p>&copy; S&A 2025</p>
 `;
-// Ensure links within the footer are clickable
-footerElement.querySelectorAll('a').forEach(a => a.style.pointerEvents = 'auto');
-footerElement.style.pointerEvents = 'auto'; // Allow interaction with footer background if needed
+appContainer.appendChild(footerElement);
 
-
-// --- Create CSS3DObjects ---
-const headerObject = new CSS3DObject(headerElement);
-const footerObject = new CSS3DObject(footerElement);
-
-// --- Position Header/Footer in 3D Space ---
-// Find min/max Y from POIs to position header above max and footer below min
-const yPositions = pois.map(p => p.position.y);
-const maxY = Math.max(...yPositions);
-const minY = Math.min(...yPositions);
-const paddingY = 5; // Adjust as needed for spacing
-
-headerObject.position.set(0, maxY + paddingY, 0); // Center X, Above highest POI
-footerObject.position.set(0, minY - paddingY, 0); // Center X, Below lowest POI
-
-scene.add(headerObject);
-scene.add(footerObject);
+// --- CSS3DRenderer only for future overlays, not header/footer ---
+const cssRenderer = new CSS3DRenderer();
+cssRenderer.setSize(window.innerWidth, window.innerHeight);
+cssRenderer.domElement.style.position = 'absolute';
+cssRenderer.domElement.style.top = '0px';
+cssRenderer.domElement.style.pointerEvents = 'none';
+cssRenderer.domElement.style.zIndex = '5';
+appContainer.appendChild(cssRenderer.domElement);
 
 // Create stars
 const starsGroup = createAllStars(STAR_COUNT, pois, viewportWidth, viewportHeight);
@@ -73,6 +57,12 @@ setupScrollHandler();
 setupResizeHandler(onWindowResize);
 setupClickHandler(poiObjects);
 
+// --- Fix scroll clamping: clamp camera based on POI positions, not header/footer ---
+const yPositions = pois.map(p => p.position.y);
+const maxY = Math.max(...yPositions);
+const minY = Math.min(...yPositions);
+const paddingY = 5; // For some margin
+
 // Animation loop
 let lastTime = performance.now();
 function animate() {
@@ -88,10 +78,10 @@ function animate() {
         camera.position.y += scrollState.velocity;
         scrollState.velocity *= SCROLL_DAMPING;
     }
-    // Clamp camera based on Header/Footer positions
+    // Clamp camera based on POI positions, not header/footer
     const cameraViewHeight = camera.top - camera.bottom;
-    const clampMinY = footerObject.position.y + cameraViewHeight / 2; // Stop when bottom edge reaches footer center
-    const clampMaxY = headerObject.position.y - cameraViewHeight / 2; // Stop when top edge reaches header center
+    const clampMinY = minY + cameraViewHeight / 2 - paddingY;
+    const clampMaxY = maxY - cameraViewHeight / 2 + paddingY;
     camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
 
     // No need to update projection matrix here unless zoom changes

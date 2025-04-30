@@ -19,11 +19,11 @@ html, body {
 
 /* Canvas Styles */
 #bg {
-    position: absolute; /* Take up space within the container */
-    top: 0;
+    position: absolute;
+    top: 44px; /* Height of header */
     left: 0;
     width: 100%;
-    height: 100%; /* Fill the container */
+    height: calc(100% - 44px - 38px); /* Subtract header and footer heights */
     display: block;
     z-index: 1; /* Base layer */
 }
@@ -31,7 +31,7 @@ html, body {
 /* Styles for CSS3DObjects (Header/Footer) */
 .css3d-element {
     /* Basic styling for elements mapped to 3D */
-    background-color: rgba(30, 30, 30, 0.85); /* Semi-transparent background */
+    background: none !important;
     padding: 10px 20px;
     border-radius: 5px;
     color: #fff;
@@ -77,6 +77,58 @@ html, body {
     color: #aaa;
 }
 
+/* App Header and Footer (outside starfield) */
+.app-header {
+    width: 100%;
+    text-align: center;
+    padding: 10px 0 4px 0;
+    font-size: 1.1em;
+    font-family: sans-serif;
+    color: #fff;
+    background: none;
+    position: relative;
+    z-index: 10;
+}
+.app-header h1 {
+    font-size: 1.2em;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.app-footer {
+    width: 100%;
+    text-align: center;
+    padding: 6px 0 8px 0;
+    font-size: 0.85em;
+    font-family: sans-serif;
+    color: #ccc;
+    background: none;
+    position: relative;
+    z-index: 10;
+}
+.app-footer nav {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 4px;
+    font-size: 0.95em;
+}
+.app-footer nav a {
+    color: #ccc;
+    text-decoration: none;
+    transition: color 0.3s;
+    pointer-events: auto;
+    font-size: 0.95em;
+}
+.app-footer nav a:hover {
+    color: #fff;
+}
+.app-footer p {
+    margin: 0;
+    font-size: 0.8em;
+    color: #888;
+}
 
 /* Mobile Responsiveness - Adjust if needed for 3D elements */
 /* @media (max-width: 600px) { ... } */
