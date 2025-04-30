@@ -58,8 +58,12 @@ function animate() {
         );
         const pos = poiPosition.clone();
         pos.project(camera); // Project using the current camera state
-        const screenX = (pos.x * 0.5 + 0.5) * window.innerWidth + 20;
-        const screenY = (-pos.y * 0.5 + 0.5) * window.innerHeight - 20;
+
+        // Use canvas dimensions for screen coordinate calculation
+        const canvasRect = canvas.getBoundingClientRect(); // Get canvas position and size
+        const screenX = (pos.x * 0.5 + 0.5) * canvasRect.width + canvasRect.left + 20; // Add canvas left offset
+        const screenY = (-pos.y * 0.5 + 0.5) * canvasRect.height + canvasRect.top - 20; // Add canvas top offset
+
         currentInfoBox.style.left = `${screenX}px`;
         currentInfoBox.style.top = `${screenY}px`;
     }
@@ -69,16 +73,39 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+// Get the canvas element
+const canvas = document.getElementById('bg');
+
 function onWindowResize() {
-    const newViewportHeight = getViewportHeight();
-    const newViewportWidth = getViewportWidth();
-    const aspect = window.innerWidth / window.innerHeight;
-    camera.left = newViewportWidth / -2;
-    camera.right = newViewportWidth / 2;
-    camera.top = newViewportHeight / 2;
-    camera.bottom = newViewportHeight / -2;
+    // Use canvas dimensions, not window dimensions
+    const canvasWidth = canvas.clientWidth;
+    const canvasHeight = canvas.clientHeight;
+
+    // Recalculate viewport dimensions based on canvas size if needed
+    // Assuming getViewportHeight/Width are related to camera's view,
+    // they might not need direct change unless the desired view scale changes.
+    // If they ARE tied to pixel dimensions, they would need adjustment.
+    // For now, let's focus on aspect ratio and renderer size.
+    // const newViewportHeight = getViewportHeight(); // Re-evaluate if needed
+    // const newViewportWidth = getViewportWidth(); // Re-evaluate if needed
+
+    const aspect = canvasWidth / canvasHeight;
+
+    // Adjust camera frustum based on new aspect ratio
+    // We need to decide whether to adjust width or height bounds.
+    // Adjusting width based on fixed height is common:
+    const currentViewportHeight = camera.top - camera.bottom; // Get current ortho height
+    camera.left = currentViewportHeight * aspect / -2;
+    camera.right = currentViewportHeight * aspect / 2;
+    // camera.top remains camera.top
+    // camera.bottom remains camera.bottom
+    // OR adjust height based on fixed width:
+    // const currentViewportWidth = camera.right - camera.left;
+    // camera.top = currentViewportWidth / aspect / 2;
+    // camera.bottom = currentViewportWidth / aspect / -2;
+
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(canvasWidth, canvasHeight); // Use canvas dimensions
 }
 
 animate();

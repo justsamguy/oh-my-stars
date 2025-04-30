@@ -1,0 +1,105 @@
+/* Basic Reset & Body Layout */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure body takes full viewport height */
+    background-color: #000; /* Match starfield background */
+    color: #fff; /* Default text color */
+    overflow: hidden; /* Prevent scrollbars from body */
+}
+
+/* Header Styles */
+#main-header {
+    height: 10vh; /* Placeholder height - 10% of viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    /* background-color: rgba(20, 20, 20, 0.8); Optional background */
+    width: 100%;
+    z-index: 10; /* Ensure header is above canvas if needed */
+    position: relative; /* Needed for z-index */
+}
+
+#main-header h1 {
+    margin: 0;
+    font-size: 1.5em; /* Adjust as needed */
+}
+
+/* Canvas Styles */
+#bg {
+    display: block; /* Keep this */
+    flex-grow: 1; /* Allow canvas to take remaining vertical space */
+    width: 100%;
+    height: auto; /* Adjust height automatically based on flex container */
+    /* Ensure canvas doesn't cause overflow if header/footer have fixed height */
+    max-height: calc(100vh - 20vh); /* Example: 100vh - header_height - footer_height */
+}
+
+/* Footer Styles */
+#main-footer {
+    height: 10vh; /* Placeholder height - 10% of viewport height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    /* background-color: rgba(20, 20, 20, 0.8); Optional background */
+    width: 100%;
+    z-index: 10; /* Ensure footer is above canvas if needed */
+    position: relative; /* Needed for z-index */
+    padding-bottom: 10px; /* Add some padding at the very bottom */
+}
+
+#main-footer nav {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Space between links */
+    margin-bottom: 10px; /* Space between nav and copyright */
+}
+
+#main-footer nav a {
+    color: #aaa;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+#main-footer nav a:hover {
+    color: #fff;
+}
+
+#main-footer p {
+    margin: 0;
+    font-size: 0.8em;
+    color: #888;
+}
+
+/* Mobile Responsiveness for Footer */
+@media (max-width: 600px) {
+    #main-header {
+        height: 8vh; /* Slightly smaller header on mobile */
+    }
+    #main-header h1 {
+        font-size: 1.2em;
+    }
+
+    #main-footer {
+        height: auto; /* Allow footer height to adjust based on content */
+        padding: 15px 0; /* Adjust padding */
+    }
+
+    #main-footer nav {
+        flex-direction: column; /* Stack links vertically */
+        gap: 8px; /* Adjust gap for vertical layout */
+        margin-bottom: 15px; /* More space before copyright */
+    }
+
+     /* Adjust canvas max-height if header/footer height changes significantly */
+     #bg {
+        max-height: calc(100vh - 8vh - auto); /* Need to recalculate if footer is auto */
+        /* Or remove max-height if flex-grow handles it well */
+    }
+}
