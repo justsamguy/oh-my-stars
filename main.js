@@ -59,22 +59,26 @@ scene.add(headerObj);
 const footerDiv = document.createElement('div');
 footerDiv.className = 'css3d-element css3d-footer';
 footerDiv.innerHTML = `
-    <nav>
+    <nav style="margin-bottom: 8px;">
         <a href="#">JustSamGuy</a>
         <a href="#">Clarenova</a>
         <a href="#">Link 3</a>
         <a href="#">Link 4</a>
         <a href="#">Link 5</a>
     </nav>
-    <p style="font-size:1.2em; color:#fff; margin-top:10px; text-align:center;">&copy; S&A 2025</p>
+    <p style="font-size:0.8em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.85;">&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
-footerDiv.style.fontSize = '0.125em';
-footerDiv.style.background = 'none';
-footerDiv.style.color = '#ccc';
+footerDiv.style.fontSize = '1em'; // Make links readable, p will be smaller
+footerDiv.style.background = 'rgba(0,0,0,0.5)';
+footerDiv.style.color = '#fff';
 footerDiv.style.pointerEvents = 'auto';
+footerDiv.style.padding = '18px 0 10px 0'; // Add top/bottom padding
+footerDiv.style.boxSizing = 'border-box';
+footerDiv.style.borderRadius = '12px';
+// Move footer up so links aren't flush with the bottom
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY - 70, 0);
+footerObj.position.set(0, minY - paddingY + 30, 0); // +30 moves it up in the padding
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
@@ -132,7 +136,7 @@ function animate() {
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingY;
+    footerObj.position.y = minY - paddingY + 30;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -178,7 +182,7 @@ function onWindowResize() {
 
     // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    footerObj.position.y = minY - paddingY;
+    footerObj.position.y = minY - paddingY + 30;
 }
 
 // Initial call to set size correctly
