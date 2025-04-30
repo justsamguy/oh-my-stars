@@ -5,3 +5,12 @@ Dark mode on site
 
 Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly animate the camera to a selected POI when this feature is implemented.
 
+
+
+Header & Footer around starfield
+
+breakpoints for mobile Use
+
+star clustering
+
+review and adjust star size diversity
