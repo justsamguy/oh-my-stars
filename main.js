@@ -44,14 +44,20 @@ const paddingY = 100; // Keep this for positioning
 const headerDiv = document.createElement('div');
 headerDiv.className = 'css3d-element css3d-header';
 headerDiv.innerHTML = '<h1>Editable Header Title</h1>';
-headerDiv.style.width = '500px';
-// Smaller font size
-headerDiv.style.fontSize = '1em';
+// Half the previous width and font size
+headerDiv.style.width = '250px';
+headerDiv.style.fontSize = '0.5em';
 headerDiv.style.background = 'none';
 headerDiv.style.color = '#fff';
 headerDiv.style.pointerEvents = 'auto';
+// Center horizontally in CSS3D overlay
+headerDiv.style.position = 'absolute';
+headerDiv.style.left = '50%';
+headerDiv.style.transform = 'translateX(-50%)';
 const headerObj = new CSS3DObject(headerDiv);
-headerObj.position.set(0, maxY + paddingY, 0);
+// Vertically center header in the padding area
+const headerWorldHeight = 40; // Adjust this value if needed for your scene scale
+headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
@@ -130,7 +136,7 @@ function animate() {
     // Keep header/footer in correct X/Z, but let them scroll with the scene
     headerObj.position.x = 0;
     headerObj.position.z = 0;
-    headerObj.position.y = maxY + paddingY;
+    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
     footerObj.position.y = minY - paddingY;
@@ -178,7 +184,7 @@ function onWindowResize() {
     cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
 
     // Update header/footer positions on resize (in case POI Y changes)
-    headerObj.position.y = maxY + paddingY;
+    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
     footerObj.position.y = minY - paddingY;
 }
 
