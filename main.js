@@ -66,7 +66,7 @@ footerDiv.innerHTML = `
         <a href="#">Link 4</a>
         <a href="#">Link 5</a>
     </nav>
-    <p>&copy; S&A 2025</p>
+    <p style="font-size:1.2em; color:#fff; margin-top:10px; text-align:center;">&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
 footerDiv.style.fontSize = '0.125em';
