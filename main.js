@@ -47,7 +47,7 @@ headerDiv.innerHTML = '<h1>Oh My Stars</h1>';
 headerDiv.style.width = '250px';
 headerDiv.style.fontSize = '0.125em';
 headerDiv.style.background = 'none';
-headerDiv.style.color = '#fff';
+headerDiv.style.color = '#afafaf';
 headerDiv.style.pointerEvents = 'auto';
 const headerObj = new CSS3DObject(headerDiv);
 const headerWorldHeight = 70; // Sets the height of the header in the world space
@@ -72,12 +72,12 @@ footerDiv.innerHTML = `
         <a href="#">Link 4</a>
         <a href="#">Link 5</a>
     </nav>
-    <p style="font-size:0.4em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.85;">&copy; S&A 2025</p>
+    <p style="font-size:0.1em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.55;">&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
 footerDiv.style.fontSize = '.05em'; // font size, not sure if p is affected
 footerDiv.style.background = 'rgba(0,0,0,0.5)';
-footerDiv.style.color = '#fff';
+footerDiv.style.color = '#9f9f9f';
 footerDiv.style.pointerEvents = 'auto';
 footerDiv.style.padding = '18px 0 10px 0'; // Add top/bottom padding
 footerDiv.style.boxSizing = 'border-box';
