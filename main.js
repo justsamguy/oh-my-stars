@@ -1,10 +1,11 @@
 // Entry point for the modularized star map app
+// Entry point for the modularized star map app
 import * as THREE from 'three';
 import { pois, STAR_COUNT, SCROLL_DAMPING, MAX_SCROLL_SPEED } from './config.js';
 import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
-import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster } from './interaction.js';
+import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox } from './interaction.js'; // Import currentInfoBox
 
 // Create stars
 const starsGroup = createAllStars(STAR_COUNT, pois, viewportWidth, viewportHeight);
@@ -47,6 +48,22 @@ function animate() {
     updateStars(starsGroup, now * 0.001, camera.position.y, mouseWorldPosition);
     // Update POIs
     updatePOIs(poiObjects, now * 0.001, raycaster);
+
+    // Update info box position if open
+    if (currentInfoBox && currentInfoBox.dataset.poiPositionX !== undefined) {
+        const poiPosition = new THREE.Vector3(
+            parseFloat(currentInfoBox.dataset.poiPositionX),
+            parseFloat(currentInfoBox.dataset.poiPositionY),
+            parseFloat(currentInfoBox.dataset.poiPositionZ)
+        );
+        const pos = poiPosition.clone();
+        pos.project(camera); // Project using the current camera state
+        const screenX = (pos.x * 0.5 + 0.5) * window.innerWidth + 20;
+        const screenY = (-pos.y * 0.5 + 0.5) * window.innerHeight - 20;
+        currentInfoBox.style.left = `${screenX}px`;
+        currentInfoBox.style.top = `${screenY}px`;
+    }
+
     // Render
     renderer.clear();
     renderer.render(scene, camera);

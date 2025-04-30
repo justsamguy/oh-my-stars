@@ -139,6 +139,9 @@ function openInfoBox(poi, poiPosition) {
     wrapper.appendChild(panel);
     infoBoxContainer.appendChild(wrapper);
     currentInfoBox = wrapper;
+    currentInfoBox.dataset.poiPositionX = poiPosition.x; // Store POI 3D position
+    currentInfoBox.dataset.poiPositionY = poiPosition.y;
+    currentInfoBox.dataset.poiPositionZ = poiPosition.z;
     panel.dataset.boxWidth = boxWidth; // Store original width
 
     // Set transition before width
