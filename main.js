@@ -45,13 +45,13 @@ const headerDiv = document.createElement('div');
 headerDiv.className = 'css3d-element css3d-header';
 headerDiv.innerHTML = '<h1>Editable Header Title</h1>';
 headerDiv.style.width = '250px';
-headerDiv.style.fontSize = '0.5em';
+headerDiv.style.fontSize = '0.25em';
 headerDiv.style.background = 'none';
 headerDiv.style.color = '#fff';
 headerDiv.style.pointerEvents = 'auto';
 const headerObj = new CSS3DObject(headerDiv);
 // Vertically center header in the padding area
-const headerWorldHeight = 20; // Adjusted for better centering
+const headerWorldHeight = 40; // Sets the height of the header in the world space
 headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
