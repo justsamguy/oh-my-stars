@@ -61,7 +61,8 @@ setupClickHandler(poiObjects);
 let yPositions = pois.map(p => p.position.y);
 let maxY = Math.max(...yPositions);
 let minY = Math.min(...yPositions);
-const paddingY = 5; // For some margin
+// Increase paddingY to allow more camera movement
+const paddingY = 80; // Increased from 5 to 80 for more scroll room
 
 // Animation loop
 let lastTime = performance.now();
