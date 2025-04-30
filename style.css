@@ -77,6 +77,7 @@ html, body {
 }
 
 /* App Header and Footer (outside starfield) */
+/*
 .app-header {
     width: 100%;
     text-align: center;
@@ -128,6 +129,7 @@ html, body {
     font-size: 0.8em;
     color: #888;
 }
+*/
 
 /* Mobile Responsiveness - Adjust if needed for 3D elements */
 /* @media (max-width: 600px) { ... } */

@@ -1,37 +1,14 @@
 // Entry point for the modularized star map app
 import * as THREE from 'three';
-import { CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer.js'; // Only import, don't use for header/footer
+import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js'; // Add CSS3DObject import
 import { pois, STAR_COUNT, SCROLL_DAMPING, MAX_SCROLL_SPEED } from './config.js';
 import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
 import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox } from './interaction.js'; // Import currentInfoBox
 
-// --- Add header/footer as HTML elements outside the canvas ---
+// --- CSS3DRenderer only for overlays and header/footer ---
 const appContainer = document.getElementById('app-container');
-
-// Create header
-const headerElement = document.createElement('div');
-headerElement.className = 'app-header';
-headerElement.innerHTML = '<h1>Editable Header Title</h1>';
-appContainer.insertBefore(headerElement, appContainer.firstChild);
-
-// Create footer
-const footerElement = document.createElement('div');
-footerElement.className = 'app-footer';
-footerElement.innerHTML = `
-    <nav>
-        <a href="#">Link 1</a>
-        <a href="#">Link 2</a>
-        <a href="#">Link 3</a>
-        <a href="#">Link 4</a>
-        <a href="#">Link 5</a>
-    </nav>
-    <p>&copy; S&A 2025</p>
-`;
-appContainer.appendChild(footerElement);
-
-// --- CSS3DRenderer only for future overlays, not header/footer ---
 const cssRenderer = new CSS3DRenderer();
 cssRenderer.setSize(window.innerWidth, window.innerHeight);
 cssRenderer.domElement.style.position = 'absolute';
@@ -61,8 +38,44 @@ setupClickHandler(poiObjects);
 let yPositions = pois.map(p => p.position.y);
 let maxY = Math.max(...yPositions);
 let minY = Math.min(...yPositions);
-// Increase paddingY to allow more camera movement
-const paddingY = 80; // Increased from 5 to 80 for more scroll room
+const paddingY = 100; // Keep this for positioning
+
+// Header
+const headerDiv = document.createElement('div');
+headerDiv.className = 'css3d-element css3d-header';
+headerDiv.innerHTML = '<h1>Editable Header Title</h1>';
+headerDiv.style.width = '500px';
+headerDiv.style.fontSize = '1.5em';
+headerDiv.style.background = 'none';
+headerDiv.style.color = '#fff';
+headerDiv.style.pointerEvents = 'auto';
+const headerObj = new CSS3DObject(headerDiv);
+headerObj.position.set(0, maxY + paddingY, 0);
+headerObj.rotation.set(0, 0, 0);
+scene.add(headerObj);
+
+// Footer
+const footerDiv = document.createElement('div');
+footerDiv.className = 'css3d-element css3d-footer';
+footerDiv.innerHTML = `
+    <nav>
+        <a href="#">Link 1</a>
+        <a href="#">Link 2</a>
+        <a href="#">Link 3</a>
+        <a href="#">Link 4</a>
+        <a href="#">Link 5</a>
+    </nav>
+    <p>&copy; S&A 2025</p>
+`;
+footerDiv.style.width = '600px';
+footerDiv.style.fontSize = '0.9em';
+footerDiv.style.background = 'none';
+footerDiv.style.color = '#ccc';
+footerDiv.style.pointerEvents = 'auto';
+const footerObj = new CSS3DObject(footerDiv);
+footerObj.position.set(0, minY - paddingY, 0);
+footerObj.rotation.set(0, 0, 0);
+scene.add(footerObj);
 
 // Animation loop
 let lastTime = performance.now();
@@ -81,7 +94,6 @@ function animate() {
     }
     // Clamp camera based on POI positions, not header/footer
     const cameraViewHeight = camera.top - camera.bottom;
-    // Ensure minY < maxY
     const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingY;
     const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingY;
     camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
@@ -112,6 +124,14 @@ function animate() {
         currentInfoBox.style.left = `${screenX}px`;
         currentInfoBox.style.top = `${screenY}px`;
     }
+
+    // Keep header/footer in correct X/Z, but let them scroll with the scene
+    headerObj.position.x = 0;
+    headerObj.position.z = 0;
+    headerObj.position.y = maxY + paddingY;
+    footerObj.position.x = 0;
+    footerObj.position.z = 0;
+    footerObj.position.y = minY - paddingY;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -154,6 +174,10 @@ function onWindowResize() {
 
     renderer.setSize(canvasWidth, canvasHeight); // Resize WebGL renderer
     cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
+
+    // Update header/footer positions on resize (in case POI Y changes)
+    headerObj.position.y = maxY + paddingY;
+    footerObj.position.y = minY - paddingY;
 }
 
 // Initial call to set size correctly
