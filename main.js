@@ -69,7 +69,7 @@ footerDiv.innerHTML = `
     <p style="font-size:0.8em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.85;">&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
-footerDiv.style.fontSize = '1em'; // Make links readable, p will be smaller
+footerDiv.style.fontSize = '.05em'; // font size, not sure if p is affected
 footerDiv.style.background = 'rgba(0,0,0,0.5)';
 footerDiv.style.color = '#fff';
 footerDiv.style.pointerEvents = 'auto';
@@ -78,7 +78,7 @@ footerDiv.style.boxSizing = 'border-box';
 footerDiv.style.borderRadius = '12px';
 // Move footer up so links aren't flush with the bottom
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY + 30, 0); // +30 moves it up in the padding
+footerObj.position.set(0, minY - paddingY + 40, 0); // Add to Y position to move it up
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
