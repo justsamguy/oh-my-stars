@@ -44,19 +44,14 @@ const paddingY = 100; // Keep this for positioning
 const headerDiv = document.createElement('div');
 headerDiv.className = 'css3d-element css3d-header';
 headerDiv.innerHTML = '<h1>Editable Header Title</h1>';
-// Half the previous width and font size
 headerDiv.style.width = '250px';
 headerDiv.style.fontSize = '0.5em';
 headerDiv.style.background = 'none';
 headerDiv.style.color = '#fff';
 headerDiv.style.pointerEvents = 'auto';
-// Center horizontally in CSS3D overlay
-headerDiv.style.position = 'absolute';
-headerDiv.style.left = '50%';
-headerDiv.style.transform = 'translateX(-50%)';
 const headerObj = new CSS3DObject(headerDiv);
 // Vertically center header in the padding area
-const headerWorldHeight = 40; // Adjust this value if needed for your scene scale
+const headerWorldHeight = 20; // Adjusted for better centering
 headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
