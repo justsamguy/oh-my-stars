@@ -63,10 +63,10 @@ footerDiv.innerHTML = `
         .css3d-footer nav a {
             text-decoration: underline;
             margin: 0 12px;
-            font-size: 12px !important;
+            font-size: 5px !important;
         }
         .css3d-footer p {
-            font-size: 10px !important;
+            font-size: 2px !important;
         }
     </style>
     <nav style="margin-bottom: 8px;">
