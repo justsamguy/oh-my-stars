@@ -79,7 +79,7 @@ footerDiv.innerHTML = `
     <p style="color:#fff; margin:0; padding:0; text-align:center; opacity:0.55;">&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
-footerDiv.style.fontSize = '12px'; // Set base font size in px
+footerDiv.style.fontSize = '2px'; // Set base font size in px
 footerDiv.style.background = 'rgba(0,0,0,0.5)';
 footerDiv.style.color = '#9f9f9f';
 footerDiv.style.pointerEvents = 'auto';
