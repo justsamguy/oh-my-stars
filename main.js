@@ -63,6 +63,10 @@ footerDiv.innerHTML = `
         .css3d-footer nav a {
             text-decoration: underline;
             margin: 0 12px;
+            font-size: 12px !important;
+        }
+        .css3d-footer p {
+            font-size: 10px !important;
         }
     </style>
     <nav style="margin-bottom: 8px;">
@@ -72,14 +76,14 @@ footerDiv.innerHTML = `
         <a href="#">Link 4</a>
         <a href="#">Link 5</a>
     </nav>
-    <p style="font-size:0.005em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.55;">&copy; S&A 2025</p>
+    <p style="color:#fff; margin:0; padding:0; text-align:center; opacity:0.55;">&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
-footerDiv.style.fontSize = '.01em'; // font size, not sure if p is affected
+footerDiv.style.fontSize = '12px'; // Set base font size in px
 footerDiv.style.background = 'rgba(0,0,0,0.5)';
 footerDiv.style.color = '#9f9f9f';
 footerDiv.style.pointerEvents = 'auto';
-footerDiv.style.padding = '18px 0 10px 0'; // Add top/bottom padding
+footerDiv.style.padding = '18px 0 10px 0';
 footerDiv.style.boxSizing = 'border-box';
 footerDiv.style.borderRadius = '12px';
 // Move footer up so links aren't flush with the bottom
