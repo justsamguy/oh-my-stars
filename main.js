@@ -61,6 +61,16 @@ scene.add(headerObj);
 const footerDiv = document.createElement('div');
 footerDiv.className = 'css3d-element css3d-footer';
 footerDiv.innerHTML = `
+    <style>
+        .css3d-footer nav a {
+            text-decoration: underline;
+            margin: 0 12px;
+            font-size: 5px !important;
+        }
+        .css3d-footer p {
+            font-size: 4px !important;
+        }
+    </style>
     <nav style="margin-bottom: 8px;">
         <a href="#">JustSamGuy</a>
         <a href="#">Clarenova</a>

@@ -49,26 +49,6 @@ html, body {
     width: 500px; /* Example width, adjust as needed */
     font-size: 1.5em;
     font-family: 'Montserrat', sans-serif !important;
-    background: linear-gradient(
-        to bottom,
-        rgba(0,10,20,0.95) 0%,
-        rgba(0,10,20,0.8) 50%,
-        rgba(0,10,20,0) 100%
-    ) !important;
-    backdrop-filter: blur(3px);
-}
-
-.css3d-header h1 {
-    text-shadow: 
-        0 0 10px rgba(255,255,255,0.3),
-        0 0 20px rgba(255,255,255,0.2),
-        0 0 30px rgba(255,255,255,0.1);
-    animation: headerGlow 4s ease-in-out infinite;
-}
-
-@keyframes headerGlow {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
 }
 
 .css3d-footer {
@@ -76,13 +56,6 @@ html, body {
     width: 600px; /* Example width, adjust as needed */
     font-size: 0.9em;
     font-family: 'Montserrat', sans-serif !important;
-    background: linear-gradient(
-        to top,
-        rgba(0,10,20,0.95) 0%,
-        rgba(0,10,20,0.8) 50%,
-        rgba(0,10,20,0) 100%
-    ) !important;
-    backdrop-filter: blur(3px);
 }
 
 .css3d-footer nav {
@@ -95,29 +68,12 @@ html, body {
 .css3d-footer nav a {
     color: #ccc;
     text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
+    transition: color 0.3s ease;
     pointer-events: auto; /* Allow clicks on links */
 }
 
-.css3d-footer nav a::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: currentColor;
-    transition: width 0.3s ease;
-}
-
-.css3d-footer nav a:hover::after {
-    width: 100%;
-}
-
 .css3d-footer nav a:hover {
-    text-shadow: 0 0 10px currentColor;
-    transform: translateY(-1px);
+    color: #fff;
 }
 
 .css3d-footer p {
