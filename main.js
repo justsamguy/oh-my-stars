@@ -66,7 +66,7 @@ footerDiv.innerHTML = `
             font-size: 5px !important;
         }
         .css3d-footer p {
-            font-size: 2px !important;
+            font-size: 5px !important;
         }
     </style>
     <nav style="margin-bottom: 8px;">
