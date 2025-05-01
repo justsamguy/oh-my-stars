@@ -72,7 +72,7 @@ footerDiv.innerHTML = `
         <a href="#">Link 4</a>
         <a href="#">Link 5</a>
     </nav>
-    <p style="font-size:0.1em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.55;">&copy; S&A 2025</p>
+    <p style="font-size:0.005em; color:#fff; margin:0; padding:0; text-align:center; opacity:0.55;">&copy; S&A 2025</p>
 `;
 footerDiv.style.width = '600px';
 footerDiv.style.fontSize = '.01em'; // font size, not sure if p is affected
