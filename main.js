@@ -49,6 +49,8 @@ headerDiv.style.fontSize = '0.25em';
 headerDiv.style.background = 'none';
 headerDiv.style.color = '#afafaf';
 headerDiv.style.pointerEvents = 'auto';
+// Add Montserrat font
+headerDiv.style.fontFamily = "'Montserrat', sans-serif";
 const headerObj = new CSS3DObject(headerDiv);
 const headerWorldHeight = 70; // Sets the height of the header in the world space
 headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
@@ -66,7 +68,7 @@ footerDiv.innerHTML = `
             font-size: 5px !important;
         }
         .css3d-footer p {
-            font-size: 3px !important;
+            font-size: 4px !important;
         }
     </style>
     <nav style="margin-bottom: 8px;">
@@ -86,6 +88,8 @@ footerDiv.style.pointerEvents = 'auto';
 footerDiv.style.padding = '18px 0 10px 0';
 footerDiv.style.boxSizing = 'border-box';
 footerDiv.style.borderRadius = '12px';
+// Add Montserrat font
+footerDiv.style.fontFamily = "'Montserrat', sans-serif";
 // Move footer up so links aren't flush with the bottom
 const footerObj = new CSS3DObject(footerDiv);
 footerObj.position.set(0, minY - paddingY + 40, 0); // Add to Y position to move it up

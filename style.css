@@ -1,3 +1,6 @@
+/* Import Montserrat font */
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap');
+
 /* Basic Reset & Body Layout */
 html, body {
     margin: 0;
@@ -38,18 +41,21 @@ html, body {
     box-sizing: border-box;
     /* Prevent pointer events from blocking raycasting on the main canvas */
     /* pointer-events: none; */ /* We might need events for links */
+    font-family: 'Montserrat', sans-serif !important;
 }
 
 .css3d-header {
     /* Specific header styles */
     width: 500px; /* Example width, adjust as needed */
     font-size: 1.5em;
+    font-family: 'Montserrat', sans-serif !important;
 }
 
 .css3d-footer {
     /* Specific footer styles */
     width: 600px; /* Example width, adjust as needed */
     font-size: 0.9em;
+    font-family: 'Montserrat', sans-serif !important;
 }
 
 .css3d-footer nav {
