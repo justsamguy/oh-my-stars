@@ -45,7 +45,7 @@ const headerDiv = document.createElement('div');
 headerDiv.className = 'css3d-element css3d-header';
 headerDiv.innerHTML = '<h1>Oh My Stars</h1>';
 headerDiv.style.width = '250px';
-headerDiv.style.fontSize = '0.125em';
+headerDiv.style.fontSize = '0.25em';
 headerDiv.style.background = 'none';
 headerDiv.style.color = '#afafaf';
 headerDiv.style.pointerEvents = 'auto';
@@ -66,7 +66,7 @@ footerDiv.innerHTML = `
             font-size: 5px !important;
         }
         .css3d-footer p {
-            font-size: 5px !important;
+            font-size: 3px !important;
         }
     </style>
     <nav style="margin-bottom: 8px;">
