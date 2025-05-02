@@ -88,10 +88,22 @@ html, body {
     transition: text-shadow 0.3s ease;
 }
 
-.css3d-header h1.glow {
+/* Update glow effect classes */
+.glow-char {
+    display: inline-block;
+    text-shadow: none;
+    transition: text-shadow 0.2s ease;
+}
+
+.glow-char.glow {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
                  0 0 20px rgba(255, 255, 255, 0.5),
                  0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+/* Remove old header glow styles */
+.css3d-header h1.glow {
+    text-shadow: none;
 }
 
 .css3d-footer nav a.glow {

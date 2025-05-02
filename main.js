@@ -43,37 +43,51 @@ const paddingY = 100; // Keep this for positioning
 // Header
 const headerDiv = document.createElement('div');
 headerDiv.className = 'css3d-element css3d-header';
-headerDiv.innerHTML = '<h1>Oh My Stars</h1>';
+headerDiv.setAttribute('data-text', 'Oh My Stars'); // Store original text
 headerDiv.style.width = '250px';
 headerDiv.style.fontSize = '0.25em';
 headerDiv.style.background = 'none';
 headerDiv.style.color = '#afafaf';
 headerDiv.style.pointerEvents = 'auto';
-// Add Montserrat font
 headerDiv.style.fontFamily = "'Montserrat', sans-serif";
+
+// Create spans for each character
+const headerText = headerDiv.getAttribute('data-text');
+headerDiv.innerHTML = `<h1>${[...headerText].map(char => 
+    `<span class="glow-char">${char}</span>`
+).join('')}</h1>`;
+
 const headerObj = new CSS3DObject(headerDiv);
 const headerWorldHeight = 70; // Sets the height of the header in the world space
 headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
-// Add mouse event handling for header glow effect
+// Update mouse event handling for character-based glow
 headerDiv.addEventListener('mousemove', (e) => {
-    const title = headerDiv.querySelector('h1');
-    const rect = title.getBoundingClientRect();
-    const distance = Math.hypot(
-        e.clientX - (rect.left + rect.width / 2),
-        e.clientY - (rect.top + rect.height / 2)
-    );
-    if (distance < 100) {
-        title.classList.add('glow');
-    } else {
-        title.classList.remove('glow');
-    }
+    const chars = headerDiv.querySelectorAll('.glow-char');
+    chars.forEach(char => {
+        const rect = char.getBoundingClientRect();
+        const charCenter = {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+        };
+        const distance = Math.hypot(
+            e.clientX - charCenter.x,
+            e.clientY - charCenter.y
+        );
+        if (distance < 30) { // Smaller radius for individual characters
+            char.classList.add('glow');
+        } else {
+            char.classList.remove('glow');
+        }
+    });
 });
 
 headerDiv.addEventListener('mouseleave', () => {
-    headerDiv.querySelector('h1').classList.remove('glow');
+    headerDiv.querySelectorAll('.glow-char').forEach(char => {
+        char.classList.remove('glow');
+    });
 });
 
 // Footer configuration
