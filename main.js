@@ -98,47 +98,48 @@ const footerConfig = {
 // Footer
 const footerDiv = document.createElement('div');
 footerDiv.className = 'css3d-element css3d-footer';
-footerDiv.style.width = '500px';  // Increased width for two-column layout
-footerDiv.style.fontSize = '2px';
+footerDiv.style.width = '400px';  // Slightly reduced width
+footerDiv.style.fontSize = '1.5px';  // Reduced base font size
 footerDiv.style.background = 'rgba(0,0,0,0.5)';
 footerDiv.style.color = '#9f9f9f';
 footerDiv.style.pointerEvents = 'auto';
-footerDiv.style.padding = '15px 20px';
+footerDiv.style.padding = '8px 15px';  // Reduced padding
 footerDiv.style.boxSizing = 'border-box';
-footerDiv.style.borderRadius = '12px';
+footerDiv.style.borderRadius = '8px';
 footerDiv.style.fontFamily = "'Montserrat', sans-serif";
+footerDiv.style.height = '30px';  // Fixed height to match footer area
 
-// Generate footer HTML
+// Generate footer HTML with adjusted styles
 footerDiv.innerHTML = `
     <style>
         .footer-content {
             display: flex;
             justify-content: space-between;
-            gap: 30px;
-            margin-bottom: 12px;
+            gap: 20px;
+            margin-bottom: 6px;
         }
         .footer-brand {
             flex: 1;
             text-align: left;
         }
         .footer-brand h2 {
-            font-size: 7px;
+            font-size: 5px;
             color: #fff;
-            margin: 0 0 8px 0;
+            margin: 0 0 4px 0;
         }
         .footer-brand p {
-            font-size: 4px;
-            line-height: 1.5;
+            font-size: 3px;
+            line-height: 1.3;
             color: #aaa;
             margin: 0;
         }
         .footer-nav {
-            width: 120px;
+            width: 90px;
         }
         .footer-nav h3 {
-            font-size: 5px;
+            font-size: 4px;
             color: #fff;
-            margin: 0 0 8px 0;
+            margin: 0 0 4px 0;
             text-align: left;
         }
         .footer-nav ul {
@@ -146,12 +147,12 @@ footerDiv.innerHTML = `
             padding: 0;
             margin: 0;
             text-align: left;
-        }
-        .footer-nav li {
-            margin-bottom: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
         }
         .footer-nav a {
-            font-size: 4px;
+            font-size: 3px;
             color: #aaa;
             text-decoration: underline;
             transition: color 0.3s, text-shadow 0.3s;
@@ -165,11 +166,12 @@ footerDiv.innerHTML = `
                          0 0 24px rgba(255,255,255,0.3);
         }
         .copyright {
-            font-size: 3.5px;
+            font-size: 2.75px;
             color: #666;
             text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 12px;
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+            padding-top: 4px;
+            margin-top: 4px;
         }
     </style>
     <div class="footer-content">
@@ -190,7 +192,7 @@ footerDiv.innerHTML = `
 `;
 
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY + 40, 0); // Add to Y position to move it up
+footerObj.position.set(0, minY - paddingY + 15, 0);  // Moved up by adjusting the Y offset
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
