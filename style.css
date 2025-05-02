@@ -93,6 +93,7 @@ html, body {
     display: inline-block;
     text-shadow: none;
     transition: text-shadow 0.2s ease;
+    white-space: pre; /* Preserve spaces */
 }
 
 .glow-char.glow {

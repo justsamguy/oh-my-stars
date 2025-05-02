@@ -51,10 +51,10 @@ headerDiv.style.color = '#afafaf';
 headerDiv.style.pointerEvents = 'auto';
 headerDiv.style.fontFamily = "'Montserrat', sans-serif";
 
-// Create spans for each character
+// Create spans for each character, preserving spaces
 const headerText = headerDiv.getAttribute('data-text');
 headerDiv.innerHTML = `<h1>${[...headerText].map(char => 
-    `<span class="glow-char">${char}</span>`
+    char === ' ' ? '<span class="glow-char">&nbsp;</span>' : `<span class="glow-char">${char}</span>`
 ).join('')}</h1>`;
 
 const headerObj = new CSS3DObject(headerDiv);
