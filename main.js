@@ -76,40 +76,161 @@ headerDiv.addEventListener('mouseleave', () => {
     headerDiv.querySelector('h1').classList.remove('glow');
 });
 
+// Footer configuration
+const footerConfig = {
+    logo: {
+        text: 'Oh My Stars',
+        description: 'An interactive journey through the cosmos. Explore stellar phenomena, trading hubs, and the mysteries of deep space.'
+    },
+    columns: [
+        {
+            title: 'Navigation',
+            links: [
+                { text: 'Star Map', href: '#map' },
+                { text: 'Points of Interest', href: '#poi' },
+                { text: 'About', href: '#about' }
+            ]
+        },
+        {
+            title: 'Resources',
+            links: [
+                { text: 'Documentation', href: '#docs' },
+                { text: 'Updates', href: '#updates' },
+                { text: 'FAQ', href: '#faq' }
+            ]
+        },
+        {
+            title: 'Community',
+            links: [
+                { text: 'Forums', href: '#forums' },
+                { text: 'Discord', href: '#discord' },
+                { text: 'GitHub', href: '#github' }
+            ]
+        },
+        {
+            title: 'Legal',
+            links: [
+                { text: 'Privacy', href: '#privacy' },
+                { text: 'Terms', href: '#terms' },
+                { text: 'Contact', href: '#contact' }
+            ]
+        }
+    ],
+    social: [
+        { icon: '🌟', href: '#github', label: 'GitHub' },
+        { icon: '💫', href: '#discord', label: 'Discord' },
+        { icon: '✨', href: '#twitter', label: 'Twitter' }
+    ],
+    copyright: '© S&A 2025'
+};
+
 // Footer
 const footerDiv = document.createElement('div');
 footerDiv.className = 'css3d-element css3d-footer';
-footerDiv.innerHTML = `
-    <style>
-        .css3d-footer nav a {
-            text-decoration: underline;
-            margin: 0 12px;
-            font-size: 5px !important;
-        }
-        .css3d-footer p {
-            font-size: 4px !important;
-        }
-    </style>
-    <nav style="margin-bottom: 8px;">
-        <a href="#">JustSamGuy</a>
-        <a href="#">Clarenova</a>
-        <a href="#">Link 3</a>
-        <a href="#">Link 4</a>
-        <a href="#">Link 5</a>
-    </nav>
-    <p style="color:#fff; margin:0; padding:0; text-align:center; opacity:0.55;">&copy; S&A 2025</p>
-`;
-footerDiv.style.width = '600px';
-footerDiv.style.fontSize = '2px'; // Set base font size in px
+footerDiv.style.width = '900px';
+footerDiv.style.fontSize = '2px';
 footerDiv.style.background = 'rgba(0,0,0,0.5)';
 footerDiv.style.color = '#9f9f9f';
 footerDiv.style.pointerEvents = 'auto';
-footerDiv.style.padding = '18px 0 10px 0';
+footerDiv.style.padding = '24px 0 20px 0';
 footerDiv.style.boxSizing = 'border-box';
 footerDiv.style.borderRadius = '12px';
-// Add Montserrat font
 footerDiv.style.fontFamily = "'Montserrat', sans-serif";
-// Move footer up so links aren't flush with the bottom
+
+// Generate footer HTML
+footerDiv.innerHTML = `
+    <style>
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 0 30px;
+            margin-bottom: 20px;
+        }
+        .footer-logo {
+            font-size: 7px;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .footer-description {
+            font-size: 4px;
+            line-height: 1.5;
+            color: #aaa;
+        }
+        .footer-column h3 {
+            font-size: 5px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .footer-column ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .footer-column ul li {
+            margin-bottom: 6px;
+        }
+        .footer-column a {
+            font-size: 4px;
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer-column a:hover {
+            color: #fff;
+        }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 15px;
+            padding: 15px 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+        .social-links a {
+            font-size: 6px;
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .social-links a:hover {
+            color: #fff;
+        }
+        .copyright {
+            font-size: 4px;
+            color: #666;
+        }
+    </style>
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <h2 class="footer-logo">${footerConfig.logo.text}</h2>
+            <p class="footer-description">${footerConfig.logo.description}</p>
+        </div>
+        ${footerConfig.columns.map(column => `
+            <div class="footer-column">
+                <h3>${column.title}</h3>
+                <ul>
+                    ${column.links.map(link => `
+                        <li><a href="${link.href}">${link.text}</a></li>
+                    `).join('')}
+                </ul>
+            </div>
+        `).join('')}
+    </div>
+    <div class="footer-bottom">
+        <div class="social-links">
+            ${footerConfig.social.map(item => `
+                <a href="${item.href}" aria-label="${item.label}">${item.icon}</a>
+            `).join('')}
+        </div>
+        <div class="copyright">${footerConfig.copyright}</div>
+    </div>
+`;
+
 const footerObj = new CSS3DObject(footerDiv);
 footerObj.position.set(0, minY - paddingY + 40, 0); // Add to Y position to move it up
 footerObj.rotation.set(0, 0, 0);
