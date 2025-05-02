@@ -57,6 +57,25 @@ headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
+// Add mouse event handling for header glow effect
+headerDiv.addEventListener('mousemove', (e) => {
+    const title = headerDiv.querySelector('h1');
+    const rect = title.getBoundingClientRect();
+    const distance = Math.hypot(
+        e.clientX - (rect.left + rect.width / 2),
+        e.clientY - (rect.top + rect.height / 2)
+    );
+    if (distance < 100) {
+        title.classList.add('glow');
+    } else {
+        title.classList.remove('glow');
+    }
+});
+
+headerDiv.addEventListener('mouseleave', () => {
+    headerDiv.querySelector('h1').classList.remove('glow');
+});
+
 // Footer
 const footerDiv = document.createElement('div');
 footerDiv.className = 'css3d-element css3d-footer';
@@ -95,6 +114,29 @@ const footerObj = new CSS3DObject(footerDiv);
 footerObj.position.set(0, minY - paddingY + 40, 0); // Add to Y position to move it up
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
+
+// Add mouse event handling for footer glow effect
+footerDiv.addEventListener('mousemove', (e) => {
+    const links = footerDiv.querySelectorAll('nav a');
+    links.forEach(link => {
+        const rect = link.getBoundingClientRect();
+        const distance = Math.hypot(
+            e.clientX - (rect.left + rect.width / 2),
+            e.clientY - (rect.top + rect.height / 2)
+        );
+        if (distance < 50) {
+            link.classList.add('glow');
+        } else {
+            link.classList.remove('glow');
+        }
+    });
+});
+
+footerDiv.addEventListener('mouseleave', () => {
+    footerDiv.querySelectorAll('nav a').forEach(link => {
+        link.classList.remove('glow');
+    });
+});
 
 // Animation loop
 let lastTime = performance.now();

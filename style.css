@@ -82,6 +82,24 @@ html, body {
     color: #aaa;
 }
 
+/* Glow effect classes */
+.css3d-header h1, .css3d-footer nav a {
+    text-shadow: none;
+    transition: text-shadow 0.3s ease;
+}
+
+.css3d-header h1.glow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                 0 0 20px rgba(255, 255, 255, 0.5),
+                 0 0 30px rgba(255, 255, 255, 0.3);
+}
+
+.css3d-footer nav a.glow {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8),
+                 0 0 16px rgba(255, 255, 255, 0.5),
+                 0 0 24px rgba(255, 255, 255, 0.3);
+}
+
 /* App Header and Footer (outside starfield) */
 /*
 .app-header {
