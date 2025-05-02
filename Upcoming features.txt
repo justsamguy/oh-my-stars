@@ -6,8 +6,8 @@ Dark mode on site
 Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly animate the camera to a selected POI when this feature is implemented.
 
 
-breakpoints for mobile Use
+breakpoints for mobile Use - hover-reliant effects and star count to change based on screen size, motion to be exxagerated by 2x
 
-star clustering
+star clustering - adjust the noise pattern to generate clusters and not even distribution
 
 review and adjust star size diversity

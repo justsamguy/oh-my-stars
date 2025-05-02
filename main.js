@@ -78,6 +78,10 @@ headerDiv.addEventListener('mouseleave', () => {
 
 // Footer configuration
 const footerConfig = {
+    brand: {
+        text: 'Oh My Stars',
+        description: 'An interactive journey through the cosmos. Explore stellar phenomena and the mysteries of deep space.'
+    },
     navigation: {
         title: 'Navigation',
         links: [
@@ -94,12 +98,12 @@ const footerConfig = {
 // Footer
 const footerDiv = document.createElement('div');
 footerDiv.className = 'css3d-element css3d-footer';
-footerDiv.style.width = '400px';  // Reduced width for better fit
+footerDiv.style.width = '500px';  // Increased width for two-column layout
 footerDiv.style.fontSize = '2px';
 footerDiv.style.background = 'rgba(0,0,0,0.5)';
 footerDiv.style.color = '#9f9f9f';
 footerDiv.style.pointerEvents = 'auto';
-footerDiv.style.padding = '15px 20px';  // Reduced padding
+footerDiv.style.padding = '15px 20px';
 footerDiv.style.boxSizing = 'border-box';
 footerDiv.style.borderRadius = '12px';
 footerDiv.style.fontFamily = "'Montserrat', sans-serif";
@@ -109,32 +113,49 @@ footerDiv.innerHTML = `
     <style>
         .footer-content {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
+            justify-content: space-between;
+            gap: 30px;
+            margin-bottom: 12px;
+        }
+        .footer-brand {
+            flex: 1;
+            text-align: left;
+        }
+        .footer-brand h2 {
+            font-size: 7px;
+            color: #fff;
+            margin: 0 0 8px 0;
+        }
+        .footer-brand p {
+            font-size: 4px;
+            line-height: 1.5;
+            color: #aaa;
+            margin: 0;
         }
         .footer-nav {
-            text-align: center;
+            width: 120px;
         }
         .footer-nav h3 {
             font-size: 5px;
             color: #fff;
-            margin-bottom: 8px;
+            margin: 0 0 8px 0;
+            text-align: left;
         }
         .footer-nav ul {
             list-style: none;
             padding: 0;
             margin: 0;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 12px;
+            text-align: left;
+        }
+        .footer-nav li {
+            margin-bottom: 6px;
         }
         .footer-nav a {
             font-size: 4px;
             color: #aaa;
             text-decoration: underline;
             transition: color 0.3s, text-shadow 0.3s;
+            display: inline-block;
         }
         .footer-nav a:hover,
         .footer-nav a.glow {
@@ -147,10 +168,15 @@ footerDiv.innerHTML = `
             font-size: 3.5px;
             color: #666;
             text-align: center;
-            margin-top: 4px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 12px;
         }
     </style>
     <div class="footer-content">
+        <div class="footer-brand">
+            <h2>${footerConfig.brand.text}</h2>
+            <p>${footerConfig.brand.description}</p>
+        </div>
         <nav class="footer-nav">
             <h3>${footerConfig.navigation.title}</h3>
             <ul>
@@ -159,8 +185,8 @@ footerDiv.innerHTML = `
                 `).join('')}
             </ul>
         </nav>
-        <div class="copyright">${footerConfig.copyright}</div>
     </div>
+    <div class="copyright">${footerConfig.copyright}</div>
 `;
 
 const footerObj = new CSS3DObject(footerDiv);
