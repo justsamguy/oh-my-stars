@@ -78,61 +78,28 @@ headerDiv.addEventListener('mouseleave', () => {
 
 // Footer configuration
 const footerConfig = {
-    logo: {
-        text: 'Oh My Stars',
-        description: 'An interactive journey through the cosmos. Explore stellar phenomena, trading hubs, and the mysteries of deep space.'
+    navigation: {
+        title: 'Navigation',
+        links: [
+            { text: 'Star Map', href: '#map' },
+            { text: 'Points of Interest', href: '#poi' },
+            { text: 'Documentation', href: '#docs' },
+            { text: 'Updates', href: '#updates' },
+            { text: 'About', href: '#about' }
+        ]
     },
-    columns: [
-        {
-            title: 'Navigation',
-            links: [
-                { text: 'Star Map', href: '#map' },
-                { text: 'Points of Interest', href: '#poi' },
-                { text: 'About', href: '#about' }
-            ]
-        },
-        {
-            title: 'Resources',
-            links: [
-                { text: 'Documentation', href: '#docs' },
-                { text: 'Updates', href: '#updates' },
-                { text: 'FAQ', href: '#faq' }
-            ]
-        },
-        {
-            title: 'Community',
-            links: [
-                { text: 'Forums', href: '#forums' },
-                { text: 'Discord', href: '#discord' },
-                { text: 'GitHub', href: '#github' }
-            ]
-        },
-        {
-            title: 'Legal',
-            links: [
-                { text: 'Privacy', href: '#privacy' },
-                { text: 'Terms', href: '#terms' },
-                { text: 'Contact', href: '#contact' }
-            ]
-        }
-    ],
-    social: [
-        { icon: '🌟', href: '#github', label: 'GitHub' },
-        { icon: '💫', href: '#discord', label: 'Discord' },
-        { icon: '✨', href: '#twitter', label: 'Twitter' }
-    ],
-    copyright: '© S&A 2025'
+    copyright: '© 2025 S&A All rights reserved.'
 };
 
 // Footer
 const footerDiv = document.createElement('div');
 footerDiv.className = 'css3d-element css3d-footer';
-footerDiv.style.width = '900px';
+footerDiv.style.width = '400px';  // Reduced width for better fit
 footerDiv.style.fontSize = '2px';
 footerDiv.style.background = 'rgba(0,0,0,0.5)';
 footerDiv.style.color = '#9f9f9f';
 footerDiv.style.pointerEvents = 'auto';
-footerDiv.style.padding = '24px 0 20px 0';
+footerDiv.style.padding = '15px 20px';  // Reduced padding
 footerDiv.style.boxSizing = 'border-box';
 footerDiv.style.borderRadius = '12px';
 footerDiv.style.fontFamily = "'Montserrat', sans-serif";
@@ -140,93 +107,58 @@ footerDiv.style.fontFamily = "'Montserrat', sans-serif";
 // Generate footer HTML
 footerDiv.innerHTML = `
     <style>
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-            gap: 20px;
-            padding: 0 30px;
-            margin-bottom: 20px;
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
-        .footer-logo {
-            font-size: 7px;
+        .footer-nav {
+            text-align: center;
+        }
+        .footer-nav h3 {
+            font-size: 5px;
             color: #fff;
             margin-bottom: 8px;
         }
-        .footer-description {
-            font-size: 4px;
-            line-height: 1.5;
-            color: #aaa;
-        }
-        .footer-column h3 {
-            font-size: 5px;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-        .footer-column ul {
+        .footer-nav ul {
             list-style: none;
             padding: 0;
             margin: 0;
-        }
-        .footer-column ul li {
-            margin-bottom: 6px;
-        }
-        .footer-column a {
-            font-size: 4px;
-            color: #aaa;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        .footer-column a:hover {
-            color: #fff;
-        }
-        .footer-bottom {
-            border-top: 1px solid rgba(255,255,255,0.1);
-            margin-top: 15px;
-            padding: 15px 30px 0;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .social-links {
-            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 12px;
         }
-        .social-links a {
-            font-size: 6px;
+        .footer-nav a {
+            font-size: 4px;
             color: #aaa;
-            text-decoration: none;
-            transition: color 0.3s;
+            text-decoration: underline;
+            transition: color 0.3s, text-shadow 0.3s;
         }
-        .social-links a:hover {
+        .footer-nav a:hover,
+        .footer-nav a.glow {
             color: #fff;
+            text-shadow: 0 0 8px rgba(255,255,255,0.8),
+                         0 0 16px rgba(255,255,255,0.5),
+                         0 0 24px rgba(255,255,255,0.3);
         }
         .copyright {
-            font-size: 4px;
+            font-size: 3.5px;
             color: #666;
+            text-align: center;
+            margin-top: 4px;
         }
     </style>
-    <div class="footer-grid">
-        <div class="footer-brand">
-            <h2 class="footer-logo">${footerConfig.logo.text}</h2>
-            <p class="footer-description">${footerConfig.logo.description}</p>
-        </div>
-        ${footerConfig.columns.map(column => `
-            <div class="footer-column">
-                <h3>${column.title}</h3>
-                <ul>
-                    ${column.links.map(link => `
-                        <li><a href="${link.href}">${link.text}</a></li>
-                    `).join('')}
-                </ul>
-            </div>
-        `).join('')}
-    </div>
-    <div class="footer-bottom">
-        <div class="social-links">
-            ${footerConfig.social.map(item => `
-                <a href="${item.href}" aria-label="${item.label}">${item.icon}</a>
-            `).join('')}
-        </div>
+    <div class="footer-content">
+        <nav class="footer-nav">
+            <h3>${footerConfig.navigation.title}</h3>
+            <ul>
+                ${footerConfig.navigation.links.map(link => `
+                    <li><a href="${link.href}">${link.text}</a></li>
+                `).join('')}
+            </ul>
+        </nav>
         <div class="copyright">${footerConfig.copyright}</div>
     </div>
 `;
@@ -236,16 +168,16 @@ footerObj.position.set(0, minY - paddingY + 40, 0); // Add to Y position to move
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
-// Add mouse event handling for footer glow effect
+// Update footer event handlers
 footerDiv.addEventListener('mousemove', (e) => {
-    const links = footerDiv.querySelectorAll('nav a');
+    const links = footerDiv.querySelectorAll('.footer-nav a');
     links.forEach(link => {
         const rect = link.getBoundingClientRect();
         const distance = Math.hypot(
             e.clientX - (rect.left + rect.width / 2),
             e.clientY - (rect.top + rect.height / 2)
         );
-        if (distance < 50) {
+        if (distance < 30) {  // Reduced distance for tighter interaction
             link.classList.add('glow');
         } else {
             link.classList.remove('glow');
@@ -254,7 +186,7 @@ footerDiv.addEventListener('mousemove', (e) => {
 });
 
 footerDiv.addEventListener('mouseleave', () => {
-    footerDiv.querySelectorAll('nav a').forEach(link => {
+    footerDiv.querySelectorAll('.footer-nav a').forEach(link => {
         link.classList.remove('glow');
     });
 });
