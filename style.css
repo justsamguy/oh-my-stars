@@ -178,13 +178,13 @@ html, body {
     transition: color 0.2s ease;
     width: auto;  /* Changed from 100% to auto */
     text-align: center;
-    border-bottom: 0.05px solid rgba(170, 170, 170, 0.4);  /* Keep thin border */
+    border-bottom: 0.02px solid rgba(170, 170, 170, 0.3);  /* Made much thinner and slightly more transparent */
     margin: 0 auto;  /* Center the element */
 }
 
 .footer-nav a.footer-link:hover {
     color: #aaa;
-    border-bottom-color: #fff;
+    border-bottom-color: rgba(255, 255, 255, 0.8);  /* Added transparency to hover state */
 }
 
 /* Remove the ::before pseudo-element glow */
