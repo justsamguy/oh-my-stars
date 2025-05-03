@@ -63,20 +63,31 @@ const fragmentShader = `
 export function createAllStars(count, pois, viewportWidth, viewportHeight) {
     const group = new THREE.Group();
     const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
-    const highestY = sortedPOIs[0].position.y + 50;
-    const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y - 50;
-    const edgeMargin = 60; // Size of area with reduced stars
+    const highestY = sortedPOIs[0].position.y + 80; // Extend higher into header
+    const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y - 80; // Extend lower into footer
+    const edgeMargin = 120; // Larger transition zone
 
     for (let i = 0; i < count; i++) {
         const x = (Math.random() - 0.5) * viewportWidth * 2;
         let y = lowestY + (Math.random() * (highestY - lowestY));
         
-        // Skip some stars near the edges
-        if (y > (highestY - edgeMargin) || y < (lowestY + edgeMargin)) {
-            // 75% chance to skip a star in edge regions
-            if (Math.random() < 0.75) continue;
+        // Gradient probability for star creation
+        let skipProbability = 0;
+        
+        if (y > (highestY - edgeMargin)) {
+            // Smooth transition at top
+            const dist = (y - (highestY - edgeMargin)) / edgeMargin;
+            skipProbability = Math.pow(dist, 1.5); // Softer curve
+        } else if (y < (lowestY + edgeMargin)) {
+            // Smooth transition at bottom
+            const dist = ((lowestY + edgeMargin) - y) / edgeMargin;
+            skipProbability = Math.pow(dist, 1.5); // Softer curve
         }
 
+        // Skip based on calculated probability
+        if (Math.random() < skipProbability) continue;
+
+        // Add distance-based size variation for better depth
         const z = -120 - Math.random() * 60;
         
         const geometry = new THREE.CircleGeometry(4, 32);
