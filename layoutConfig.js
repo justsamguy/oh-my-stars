@@ -60,12 +60,12 @@ export function createFooterElement() {
                 <p style="font-size: 4px; line-height: 1.2; color: #aaa; margin: 0">${wrapTextInGlowSpans(footerConfig.brand.description)}</p>
             </div>
             <div style="display: flex; gap: 12px">
-                <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column">
+                <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column; align-items: center">
                     ${leftLinks.map(link => 
                         `<a href="${link.href}" class="footer-link" style="font-size: 3.8px">${wrapTextInGlowSpans(link.text)}</a>`
                     ).join('')}
                 </nav>
-                <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column">
+                <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column; align-items: center">
                     ${rightLinks.map(link => 
                         `<a href="${link.href}" class="footer-link" style="font-size: 3.8px">${wrapTextInGlowSpans(link.text)}</a>`
                     ).join('')}

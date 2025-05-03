@@ -176,8 +176,9 @@ html, body {
     display: inline-block;
     pointer-events: auto !important;
     transition: color 0.2s ease;
-    width: fit-content;
-    border-bottom: 0.1px solid rgba(170, 170, 170, 0.4);
+    width: 100%;  /* Changed from fit-content to 100% */
+    text-align: center;  /* Add center alignment */
+    border-bottom: 0.05px solid rgba(170, 170, 170, 0.4);  /* Made border thinner */
 }
 
 .footer-nav a.footer-link:hover {
