@@ -39,8 +39,7 @@ html, body {
     color: #fff;
     text-align: center;
     box-sizing: border-box;
-    /* Prevent pointer events from blocking raycasting on the main canvas */
-    /* pointer-events: none; */ /* We might need events for links */
+    pointer-events: auto !important;
     font-family: 'Montserrat', sans-serif !important;
 }
 
@@ -154,6 +153,7 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    pointer-events: auto !important;
 }
 
 .footer-nav a {
@@ -163,6 +163,7 @@ html, body {
     text-decoration-color: rgba(170, 170, 170, 0.4) !important;
     text-underline-offset: 2px !important;
     transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    pointer-events: auto !important;
 }
 
 .footer-nav a:hover {
