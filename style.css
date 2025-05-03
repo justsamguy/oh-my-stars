@@ -172,13 +172,17 @@ html, body {
 .footer-nav a.footer-link {
     font-size: 3.8px;
     color: #aaa;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-decoration-color: rgba(170, 170, 170, 0.4);
-    text-underline-offset: 1px;
-    transition: color 0.2s ease;
+    text-decoration: none;
+    border-bottom: 0.5px solid rgba(170, 170, 170, 0.4);
+    padding-bottom: 0.5px;
+    transition: color 0.2s ease, border-color 0.2s ease;
     display: block;
     pointer-events: auto !important;
+}
+
+.footer-nav a.footer-link:hover {
+    color: #aaa;
+    border-bottom-color: #fff;
 }
 
 /* Remove the ::before pseudo-element glow */
@@ -205,11 +209,6 @@ html, body {
 /* Remove any conflicting hover states */
 .footer-nav a.footer-link:hover::before {
     opacity: 0;
-}
-
-.footer-nav a.footer-link:hover {
-    color: #aaa; /* Don't change color on hover */
-    text-decoration-color: #fff;
 }
 
 .footer-nav a .glow-text {
