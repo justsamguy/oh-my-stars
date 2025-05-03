@@ -65,11 +65,21 @@ export function createAllStars(count, pois, viewportWidth, viewportHeight) {
     const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
     const highestY = sortedPOIs[0].position.y + 50;
     const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y - 50;
+    const edgeMargin = 60; // Size of area with reduced stars
+
     for (let i = 0; i < count; i++) {
-        const geometry = new THREE.CircleGeometry(4, 32);
         const x = (Math.random() - 0.5) * viewportWidth * 2;
-        const y = lowestY + (Math.random() * (highestY - lowestY));
+        let y = lowestY + (Math.random() * (highestY - lowestY));
+        
+        // Skip some stars near the edges
+        if (y > (highestY - edgeMargin) || y < (lowestY + edgeMargin)) {
+            // 75% chance to skip a star in edge regions
+            if (Math.random() < 0.75) continue;
+        }
+
         const z = -120 - Math.random() * 60;
+        
+        const geometry = new THREE.CircleGeometry(4, 32);
         let colorIndex = 0;
         const normalizedY = Math.min(Math.max(y, lowestY), highestY);
         for (let j = 0; j < sortedPOIs.length - 1; j++) {

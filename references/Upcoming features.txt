@@ -12,6 +12,5 @@ star clustering - adjust the noise pattern to generate clusters and not even dis
 
 review and adjust star size diversity
 
-make the header/footer padding less obvious by decreasing the padding and the starfield density on the top and bottom edges so the border is less obvious
 
 add a subtle smooth scroll-up effect upon initial load
