@@ -2,7 +2,7 @@
 <p> A webapp, the first of many to come... </p>
 
 
-Available at
+Live at
 <a href="https://justsamguy.github.io/oh-my-stars/" target="_blank">https://justsamguy.github.io/oh-my-stars/</a>
 
 <br>

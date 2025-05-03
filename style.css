@@ -178,14 +178,30 @@ html, body {
     transition: all 0.2s ease;
     display: block;
     pointer-events: auto !important;
+    position: relative;
+    z-index: 1;
 }
 
-.footer-nav a.footer-link:hover {
-    color: #fff;
-    text-decoration-color: #fff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
-                 0 0 20px rgba(255, 255, 255, 0.5),
-                 0 0 30px rgba(255, 255, 255, 0.3);
+/* Add glow layer behind link */
+.footer-nav a.footer-link::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -4px;
+    right: -4px;
+    bottom: -2px;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                rgba(255, 255, 255, 0.15) 0%, 
+                rgba(255, 255, 255, 0) 70%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 4px;
+}
+
+.footer-nav a.footer-link:hover::before {
+    opacity: 1;
 }
 
 .footer-nav a .glow-text {

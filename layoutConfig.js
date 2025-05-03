@@ -75,5 +75,19 @@ export function createFooterElement() {
         <div class="copyright" style="font-size: 2.75px; color: #aaa; text-align: center; margin-top: 2px; padding-top: 2px; border-top: 0.5px solid rgba(255,255,255,0.1)">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
     `;
     
+    // Add mouse move handler after creating the footer
+    setTimeout(() => {
+        const links = footerDiv.querySelectorAll('a.footer-link');
+        links.forEach(link => {
+            link.addEventListener('mousemove', (e) => {
+                const rect = link.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                link.style.setProperty('--mouse-x', `${x}%`);
+                link.style.setProperty('--mouse-y', `${y}%`);
+            });
+        });
+    }, 0);
+
     return footerDiv;
 }
