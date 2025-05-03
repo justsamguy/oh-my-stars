@@ -173,6 +173,7 @@ html, body {
     font-size: 3.8px;
     color: #aaa;
     text-decoration: underline;
+    text-decoration-thickness: 1px;
     text-decoration-color: rgba(170, 170, 170, 0.4);
     text-underline-offset: 1px;
     transition: color 0.2s ease;
