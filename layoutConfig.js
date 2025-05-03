@@ -44,23 +44,23 @@ export function createFooterElement() {
     footerDiv.style.width = '400px';
     footerDiv.style.fontSize = '1.5px';
     footerDiv.style.background = 'rgba(0,0,0,0.5)';
-    footerDiv.style.padding = '8px 15px';
+    footerDiv.style.padding = '6px 15px'; // Reduced top/bottom padding
     footerDiv.style.boxSizing = 'border-box';
-    footerDiv.style.height = '45px'; // Increased height to fit content
+    footerDiv.style.height = '42px'; // Slightly reduced height
     
     footerDiv.innerHTML = `
-        <div class="footer-content">
+        <div class="footer-content" style="margin-bottom: 2px">
             <div class="footer-brand">
-                <h2 style="font-size: 5px; margin: 0 0 4px 0; color: #fff">${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
-                <p style="font-size: 3px; line-height: 1.3; color: #aaa; margin: 0">${wrapTextInGlowSpans(footerConfig.brand.description)}</p>
+                <h2 style="font-size: 5px; margin: 0 0 2px 0; color: #fff">${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
+                <p style="font-size: 3px; line-height: 1.2; color: #aaa; margin: 0">${wrapTextInGlowSpans(footerConfig.brand.description)}</p>
             </div>
-            <nav class="footer-nav" style="width: 90px; gap: 2px; display: flex; flex-direction: column">
+            <nav class="footer-nav" style="width: 90px; gap: 1px; display: flex; flex-direction: column">
                 ${footerConfig.navigation.links.map(link => 
                     `<a href="${link.href}" style="font-size: 3px; color: #aaa; text-decoration: none">${wrapTextInGlowSpans(link.text)}</a>`
                 ).join('')}
             </nav>
         </div>
-        <div class="copyright" style="font-size: 2.75px; color: #666; text-align: center; margin-top: 4px; padding-top: 4px; border-top: 0.5px solid rgba(255,255,255,0.1)">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
+        <div class="copyright" style="font-size: 2.75px; color: #aaa; text-align: center; margin-top: 2px; padding-top: 2px; border-top: 0.5px solid rgba(255,255,255,0.1)">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
     `;
     
     return footerDiv;
