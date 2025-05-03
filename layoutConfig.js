@@ -42,25 +42,25 @@ export function createFooterElement() {
     const footerDiv = document.createElement('div');
     footerDiv.className = 'css3d-element css3d-footer';
     footerDiv.style.width = '400px';
-    footerDiv.style.fontSize = '1.5px';  // Much smaller for 3D space
+    footerDiv.style.fontSize = '1.5px';
     footerDiv.style.background = 'rgba(0,0,0,0.5)';
     footerDiv.style.padding = '8px 15px';
     footerDiv.style.boxSizing = 'border-box';
-    footerDiv.style.height = '30px';
+    footerDiv.style.height = '45px'; // Increased height to fit content
     
     footerDiv.innerHTML = `
         <div class="footer-content">
             <div class="footer-brand">
                 <h2 style="font-size: 5px; margin: 0 0 4px 0; color: #fff">${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
-                <p style="font-size: 3px; line-height: 1.3; color: #aaa; margin: 0">${footerConfig.brand.description}</p>
+                <p style="font-size: 3px; line-height: 1.3; color: #aaa; margin: 0">${wrapTextInGlowSpans(footerConfig.brand.description)}</p>
             </div>
-            <nav class="footer-nav" style="width: 90px">
+            <nav class="footer-nav" style="width: 90px; gap: 2px; display: flex; flex-direction: column">
                 ${footerConfig.navigation.links.map(link => 
-                    `<a href="${link.href}" style="font-size: 3px; color: #aaa; text-decoration: underline">${wrapTextInGlowSpans(link.text)}</a>`
+                    `<a href="${link.href}" style="font-size: 3px; color: #aaa; text-decoration: none">${wrapTextInGlowSpans(link.text)}</a>`
                 ).join('')}
             </nav>
         </div>
-        <div class="copyright" style="font-size: 2.75px; color: #666; margin-top: 4px; padding-top: 4px; border-top: 0.5px solid rgba(255,255,255,0.1)">${footerConfig.copyright}</div>
+        <div class="copyright" style="font-size: 2.75px; color: #666; text-align: center; margin-top: 4px; padding-top: 4px; border-top: 0.5px solid rgba(255,255,255,0.1)">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
     `;
     
     return footerDiv;
