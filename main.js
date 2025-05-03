@@ -6,6 +6,7 @@ import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeig
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
 import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox } from './interaction.js'; // Import currentInfoBox
+import { createHeaderElement, createFooterElement } from './layoutConfig.js';
 
 // --- CSS3DRenderer only for overlays and header/footer ---
 const appContainer = document.getElementById('app-container');
@@ -40,32 +41,24 @@ let maxY = Math.max(...yPositions);
 let minY = Math.min(...yPositions);
 const paddingY = 100; // Keep this for positioning
 
-// Header
-const headerDiv = document.createElement('div');
-headerDiv.className = 'css3d-element css3d-header';
-headerDiv.setAttribute('data-text', 'Oh My Stars'); // Store original text
-headerDiv.style.width = '250px';
-headerDiv.style.fontSize = '0.25em';
-headerDiv.style.background = 'none';
-headerDiv.style.color = '#afafaf';
-headerDiv.style.pointerEvents = 'auto';
-headerDiv.style.fontFamily = "'Montserrat', sans-serif";
-
-// Create spans for each character, preserving spaces
-const headerText = headerDiv.getAttribute('data-text');
-headerDiv.innerHTML = `<h1>${[...headerText].map(char => 
-    char === ' ' ? '<span class="glow-char">&nbsp;</span>' : `<span class="glow-char">${char}</span>`
-).join('')}</h1>`;
-
+// Replace header creation with:
+const headerDiv = createHeaderElement();
 const headerObj = new CSS3DObject(headerDiv);
-const headerWorldHeight = 70; // Sets the height of the header in the world space
+const headerWorldHeight = 70;
 headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
-// Update mouse event handling for character-based glow
-headerDiv.addEventListener('mousemove', (e) => {
-    const chars = headerDiv.querySelectorAll('.glow-char');
+// Replace footer creation with:
+const footerDiv = createFooterElement();
+const footerObj = new CSS3DObject(footerDiv);
+footerObj.position.set(0, minY - paddingY + 15, 0);
+footerObj.rotation.set(0, 0, 0);
+scene.add(footerObj);
+
+// Update glow effect handler for both header and footer
+const handleGlowEffect = (element, e) => {
+    const chars = element.querySelectorAll('.glow-char');
     chars.forEach(char => {
         const rect = char.getBoundingClientRect();
         const charCenter = {
@@ -76,160 +69,17 @@ headerDiv.addEventListener('mousemove', (e) => {
             e.clientX - charCenter.x,
             e.clientY - charCenter.y
         );
-        if (distance < 30) { // Smaller radius for individual characters
-            char.classList.add('glow');
-        } else {
-            char.classList.remove('glow');
-        }
+        char.classList.toggle('glow', distance < 30);
     });
-});
-
-headerDiv.addEventListener('mouseleave', () => {
-    headerDiv.querySelectorAll('.glow-char').forEach(char => {
-        char.classList.remove('glow');
-    });
-});
-
-// Footer configuration
-const footerConfig = {
-    brand: {
-        text: 'Oh My Stars',
-        description: 'An interactive journey through the cosmos. Explore stellar phenomena and the mysteries of deep space.'
-    },
-    navigation: {
-        title: 'Navigation',
-        links: [
-            { text: 'Star Map', href: '#map' },
-            { text: 'Points of Interest', href: '#poi' },
-            { text: 'Documentation', href: '#docs' },
-            { text: 'Updates', href: '#updates' },
-            { text: 'About', href: '#about' }
-        ]
-    },
-    copyright: '© 2025 S&A All rights reserved.'
 };
 
-// Footer
-const footerDiv = document.createElement('div');
-footerDiv.className = 'css3d-element css3d-footer';
-footerDiv.style.width = '400px';  // Slightly reduced width
-footerDiv.style.fontSize = '1.5px';  // Reduced base font size
-footerDiv.style.background = 'rgba(0,0,0,0.5)';
-footerDiv.style.color = '#9f9f9f';
-footerDiv.style.pointerEvents = 'auto';
-footerDiv.style.padding = '8px 15px';  // Reduced padding
-footerDiv.style.boxSizing = 'border-box';
-footerDiv.style.borderRadius = '8px';
-footerDiv.style.fontFamily = "'Montserrat', sans-serif";
-footerDiv.style.height = '30px';  // Fixed height to match footer area
-
-// Generate footer HTML with adjusted styles
-footerDiv.innerHTML = `
-    <style>
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 6px;
-        }
-        .footer-brand {
-            flex: 1;
-            text-align: left;
-        }
-        .footer-brand h2 {
-            font-size: 5px;
-            color: #fff;
-            margin: 0 0 4px 0;
-        }
-        .footer-brand p {
-            font-size: 3px;
-            line-height: 1.3;
-            color: #aaa;
-            margin: 0;
-        }
-        .footer-nav {
-            width: 90px;
-        }
-        .footer-nav h3 {
-            font-size: 4px;
-            color: #fff;
-            margin: 0 0 4px 0;
-            text-align: left;
-        }
-        .footer-nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-        .footer-nav a {
-            font-size: 3px;
-            color: #aaa;
-            text-decoration: underline;
-            transition: color 0.3s, text-shadow 0.3s;
-            display: inline-block;
-        }
-        .footer-nav a:hover,
-        .footer-nav a.glow {
-            color: #fff;
-            text-shadow: 0 0 8px rgba(255,255,255,0.8),
-                         0 0 16px rgba(255,255,255,0.5),
-                         0 0 24px rgba(255,255,255,0.3);
-        }
-        .copyright {
-            font-size: 2.75px;
-            color: #666;
-            text-align: center;
-            border-top: 0.5px solid rgba(255,255,255,0.1);
-            padding-top: 4px;
-            margin-top: 4px;
-        }
-    </style>
-    <div class="footer-content">
-        <div class="footer-brand">
-            <h2>${footerConfig.brand.text}</h2>
-            <p>${footerConfig.brand.description}</p>
-        </div>
-        <nav class="footer-nav">
-            <h3>${footerConfig.navigation.title}</h3>
-            <ul>
-                ${footerConfig.navigation.links.map(link => `
-                    <li><a href="${link.href}">${link.text}</a></li>
-                `).join('')}
-            </ul>
-        </nav>
-    </div>
-    <div class="copyright">${footerConfig.copyright}</div>
-`;
-
-const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY + 15, 0);  // Moved up by adjusting the Y offset
-footerObj.rotation.set(0, 0, 0);
-scene.add(footerObj);
-
-// Update footer event handlers
-footerDiv.addEventListener('mousemove', (e) => {
-    const links = footerDiv.querySelectorAll('.footer-nav a');
-    links.forEach(link => {
-        const rect = link.getBoundingClientRect();
-        const distance = Math.hypot(
-            e.clientX - (rect.left + rect.width / 2),
-            e.clientY - (rect.top + rect.height / 2)
-        );
-        if (distance < 30) {  // Reduced distance for tighter interaction
-            link.classList.add('glow');
-        } else {
-            link.classList.remove('glow');
-        }
-    });
-});
-
-footerDiv.addEventListener('mouseleave', () => {
-    footerDiv.querySelectorAll('.footer-nav a').forEach(link => {
-        link.classList.remove('glow');
+// Add event listeners for glow effects
+[headerDiv, footerDiv].forEach(element => {
+    element.addEventListener('mousemove', (e) => handleGlowEffect(element, e));
+    element.addEventListener('mouseleave', () => {
+        element.querySelectorAll('.glow-char').forEach(char => {
+            char.classList.remove('glow');
+        });
     });
 });
 
