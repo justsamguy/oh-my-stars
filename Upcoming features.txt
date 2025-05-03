@@ -11,3 +11,7 @@ breakpoints for mobile Use - hover-reliant effects and star count to change base
 star clustering - adjust the noise pattern to generate clusters and not even distribution
 
 review and adjust star size diversity
+
+make the header/footer padding less obvious by decreasing the padding and the starfield density on the top and bottom edges so the border is less obvious
+
+add a subtle smooth scroll-up effect upon initial load
