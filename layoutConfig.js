@@ -31,8 +31,8 @@ export function createHeaderElement() {
     const headerDiv = document.createElement('div');
     headerDiv.className = 'css3d-element css3d-header';
     headerDiv.style.width = '250px';
-    headerDiv.style.fontSize = '24px';  // Restored original size
-    headerDiv.style.fontFamily = "'Montserrat', sans-serif";
+    headerDiv.style.fontSize = '0.25em';  // Smaller font size
+    headerDiv.style.background = 'none';
     headerDiv.style.color = '#afafaf';
     headerDiv.innerHTML = `<h1>${wrapTextInGlowSpans(headerConfig.text)}</h1>`;
     return headerDiv;
@@ -42,25 +42,25 @@ export function createFooterElement() {
     const footerDiv = document.createElement('div');
     footerDiv.className = 'css3d-element css3d-footer';
     footerDiv.style.width = '400px';
-    footerDiv.style.fontSize = '12px';  // Restored original size
-    footerDiv.style.padding = '15px 20px';
+    footerDiv.style.fontSize = '1.5px';  // Much smaller for 3D space
+    footerDiv.style.background = 'rgba(0,0,0,0.5)';
+    footerDiv.style.padding = '8px 15px';
     footerDiv.style.boxSizing = 'border-box';
-    footerDiv.style.fontFamily = "'Montserrat', sans-serif";
+    footerDiv.style.height = '30px';
     
-    // Add specific font sizes for footer elements
     footerDiv.innerHTML = `
         <div class="footer-content">
             <div class="footer-brand">
-                <h2 style="font-size: 16px; margin: 0 0 8px 0">${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
-                <p style="font-size: 12px; line-height: 1.4">${footerConfig.brand.description}</p>
+                <h2 style="font-size: 5px; margin: 0 0 4px 0; color: #fff">${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
+                <p style="font-size: 3px; line-height: 1.3; color: #aaa; margin: 0">${footerConfig.brand.description}</p>
             </div>
-            <nav class="footer-nav">
+            <nav class="footer-nav" style="width: 90px">
                 ${footerConfig.navigation.links.map(link => 
-                    `<a href="${link.href}" style="font-size: 12px">${wrapTextInGlowSpans(link.text)}</a>`
+                    `<a href="${link.href}" style="font-size: 3px; color: #aaa; text-decoration: underline">${wrapTextInGlowSpans(link.text)}</a>`
                 ).join('')}
             </nav>
         </div>
-        <div class="copyright" style="font-size: 10px">${footerConfig.copyright}</div>
+        <div class="copyright" style="font-size: 2.75px; color: #666; margin-top: 4px; padding-top: 4px; border-top: 0.5px solid rgba(255,255,255,0.1)">${footerConfig.copyright}</div>
     `;
     
     return footerDiv;
