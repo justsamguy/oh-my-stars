@@ -98,7 +98,7 @@ html, body {
 
 /* Update glow effect classes to be consistent */
 .glow-char {
-    display: inline;
+    display: inline-block;
     text-shadow: none;
     transition: text-shadow 0.2s ease, color 0.2s ease;
     white-space: pre; /* Preserve spaces */
@@ -106,7 +106,8 @@ html, body {
     text-decoration: inherit;
 }
 
-.glow-char.glow {
+/* Only apply glow effect to non-link .glow-char elements */
+:not(a) > .glow-char.glow {
     color: #fff;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
                  0 0 20px rgba(255, 255, 255, 0.5),
@@ -166,6 +167,25 @@ html, body {
     transition: color 0.2s ease, text-decoration-color 0.2s ease;
     pointer-events: auto !important;
     display: inline-block;
+}
+
+.footer-nav a.footer-link {
+    font-size: 3.8px;
+    color: #aaa;
+    text-decoration: underline;
+    text-decoration-color: rgba(170, 170, 170, 0.4);
+    text-underline-offset: 1px;
+    transition: all 0.2s ease;
+    display: block;
+    pointer-events: auto !important;
+}
+
+.footer-nav a.footer-link:hover {
+    color: #fff;
+    text-decoration-color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                 0 0 20px rgba(255, 255, 255, 0.5),
+                 0 0 30px rgba(255, 255, 255, 0.3);
 }
 
 .footer-nav a .glow-text {
