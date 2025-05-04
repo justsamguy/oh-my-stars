@@ -272,48 +272,56 @@ export function setupClickHandler(poiObjects) {
     const MAX_TAP_MOVEMENT = 10; // pixels
 
     const handleTouch = (e) => {
+        // Early return if touching inside info box
         if (e.target.closest('.info-box')) {
             return;
         }
 
-        // Get correct position from either touch or mouse event
-        const pos = e.touches ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : e);
-        const x = (pos.clientX / window.innerWidth) * 2 - 1;
-        const y = -(pos.clientY / window.innerHeight) * 2 + 1;
+        // Get correct position based on event type
+        let clientX, clientY;
+        if (e.type.startsWith('touch')) {
+            // Handle touch event
+            const touch = e.touches?.[0] || e.changedTouches?.[0];
+            if (!touch) return; // Exit if no valid touch
+            clientX = touch.clientX;
+            clientY = touch.clientY;
+        } else {
+            // Handle mouse event
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
 
-        // Update raycaster with current camera
+        // Update raycaster
+        const x = (clientX / window.innerWidth) * 2 - 1;
+        const y = -(clientY / window.innerHeight) * 2 + 1;
         raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
 
         // Test each POI with a larger threshold for mobile
         let foundPOI = null;
         const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-        raycaster.params.Points.threshold = isMobile ? 20 : 1;
-
+        
         // Check all POIs and their children
-        poiObjects.forEach(poi => {
-            if (!foundPOI) { // Only check if we haven't found one yet
-                // Check each child of the POI group
-                poi.children.forEach(child => {
-                    if (!foundPOI && child.type === 'Mesh') {
-                        const intersects = raycaster.intersectObject(child);
-                        if (intersects.length > 0) {
-                            foundPOI = poi;
-                        }
-                    }
-                });
+        for (const poi of poiObjects) {
+            // Test the hitbox first (first child)
+            const hitbox = poi.children[0];
+            if (hitbox && hitbox.type === 'Mesh') {
+                const intersects = raycaster.intersectObject(hitbox);
+                if (intersects.length > 0) {
+                    foundPOI = poi;
+                    break;
+                }
             }
-        });
+        }
 
         if (foundPOI) {
-            e.preventDefault();
-            e.stopPropagation();
+            e.preventDefault?.();
+            e.stopPropagation?.();
             showInfoBox(foundPOI.userData, foundPOI.position);
         } else if (!e.target.closest('.info-box')) {
             hideInfoBox();
         }
     };
 
-    // Touch event handlers
     const handleTouchStart = (e) => {
         if (e.touches.length === 1) {
             touchStartPos = {
@@ -327,11 +335,12 @@ export function setupClickHandler(poiObjects) {
         if (!touchStartPos) return;
 
         const touch = e.changedTouches[0];
+        if (!touch) return; // Exit if no valid touch
+
         const deltaX = touch.clientX - touchStartPos.x;
         const deltaY = touch.clientY - touchStartPos.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        // Only trigger if it was a tap (minimal movement)
         if (distance < MAX_TAP_MOVEMENT) {
             e.preventDefault();
             handleTouch(e);
@@ -339,19 +348,14 @@ export function setupClickHandler(poiObjects) {
         touchStartPos = null;
     };
 
-    // Desktop click handler
-    const handleClick = (e) => {
-        handleTouch(e);
-    };
-
-    // Set up event listeners
+    // Set up event listeners based on device type
     if ('ontouchstart' in window) {
         // Touch device
-        window.addEventListener('touchstart', handleTouchStart, { passive: false });
+        window.addEventListener('touchstart', handleTouchStart, { passive: true });
         window.addEventListener('touchend', handleTouchEnd, { passive: false });
     } else {
         // Desktop device
-        window.addEventListener('click', handleClick);
+        window.addEventListener('click', handleTouch);
     }
 }
 
