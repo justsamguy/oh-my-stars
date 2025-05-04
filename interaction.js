@@ -28,6 +28,7 @@ function createBottomSheet(poi) {
     
     sheet.innerHTML = `
         <div class="pull-handle"></div>
+        <div class="close-btn">&times;</div>
         <div class="bottom-sheet-content">
             <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
             <p style="margin:0;line-height:1.4">${poi.description}</p>
@@ -62,6 +63,8 @@ function createBottomSheet(poi) {
         }, { once: true });
     };
 
+    // Add click handler for close button
+    sheet.querySelector('.close-btn').addEventListener('click', close);
     overlay.addEventListener('click', close);
     
     // Swipe down to close
