@@ -175,11 +175,10 @@ html, body {
     text-decoration: none;
     display: inline-block;
     pointer-events: auto !important;
-    transition: color 0.2s ease, background 0.2s ease;
-    width: fit-content;
+    transition: color 0.2s ease;
+    width: auto;
     text-align: center;
     margin: 0 auto;
-    padding: 0 1px;
     background: linear-gradient(0deg, 
         transparent 0%, 
         transparent 96%, 
