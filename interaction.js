@@ -17,6 +17,12 @@ let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
 function createBottomSheet(poi) {
+    // Clear any existing sheets first
+    const existingSheet = document.querySelector('.bottom-sheet');
+    const existingOverlay = document.querySelector('.overlay');
+    if (existingSheet) existingSheet.remove();
+    if (existingOverlay) existingOverlay.remove();
+    
     const sheet = document.createElement('div');
     sheet.className = 'bottom-sheet';
     
@@ -35,8 +41,8 @@ function createBottomSheet(poi) {
     document.body.appendChild(overlay);
     document.body.appendChild(sheet);
 
-    // Lock scrolling
-    document.body.style.overflow = 'hidden';
+    // Lock scrolling with class
+    document.body.classList.add('bottom-sheet-open');
     
     // Animate in
     requestAnimationFrame(() => {
@@ -48,10 +54,11 @@ function createBottomSheet(poi) {
     const close = () => {
         sheet.classList.remove('open');
         overlay.classList.remove('visible');
-        document.body.style.overflow = '';
+        document.body.classList.remove('bottom-sheet-open');
         sheet.addEventListener('transitionend', () => {
             sheet.remove();
             overlay.remove();
+            currentInfoBox = null;
         }, { once: true });
     };
 
@@ -81,6 +88,7 @@ function createBottomSheet(poi) {
         }
     });
 
+    currentInfoBox = sheet;
     return { sheet, overlay, close };
 }
 
@@ -310,6 +318,11 @@ function closeCurrentInfoBox() {
 }
 
 export function showInfoBox(poi, poiPosition) {
+    // If mobile, remove any existing desktop info box
+    if (window.innerWidth <= MOBILE_BREAKPOINT && currentInfoBox && !currentInfoBox.classList.contains('bottom-sheet')) {
+        hideInfoBox();
+    }
+    
     // If animating or open, queue the new box and close current
     if (infoBoxAnimating || currentInfoBox) {
         queueAndHideInfoBox({ poi, poiPosition });
