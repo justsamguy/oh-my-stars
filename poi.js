@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { pois, POI_HITBOX_SCALE } from './config.js';
+import { pois, POI_HITBOX_SCALE, MOBILE_BREAKPOINT } from './config.js';
 
 // POI geometry
 const poiGeometry = new THREE.CircleGeometry(3, 32);
@@ -27,7 +27,8 @@ const glowFragmentShader = `
 // Create a single POI group
 export function createPOI(poiData) {
     const group = new THREE.Group();
-    const scale = window.innerWidth <= MOBILE_BREAKPOINT ? 0.4 : 0.3;
+    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+    const scale = isMobile ? 0.4 : 0.3;
 
     // Create hitbox (much larger than visible circle)
     const hitboxGeometry = new THREE.CircleGeometry(3 * POI_HITBOX_SCALE, 32);
