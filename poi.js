@@ -28,6 +28,18 @@ const glowFragmentShader = `
 export function createPOI(poiData) {
     const group = new THREE.Group();
     const scale = 0.3;
+    
+    // Invisible larger hitbox (create first so it's behind other elements)
+    const hitboxGeometry = new THREE.CircleGeometry(3 * POI_HITBOX_SCALE, 32);
+    const hitboxMaterial = new THREE.MeshBasicMaterial({ 
+        transparent: true, 
+        opacity: 0,
+        depthTest: false
+    });
+    const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+    hitbox.scale.setScalar(scale);
+    group.add(hitbox);
+
     // Main POI circle
     const material = new THREE.MeshBasicMaterial({ 
         color: poiData.color,
@@ -36,14 +48,8 @@ export function createPOI(poiData) {
     });
     const mesh = new THREE.Mesh(poiGeometry, material);
     mesh.scale.setScalar(scale);
-    // Invisible larger hitbox
-    const hitboxGeometry = new THREE.CircleGeometry(3 * POI_HITBOX_SCALE, 32);
-    const hitboxMaterial = new THREE.MeshBasicMaterial({ 
-        transparent: true, 
-        opacity: 0 
-    });
-    const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
-    hitbox.scale.setScalar(scale);
+    group.add(mesh);
+
     // Dashed ring
     const ringGeometry = new THREE.BufferGeometry();
     const segments = 32;
@@ -64,6 +70,7 @@ export function createPOI(poiData) {
     ring.computeLineDistances();
     ring.userData.baseWidth = 0.5;
     ring.userData.hoverWidth = 1.0;
+
     // Glow effect
     const glowGeometry = new THREE.CircleGeometry(40, 32);
     const glowMaterial = new THREE.ShaderMaterial({
@@ -79,10 +86,9 @@ export function createPOI(poiData) {
     });
     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
     glow.scale.setScalar(scale);
-    group.add(mesh);
-    group.add(hitbox);
     group.add(ring);
     group.add(glow);
+
     group.position.copy(poiData.position);
     group.userData = poiData;
     return group;

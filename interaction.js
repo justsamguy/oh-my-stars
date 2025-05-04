@@ -278,10 +278,10 @@ export function setupClickHandler(poiObjects) {
         // Check intersections with hitboxes first
         let foundPOI = null;
         for (const poi of poiObjects) {
-            // Get the hitbox mesh (second child after main mesh)
-            const hitbox = poi.children[1];
+            // Get the hitbox mesh (first child)
+            const hitbox = poi.children[0];
             if (hitbox) {
-                const intersects = raycaster.intersectObject(hitbox);
+                const intersects = raycaster.intersectObject(hitbox, false);
                 if (intersects.length > 0) {
                     foundPOI = poi;
                     break;
@@ -290,9 +290,9 @@ export function setupClickHandler(poiObjects) {
         }
 
         if (foundPOI) {
+            e.preventDefault(); // Prevent any default behavior
             showInfoBox(foundPOI.userData, foundPOI.position);
         } else if (!e.target.closest('.info-box')) {
-            // Only hide if we didn't click inside an info box
             hideInfoBox();
         }
     };
@@ -300,7 +300,7 @@ export function setupClickHandler(poiObjects) {
     // Handle both click and touch
     window.addEventListener('click', handleClick);
     window.addEventListener('touchend', (e) => {
-        e.preventDefault(); // Prevent ghost clicks
+        e.preventDefault();
         handleClick(e.changedTouches[0]);
     });
 }

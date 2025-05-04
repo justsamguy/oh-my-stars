@@ -13,7 +13,7 @@ export const footerConfig = {
             { text: 'Points of Interest', href: '#poi' },
             { text: 'Documentation', href: '#docs' },
             { text: 'Updates', href: '#updates' },
-            { text: 'About', href: '#about' }
+            { text: 'Github', href: 'https://github.com/justsamguy/oh-my-stars' }
         ]
     },
     copyright: '© 2025 S&A All rights reserved.'
