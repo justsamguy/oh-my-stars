@@ -179,18 +179,20 @@ html, body {
     width: auto;
     text-align: center;
     margin: 0 auto;
-    background: none; /* Remove default background */
+    background: none;
+    padding-bottom: 0.2px; /* Small padding to position gradient */
 }
 
 .footer-nav a.footer-link:hover {
     color: #fff;
     background: linear-gradient(0deg, 
-        rgba(255, 255, 255, 0.8) 0%, 
-        rgba(255, 255, 255, 0.8) 1px, 
-        transparent 1px, 
+        rgba(255, 255, 255, 0.5) 0%, 
+        rgba(255, 255, 255, 0.5) 0.15px, 
+        transparent 0.15px, 
         transparent 100%
     );
-    background-position: bottom;
+    background-position: 0 100%; /* Position at bottom */
+    background-size: 100% 100%; /* Full width, actual height */
 }
 
 .footer-nav a.footer-link .glow-char {
