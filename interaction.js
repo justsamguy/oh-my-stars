@@ -16,7 +16,79 @@ export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
+function createBottomSheet(poi) {
+    const sheet = document.createElement('div');
+    sheet.className = 'bottom-sheet';
+    
+    sheet.innerHTML = `
+        <div class="pull-handle"></div>
+        <div class="bottom-sheet-content">
+            <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
+            <p style="margin:0;line-height:1.4">${poi.description}</p>
+            <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+        </div>
+    `;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(sheet);
+
+    // Lock scrolling
+    document.body.style.overflow = 'hidden';
+    
+    // Animate in
+    requestAnimationFrame(() => {
+        overlay.classList.add('visible');
+        sheet.classList.add('open');
+    });
+
+    // Close handlers
+    const close = () => {
+        sheet.classList.remove('open');
+        overlay.classList.remove('visible');
+        document.body.style.overflow = '';
+        sheet.addEventListener('transitionend', () => {
+            sheet.remove();
+            overlay.remove();
+        }, { once: true });
+    };
+
+    overlay.addEventListener('click', close);
+    
+    // Swipe down to close
+    let startY = 0;
+    let currentY = 0;
+    
+    sheet.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+    });
+    
+    sheet.addEventListener('touchmove', (e) => {
+        currentY = e.touches[0].clientY;
+        const delta = currentY - startY;
+        if (delta > 0) {
+            sheet.style.transform = `translateY(${delta}px)`;
+        }
+    });
+    
+    sheet.addEventListener('touchend', () => {
+        if (currentY - startY > 100) {
+            close();
+        } else {
+            sheet.style.transform = '';
+        }
+    });
+
+    return { sheet, overlay, close };
+}
+
 function openInfoBox(poi, poiPosition) {
+    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+        return createBottomSheet(poi);
+    }
+
     infoBoxAnimating = true;
     // Project POI position to screen
     const pos = poiPosition.clone();
@@ -166,6 +238,7 @@ function openInfoBox(poi, poiPosition) {
         infoBoxAnimating = false;
     }, contentFadeStart + 10);
 }
+
 function queueAndHideInfoBox(nextInfoBox) {
     // Always set the queue, then close the current box
     queuedInfoBox = nextInfoBox;
