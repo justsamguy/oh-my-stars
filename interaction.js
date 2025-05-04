@@ -440,8 +440,8 @@ export function setupMouseMoveHandler(poiObjects) {
 export function setupClickHandler(poiObjects) {
     let touchStartTime = 0;
     let touchStartPos = { x: 0, y: 0 };
-    const TAP_THRESHOLD = 10; // pixels of movement allowed for a tap
-    const TAP_DURATION = 200; // max milliseconds for a tap
+    const TAP_THRESHOLD = 10;
+    const TAP_DURATION = 200;
 
     const handleInteraction = (e) => {
         // Ignore interactions if bottom sheet is open on mobile
@@ -455,28 +455,26 @@ export function setupClickHandler(poiObjects) {
         }
 
         // Get coordinates from either mouse or touch event
-        const coords = e.touches ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : e);
+        const coords = e.type.includes('touch') 
+            ? (e.type === 'touchend' ? e.changedTouches[0] : e.touches[0])
+            : e;
         if (!coords) return;
 
         // Get canvas-relative coordinates
         const canvas = renderer.domElement;
         const rect = canvas.getBoundingClientRect();
         
-        // Important: Use client coordinates relative to canvas
         const clientX = coords.clientX - rect.left;
         const clientY = coords.clientY - rect.top;
         
-        // Convert to normalized device coordinates (-1 to +1)
         const x = (clientX / rect.width) * 2 - 1;
         const y = -(clientY / rect.height) * 2 + 1;
 
-        // Update raycaster with normalized coordinates
+        // Update raycaster
         raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
-        
-        // Increase ray distance for mobile
         raycaster.far = window.innerWidth <= MOBILE_BREAKPOINT ? 1000 : 500;
         
-        // Test intersections with all POIs with increased precision
+        // Find intersected POI
         let foundPOI = null;
         let closestDistance = Infinity;
 
@@ -499,40 +497,51 @@ export function setupClickHandler(poiObjects) {
         }
     };
 
-    // Handle touch events differently for mobile
+    // Desktop clicks
+    window.addEventListener('click', (e) => {
+        if (window.innerWidth > MOBILE_BREAKPOINT) {
+            handleInteraction(e);
+        }
+    });
+
+    // Mobile touches
+    let isTapping = false;
+
     window.addEventListener('touchstart', (e) => {
         touchStartTime = Date.now();
         touchStartPos = {
             x: e.touches[0].clientX,
             y: e.touches[0].clientY
         };
+        isTapping = true;
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+        if (!isTapping) return;
+        
+        const moveDistance = Math.hypot(
+            e.touches[0].clientX - touchStartPos.x,
+            e.touches[0].clientY - touchStartPos.y
+        );
+        
+        if (moveDistance > TAP_THRESHOLD) {
+            isTapping = false;
+        }
     }, { passive: true });
 
     window.addEventListener('touchend', (e) => {
-        // Only process if it was a quick tap with minimal movement
+        if (!isTapping) return;
+        
         const touchEndTime = Date.now();
         const touchDuration = touchEndTime - touchStartTime;
         
-        if (touchDuration > TAP_DURATION) return;
-        
-        const touchEndPos = {
-            x: e.changedTouches[0].clientX,
-            y: e.changedTouches[0].clientY
-        };
-        
-        const moveDistance = Math.hypot(
-            touchEndPos.x - touchStartPos.x,
-            touchEndPos.y - touchStartPos.y
-        );
-
-        if (moveDistance <= TAP_THRESHOLD) {
+        if (touchDuration <= TAP_DURATION) {
             e.preventDefault();
             handleInteraction(e);
         }
+        
+        isTapping = false;
     }, { passive: false });
-
-    // Keep click handler for desktop
-    window.addEventListener('click', handleInteraction);
 }
 
 // Scroll event
