@@ -255,11 +255,16 @@ export function hideInfoBox() {
 export function setupMouseMoveHandler(poiObjects) {
     const handleMove = (e) => {
         const pos = e.touches ? e.touches[0] : e;
+        const canvas = renderer.domElement;
+        const rect = canvas.getBoundingClientRect();
+        
+        // Update world position
         mouseWorldPosition = getWorldPosition(pos.clientX, pos.clientY, camera, renderer);
-        raycaster.setFromCamera({
-            x: (pos.clientX / window.innerWidth) * 2 - 1,
-            y: -(pos.clientY / window.innerHeight) * 2 + 1
-        }, camera);
+        
+        // Update raycaster with canvas-relative coordinates
+        const x = ((pos.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -((pos.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
     };
 
     window.addEventListener('mousemove', handleMove);
@@ -277,22 +282,27 @@ export function setupClickHandler(poiObjects) {
         const coords = e.touches ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : e);
         if (!coords) return;
 
-        // Update raycaster
-        raycaster.setFromCamera(
-            new THREE.Vector2(
-                (coords.clientX / window.innerWidth) * 2 - 1,
-                -(coords.clientY / window.innerHeight) * 2 + 1
-            ),
-            camera
-        );
+        // Get canvas-relative coordinates
+        const canvas = renderer.domElement;
+        const rect = canvas.getBoundingClientRect();
+        const x = ((coords.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -((coords.clientY - rect.top) / rect.height) * 2 + 1;
+
+        // Update raycaster with canvas-relative coordinates
+        raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
 
         // Test intersections with all POIs
         let foundPOI = null;
+        let closestDistance = Infinity;
+
         for (const poi of poiObjects) {
             const intersects = raycaster.intersectObjects(poi.children, true);
             if (intersects.length > 0) {
-                foundPOI = poi;
-                break;
+                const distance = intersects[0].distance;
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    foundPOI = poi;
+                }
             }
         }
 
@@ -307,8 +317,11 @@ export function setupClickHandler(poiObjects) {
     // Desktop events
     window.addEventListener('click', handleInteraction);
     
-    // Mobile events
-    window.addEventListener('touchstart', handleInteraction, { passive: false });
+    // Mobile events - use touchend instead of touchstart for more accurate tapping
+    window.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleInteraction(e);
+    }, { passive: false });
 }
 
 // Scroll event

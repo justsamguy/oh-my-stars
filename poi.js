@@ -40,7 +40,7 @@ export function createPOI(poiData) {
     });
     const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
     hitbox.scale.setScalar(scale);
-    hitbox.position.z = 1; // Move hitbox forward
+    hitbox.position.z = 0; // Keep hitbox at same Z as visual POI
     hitbox.renderOrder = 1; // Ensure hitbox is rendered first
     group.add(hitbox);
 
