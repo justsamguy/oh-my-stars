@@ -72,47 +72,62 @@ function createBottomSheet(poi) {
         e.stopPropagation();
     });
 
-    // Track drag state
+    // Add touch event handlers for the overlay
+    let touchStartY = 0;
     let isDragging = false;
-    
-    sheet.addEventListener('touchstart', (e) => {
-        if (!e.target.closest('.pull-handle')) {
-            e.stopPropagation(); // Prevent box from closing on content touch
-            return;
-        }
-        startY = e.touches[0].clientY;
-        isDragging = false;
-    });
-    
-    sheet.addEventListener('touchmove', (e) => {
-        if (!e.target.closest('.pull-handle')) {
-            e.stopPropagation();
-            return;
-        }
-        isDragging = true;
-        currentY = e.touches[0].clientY;
-        const delta = currentY - startY;
-        if (delta > 0) {
-            sheet.style.transform = `translateY(${delta}px)`;
-        }
-    });
-    
-    sheet.addEventListener('touchend', (e) => {
-        if (!e.target.closest('.pull-handle')) {
-            e.stopPropagation();
-            return;
-        }
-        if (isDragging && currentY - startY > 100) {
-            close();
-        } else {
-            sheet.style.transform = '';
-        }
-    });
 
-    // Swipe down to close
+    overlay.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+        isDragging = false;
+    }, { passive: true });
+
+    overlay.addEventListener('touchmove', (e) => {
+        isDragging = true;
+    }, { passive: true });
+
+    overlay.addEventListener('touchend', (e) => {
+        // Only close if it was a tap (not a drag)
+        if (!isDragging) {
+            close();
+        }
+    }, { passive: true });
+
+    // Track drag state
     let startY = 0;
     let currentY = 0;
-    
+
+    sheet.addEventListener('touchstart', (e) => {
+        if (!e.target.closest('.bottom-sheet-content')) {
+            startY = e.touches[0].clientY;
+            isDragging = false;
+        }
+    }, { passive: true });
+
+    sheet.addEventListener('touchmove', (e) => {
+        if (!e.target.closest('.bottom-sheet-content')) {
+            isDragging = true;
+            currentY = e.touches[0].clientY;
+            const delta = currentY - startY;
+            if (delta > 0) {
+                sheet.style.transform = `translateY(${delta}px)`;
+            }
+        }
+    }, { passive: true });
+
+    sheet.addEventListener('touchend', (e) => {
+        if (!e.target.closest('.bottom-sheet-content')) {
+            if (isDragging) {
+                const delta = currentY - startY;
+                if (delta > 100) {
+                    close();
+                } else {
+                    sheet.style.transform = '';
+                }
+            }
+        }
+    }, { passive: true });
+
+    // Swipe down to close
     sheet.addEventListener('touchstart', (e) => {
         startY = e.touches[0].clientY;
     });
