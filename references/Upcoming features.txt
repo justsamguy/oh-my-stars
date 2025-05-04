@@ -6,13 +6,9 @@ Dark mode on site
 Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly animate the camera to a selected POI when this feature is implemented.
 
 
-breakpoints for mobile Use:
-star count to be 50%
-Star glow hovers should be wherever the user touches the screen
-star motion when scrolling to be exaggerated by 2x
-Header/Footer glow becomes static
-Make POIs easier to open
-
+Mobile features:
+Site needs to resize in real-time
+Footer needs to have a new layout (Text section first, links second).
 
 review and adjust star size diversity
 

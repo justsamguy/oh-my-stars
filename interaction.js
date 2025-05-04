@@ -268,24 +268,40 @@ export function setupMouseMoveHandler(poiObjects) {
 
 // Click event for POI info box
 export function setupClickHandler(poiObjects) {
-    window.addEventListener('click', (e) => {
+    const handleClick = (e) => {
+        const pos = e.touches ? e.touches[0] : e;
         raycaster.setFromCamera({
-            x: (e.clientX / window.innerWidth) * 2 - 1,
-            y: -(e.clientY / window.innerHeight) * 2 + 1
+            x: (pos.clientX / window.innerWidth) * 2 - 1,
+            y: -(pos.clientY / window.innerHeight) * 2 + 1
         }, camera);
+
+        // Check intersections with hitboxes first
         let foundPOI = null;
         for (const poi of poiObjects) {
-            const intersects = raycaster.intersectObject(poi, true);
-            if (intersects.length > 0) {
-                foundPOI = poi;
-                break;
+            // Get the hitbox mesh (second child after main mesh)
+            const hitbox = poi.children[1];
+            if (hitbox) {
+                const intersects = raycaster.intersectObject(hitbox);
+                if (intersects.length > 0) {
+                    foundPOI = poi;
+                    break;
+                }
             }
         }
+
         if (foundPOI) {
             showInfoBox(foundPOI.userData, foundPOI.position);
-        } else {
+        } else if (!e.target.closest('.info-box')) {
+            // Only hide if we didn't click inside an info box
             hideInfoBox();
         }
+    };
+
+    // Handle both click and touch
+    window.addEventListener('click', handleClick);
+    window.addEventListener('touchend', (e) => {
+        e.preventDefault(); // Prevent ghost clicks
+        handleClick(e.changedTouches[0]);
     });
 }
 
