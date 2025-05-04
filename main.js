@@ -1,11 +1,11 @@
 // Entry point for the modularized star map app
 import * as THREE from 'three';
-import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js'; // Add CSS3DObject import
-import { pois, STAR_COUNT, SCROLL_DAMPING, MAX_SCROLL_SPEED } from './config.js';
+import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
+import { pois, SCROLL_DAMPING, MAX_SCROLL_SPEED, BASE_STAR_COUNT } from './config.js';
 import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
-import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox } from './interaction.js'; // Import currentInfoBox
+import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox } from './interaction.js';
 import { createHeaderElement, createFooterElement } from './layoutConfig.js';
 
 // --- CSS3DRenderer only for overlays and header/footer ---
@@ -19,7 +19,7 @@ cssRenderer.domElement.style.zIndex = '5';
 appContainer.appendChild(cssRenderer.domElement);
 
 // Create stars
-const starsGroup = createAllStars(STAR_COUNT, pois, viewportWidth, viewportHeight);
+const starsGroup = createAllStars(BASE_STAR_COUNT, pois, viewportWidth, viewportHeight);
 scene.add(starsGroup);
 
 // Create POIs

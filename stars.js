@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { pois, STAR_COUNT, MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, MOBILE_BREAKPOINT, BASE_STAR_COUNT, MOBILE_STAR_COUNT } from './config.js';
+import { pois, BASE_STAR_COUNT, MOBILE_STAR_COUNT, MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, MOBILE_BREAKPOINT } from './config.js';
 
 // Star shaders (as string constants)
 const vertexShader = `
