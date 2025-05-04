@@ -175,25 +175,26 @@ html, body {
     text-decoration: none;
     display: inline-block;
     pointer-events: auto !important;
-    transition: color 0.2s ease;
-    width: auto;
+    transition: color 0.2s ease, background 0.2s ease;
+    width: fit-content;
     text-align: center;
     margin: 0 auto;
-    /* Remove border-bottom */
-    /* Add gradient background for underline */
+    padding: 0 1px;
     background: linear-gradient(0deg, 
-        rgba(170, 170, 170, 0.3) 0%, 
-        rgba(170, 170, 170, 0.3) 1%, 
-        transparent 1%
+        transparent 0%, 
+        transparent 96%, 
+        rgba(170, 170, 170, 0) 96%, 
+        rgba(170, 170, 170, 0) 100%
     );
 }
 
 .footer-nav a.footer-link:hover {
-    color: #aaa;
+    color: #fff;
     background: linear-gradient(0deg, 
-        rgba(255, 255, 255, 0.8) 0%, 
-        rgba(255, 255, 255, 0.8) 1%, 
-        transparent 1%
+        transparent 0%, 
+        transparent 96%, 
+        rgba(255, 255, 255, 0.8) 96%, 
+        rgba(255, 255, 255, 0.8) 100%
     );
 }
 

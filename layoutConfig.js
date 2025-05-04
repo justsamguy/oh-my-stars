@@ -62,12 +62,12 @@ export function createFooterElement() {
             <div style="display: flex; gap: 12px">
                 <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column; align-items: center">
                     ${leftLinks.map(link => 
-                        `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block; width: 100%; text-align: center">${wrapTextInGlowSpans(link.text)}</a>`
+                        `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block">${wrapTextInGlowSpans(link.text)}</a>`
                     ).join('')}
                 </nav>
                 <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column; align-items: center">
                     ${rightLinks.map(link => 
-                        `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block; width: 100%; text-align: center">${wrapTextInGlowSpans(link.text)}</a>`
+                        `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block">${wrapTextInGlowSpans(link.text)}</a>`
                     ).join('')}
                 </nav>
             </div>
