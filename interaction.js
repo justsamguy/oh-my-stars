@@ -263,8 +263,42 @@ function queueAndHideInfoBox(nextInfoBox) {
 function closeCurrentInfoBox() {
     if (!currentInfoBox) return;
     infoBoxAnimating = true;
+
+    // Handle bottom sheet closing
+    if (currentInfoBox.classList.contains('bottom-sheet')) {
+        currentInfoBox.classList.remove('open');
+        const overlay = document.querySelector('.overlay');
+        if (overlay) overlay.classList.remove('visible');
+        document.body.classList.remove('bottom-sheet-open');
+        
+        currentInfoBox.addEventListener('transitionend', () => {
+            currentInfoBox.remove();
+            if (overlay) overlay.remove();
+            currentInfoBox = null;
+            infoBoxAnimating = false;
+            
+            // Handle queued info box
+            if (queuedInfoBox) {
+                const { poi, poiPosition } = queuedInfoBox;
+                queuedInfoBox = null;
+                openInfoBox(poi, poiPosition);
+            }
+        }, { once: true });
+        
+        return;
+    }
+
+    // Handle desktop info box closing
     const wrapper = currentInfoBox;
     const panel = wrapper.querySelector('.info-box');
+    if (!panel) {
+        // Fallback cleanup if structure is invalid
+        if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+        currentInfoBox = null;
+        infoBoxAnimating = false;
+        return;
+    }
+
     const content = panel.querySelector('.info-box-content');
     const closeBtn = panel.querySelector('.close-btn');
 
