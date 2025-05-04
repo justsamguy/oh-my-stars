@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { pois, STAR_COUNT, MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS } from './config.js';
+import { pois, STAR_COUNT, MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, MOBILE_BREAKPOINT, BASE_STAR_COUNT, MOBILE_STAR_COUNT } from './config.js';
 
 // Star shaders (as string constants)
 const vertexShader = `
     uniform float cameraY;
+    uniform bool isMobile;
     varying vec2 vUv;
     varying vec3 vWorldPosition;
     varying float vRandomSeed;
@@ -15,6 +16,9 @@ const vertexShader = `
         vRandomSeed = hash(position.xy);
         vec3 pos = position;
         float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0;
+        if (isMobile) {
+            parallaxStrength *= 2.0;
+        }
         vec3 worldPos = (modelMatrix * vec4(position, 1.0)).xyz;
         worldPos.y -= cameraY * parallaxStrength;
         vWorldPosition = worldPos;
@@ -60,7 +64,9 @@ const fragmentShader = `
 `;
 
 // Create all stars
-export function createAllStars(count, pois, viewportWidth, viewportHeight) {
+export function createAllStars(_, pois, viewportWidth, viewportHeight) {
+    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+    const count = isMobile ? MOBILE_STAR_COUNT : BASE_STAR_COUNT;
     const group = new THREE.Group();
     const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
     const highestY = sortedPOIs[0].position.y + 80; // Extend higher into header

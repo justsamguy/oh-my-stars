@@ -21,8 +21,12 @@ export const pois = [
     { position: new THREE.Vector3(-20, -240, 0), color: poiColors[6], name: 'Frontier Station', description: 'Last outpost before uncharted space.' }
 ];
 
-export const STAR_COUNT = 9000;
+export const BASE_STAR_COUNT = 9000;
+export const MOBILE_STAR_COUNT = BASE_STAR_COUNT * 0.5;
 export const SCROLL_DAMPING = 0.95;
 export const MAX_SCROLL_SPEED = 2;
 export const MAX_INTERACTION_RADIUS = 75.0;
 export const MIN_INTERACTION_RADIUS = 15.0;
+export const MOBILE_BREAKPOINT = 600;
+export const MOBILE_SCROLL_MULTIPLIER = 2;
+export const POI_HITBOX_SCALE = 2.5; // Increase POI clickable area

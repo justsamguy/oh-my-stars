@@ -293,3 +293,26 @@ html, body {
 /* Note: Responsiveness for CSS3DObjects might need JS adjustments */
 /* based on viewport size rather than pure CSS media queries */
 /* depending on how their size/position is calculated. */
+
+/* Always show glow effect on mobile */
+@media (max-width: 600px) {
+    .glow-char {
+        color: #fff !important;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                     0 0 15px rgba(255, 255, 255, 0.8),
+                     0 0 25px rgba(255, 255, 255, 0.6),
+                     0 0 35px rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Adjust footer size for better touch targets */
+    .footer-nav a.footer-link {
+        font-size: 4.2px;
+        padding: 2px 0;
+    }
+}
+
+/* Prevent text selection during touch interactions */
+.css3d-header, .css3d-footer {
+    user-select: none;
+    -webkit-user-select: none;
+}

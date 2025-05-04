@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { pois } from './config.js';
+import { pois, POI_HITBOX_SCALE } from './config.js';
 
 // POI geometry
 const poiGeometry = new THREE.CircleGeometry(3, 32);
@@ -36,6 +36,14 @@ export function createPOI(poiData) {
     });
     const mesh = new THREE.Mesh(poiGeometry, material);
     mesh.scale.setScalar(scale);
+    // Invisible larger hitbox
+    const hitboxGeometry = new THREE.CircleGeometry(3 * POI_HITBOX_SCALE, 32);
+    const hitboxMaterial = new THREE.MeshBasicMaterial({ 
+        transparent: true, 
+        opacity: 0 
+    });
+    const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+    hitbox.scale.setScalar(scale);
     // Dashed ring
     const ringGeometry = new THREE.BufferGeometry();
     const segments = 32;
@@ -72,6 +80,7 @@ export function createPOI(poiData) {
     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
     glow.scale.setScalar(scale);
     group.add(mesh);
+    group.add(hitbox);
     group.add(ring);
     group.add(glow);
     group.position.copy(poiData.position);

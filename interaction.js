@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { getWorldPosition } from './utils.js';
 import { infoBoxContainer, camera, renderer } from './sceneSetup.js';
+import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER } from './config.js';
 
 // State
 export let mouseWorldPosition = new THREE.Vector3(-10000, -10000, 0);
@@ -252,14 +253,17 @@ export function hideInfoBox() {
 
 // Mouse move event (no info box on hover)
 export function setupMouseMoveHandler(poiObjects) {
-    window.addEventListener('mousemove', (e) => {
-        mouseWorldPosition = getWorldPosition(e.clientX, e.clientY, camera, renderer);
-        // Raycast for POI hover (for highlight only, not info box)
+    const handleMove = (e) => {
+        const pos = e.touches ? e.touches[0] : e;
+        mouseWorldPosition = getWorldPosition(pos.clientX, pos.clientY, camera, renderer);
         raycaster.setFromCamera({
-            x: (e.clientX / window.innerWidth) * 2 - 1,
-            y: -(e.clientY / window.innerHeight) * 2 + 1
+            x: (pos.clientX / window.innerWidth) * 2 - 1,
+            y: -(pos.clientY / window.innerHeight) * 2 + 1
         }, camera);
-    });
+    };
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('touchmove', handleMove);
 }
 
 // Click event for POI info box
@@ -287,10 +291,24 @@ export function setupClickHandler(poiObjects) {
 
 // Scroll event
 export function setupScrollHandler() {
+    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+    const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
+    
     window.addEventListener('wheel', (e) => {
-        e.preventDefault(); // Prevent default browser scroll
-        scrollState.velocity -= e.deltaY * 0.01;
-    }, { passive: false }); // Set passive to false so preventDefault works
+        e.preventDefault();
+        scrollState.velocity -= e.deltaY * 0.01 * multiplier;
+    }, { passive: false });
+
+    let touchStart = 0;
+    window.addEventListener('touchstart', (e) => {
+        touchStart = e.touches[0].clientY;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+        const delta = touchStart - e.touches[0].clientY;
+        scrollState.velocity -= delta * 0.01 * multiplier;
+        touchStart = e.touches[0].clientY;
+    });
 }
 
 // Resize event
