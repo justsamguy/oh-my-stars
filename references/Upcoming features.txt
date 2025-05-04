@@ -9,6 +9,7 @@ Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly ani
 Mobile features:
 Site needs to resize in real-time
 Footer needs to have a new layout (Text section first, links second).
+make the star glow activate both on tap and on drag
 
 review and adjust star size diversity
 

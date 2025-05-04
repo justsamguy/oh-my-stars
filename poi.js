@@ -28,27 +28,30 @@ const glowFragmentShader = `
 export function createPOI(poiData) {
     const group = new THREE.Group();
     const scale = 0.3;
-    
-    // Invisible larger hitbox (create first so it's behind other elements)
-    const hitboxGeometry = new THREE.CircleGeometry(3 * POI_HITBOX_SCALE, 32);
-    const hitboxMaterial = new THREE.MeshBasicMaterial({ 
-        transparent: true, 
-        opacity: 0,
-        depthTest: false
-    });
-    const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
-    hitbox.scale.setScalar(scale);
-    group.add(hitbox);
 
     // Main POI circle
     const material = new THREE.MeshBasicMaterial({ 
         color: poiData.color,
         transparent: true,
-        opacity: 0.9
+        opacity: 0.9,
+        side: THREE.DoubleSide
     });
     const mesh = new THREE.Mesh(poiGeometry, material);
     mesh.scale.setScalar(scale);
     group.add(mesh);
+
+    // Hitbox (slightly larger than visible circle)
+    const hitboxGeometry = new THREE.CircleGeometry(3 * POI_HITBOX_SCALE, 32);
+    const hitboxMaterial = new THREE.MeshBasicMaterial({ 
+        color: poiData.color,
+        transparent: true,
+        opacity: 0.0,
+        side: THREE.DoubleSide,
+        depthTest: false
+    });
+    const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+    hitbox.scale.setScalar(scale);
+    group.add(hitbox);
 
     // Dashed ring
     const ringGeometry = new THREE.BufferGeometry();

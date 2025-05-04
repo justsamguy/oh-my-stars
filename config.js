@@ -29,4 +29,4 @@ export const MAX_INTERACTION_RADIUS = 75.0;
 export const MIN_INTERACTION_RADIUS = 15.0;
 export const MOBILE_BREAKPOINT = 600;
 export const MOBILE_SCROLL_MULTIPLIER = 2;
-export const POI_HITBOX_SCALE = 2.5; // Increase POI clickable area
+export const POI_HITBOX_SCALE = 4; // Increased from 2.5 for better touch interaction

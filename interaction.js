@@ -269,28 +269,33 @@ export function setupMouseMoveHandler(poiObjects) {
 // Click event for POI info box
 export function setupClickHandler(poiObjects) {
     const handleClick = (e) => {
-        const pos = e.touches ? e.touches[0] : e;
-        raycaster.setFromCamera({
-            x: (pos.clientX / window.innerWidth) * 2 - 1,
-            y: -(pos.clientY / window.innerHeight) * 2 + 1
-        }, camera);
-
-        // Check intersections with hitboxes first
-        let foundPOI = null;
-        for (const poi of poiObjects) {
-            // Get the hitbox mesh (first child)
-            const hitbox = poi.children[0];
-            if (hitbox) {
-                const intersects = raycaster.intersectObject(hitbox, false);
-                if (intersects.length > 0) {
-                    foundPOI = poi;
-                    break;
-                }
-            }
+        // Prevent if clicking inside info box
+        if (e.target.closest('.info-box')) {
+            return;
         }
 
+        const pos = e.changedTouches ? e.changedTouches[0] : e;
+        raycaster.setFromCamera(
+            new THREE.Vector2(
+                (pos.clientX / window.innerWidth) * 2 - 1,
+                -(pos.clientY / window.innerHeight) * 2 + 1
+            ),
+            camera
+        );
+
+        // Test all POI meshes
+        let foundPOI = null;
+        poiObjects.forEach(poi => {
+            // Test all children of the POI group
+            const intersects = raycaster.intersectObjects(poi.children, true);
+            if (intersects.length > 0) {
+                foundPOI = poi;
+            }
+        });
+
         if (foundPOI) {
-            e.preventDefault(); // Prevent any default behavior
+            e.preventDefault();
+            e.stopPropagation();
             showInfoBox(foundPOI.userData, foundPOI.position);
         } else if (!e.target.closest('.info-box')) {
             hideInfoBox();
@@ -301,8 +306,8 @@ export function setupClickHandler(poiObjects) {
     window.addEventListener('click', handleClick);
     window.addEventListener('touchend', (e) => {
         e.preventDefault();
-        handleClick(e.changedTouches[0]);
-    });
+        handleClick(e);
+    }, { passive: false });
 }
 
 // Scroll event
