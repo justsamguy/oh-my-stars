@@ -27,7 +27,7 @@ const glowFragmentShader = `
 // Create a single POI group
 export function createPOI(poiData) {
     const group = new THREE.Group();
-    const scale = 0.3;
+    const scale = window.innerWidth <= MOBILE_BREAKPOINT ? 0.4 : 0.3;
 
     // Create hitbox (much larger than visible circle)
     const hitboxGeometry = new THREE.CircleGeometry(3 * POI_HITBOX_SCALE, 32);

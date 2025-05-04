@@ -285,13 +285,22 @@ export function setupClickHandler(poiObjects) {
         // Get canvas-relative coordinates
         const canvas = renderer.domElement;
         const rect = canvas.getBoundingClientRect();
-        const x = ((coords.clientX - rect.left) / rect.width) * 2 - 1;
-        const y = -((coords.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        // Important: Use client coordinates relative to canvas
+        const clientX = coords.clientX - rect.left;
+        const clientY = coords.clientY - rect.top;
+        
+        // Convert to normalized device coordinates (-1 to +1)
+        const x = (clientX / rect.width) * 2 - 1;
+        const y = -(clientY / rect.height) * 2 + 1;
 
-        // Update raycaster with canvas-relative coordinates
+        // Update raycaster with normalized coordinates
         raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
-
-        // Test intersections with all POIs
+        
+        // Increase ray distance for mobile
+        raycaster.far = window.innerWidth <= MOBILE_BREAKPOINT ? 1000 : 500;
+        
+        // Test intersections with all POIs with increased precision
         let foundPOI = null;
         let closestDistance = Infinity;
 
@@ -314,14 +323,19 @@ export function setupClickHandler(poiObjects) {
         }
     };
 
-    // Desktop events
-    window.addEventListener('click', handleInteraction);
-    
-    // Mobile events - use touchend instead of touchstart for more accurate tapping
+    // Mobile events - handle both touchstart and touchend
+    window.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleInteraction(e);
+    }, { passive: false });
+
     window.addEventListener('touchend', (e) => {
         e.preventDefault();
         handleInteraction(e);
     }, { passive: false });
+
+    // Desktop events
+    window.addEventListener('click', handleInteraction);
 }
 
 // Scroll event
