@@ -268,95 +268,47 @@ export function setupMouseMoveHandler(poiObjects) {
 
 // Click event for POI info box
 export function setupClickHandler(poiObjects) {
-    let touchStartPos = null;
-    const MAX_TAP_MOVEMENT = 10; // pixels
-
-    const handleTouch = (e) => {
-        // Early return if touching inside info box
+    const handleInteraction = (e) => {
         if (e.target.closest('.info-box')) {
             return;
         }
 
-        // Get correct position based on event type
-        let clientX, clientY;
-        if (e.type.startsWith('touch')) {
-            // Handle touch event
-            const touch = e.touches?.[0] || e.changedTouches?.[0];
-            if (!touch) return; // Exit if no valid touch
-            clientX = touch.clientX;
-            clientY = touch.clientY;
-        } else {
-            // Handle mouse event
-            clientX = e.clientX;
-            clientY = e.clientY;
-        }
+        // Get coordinates from either mouse or touch event
+        const coords = e.touches ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : e);
+        if (!coords) return;
 
         // Update raycaster
-        const x = (clientX / window.innerWidth) * 2 - 1;
-        const y = -(clientY / window.innerHeight) * 2 + 1;
-        raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+        raycaster.setFromCamera(
+            new THREE.Vector2(
+                (coords.clientX / window.innerWidth) * 2 - 1,
+                -(coords.clientY / window.innerHeight) * 2 + 1
+            ),
+            camera
+        );
 
-        // Test each POI with a larger threshold for mobile
+        // Test intersections with all POIs
         let foundPOI = null;
-        const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-        
-        // Check all POIs and their children
         for (const poi of poiObjects) {
-            // Test the hitbox first (first child)
-            const hitbox = poi.children[0];
-            if (hitbox && hitbox.type === 'Mesh') {
-                const intersects = raycaster.intersectObject(hitbox);
-                if (intersects.length > 0) {
-                    foundPOI = poi;
-                    break;
-                }
+            const intersects = raycaster.intersectObjects(poi.children, true);
+            if (intersects.length > 0) {
+                foundPOI = poi;
+                break;
             }
         }
 
         if (foundPOI) {
             e.preventDefault?.();
-            e.stopPropagation?.();
             showInfoBox(foundPOI.userData, foundPOI.position);
         } else if (!e.target.closest('.info-box')) {
             hideInfoBox();
         }
     };
 
-    const handleTouchStart = (e) => {
-        if (e.touches.length === 1) {
-            touchStartPos = {
-                x: e.touches[0].clientX,
-                y: e.touches[0].clientY
-            };
-        }
-    };
-
-    const handleTouchEnd = (e) => {
-        if (!touchStartPos) return;
-
-        const touch = e.changedTouches[0];
-        if (!touch) return; // Exit if no valid touch
-
-        const deltaX = touch.clientX - touchStartPos.x;
-        const deltaY = touch.clientY - touchStartPos.y;
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-        if (distance < MAX_TAP_MOVEMENT) {
-            e.preventDefault();
-            handleTouch(e);
-        }
-        touchStartPos = null;
-    };
-
-    // Set up event listeners based on device type
-    if ('ontouchstart' in window) {
-        // Touch device
-        window.addEventListener('touchstart', handleTouchStart, { passive: true });
-        window.addEventListener('touchend', handleTouchEnd, { passive: false });
-    } else {
-        // Desktop device
-        window.addEventListener('click', handleTouch);
-    }
+    // Desktop events
+    window.addEventListener('click', handleInteraction);
+    
+    // Mobile events
+    window.addEventListener('touchstart', handleInteraction, { passive: false });
 }
 
 // Scroll event
