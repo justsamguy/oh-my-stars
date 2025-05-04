@@ -161,10 +161,7 @@ html, body {
 .footer-nav a {
     font-size: 12px;
     color: #aaa;
-    text-decoration: underline;
-    text-decoration-color: rgba(170, 170, 170, 0.4);
-    text-underline-offset: 2px;
-    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    text-decoration: none; /* Changed from underline */
     pointer-events: auto !important;
     display: inline-block;
 }
@@ -180,7 +177,7 @@ html, body {
     text-align: center;
     margin: 0 auto;
     background: none;
-    padding-bottom: 0.2px; /* Small padding to position gradient */
+    padding: 0 0 0.2px 0; /* Changed to only have bottom padding */
 }
 
 .footer-nav a.footer-link:hover {
@@ -188,11 +185,11 @@ html, body {
     background: linear-gradient(0deg, 
         rgba(255, 255, 255, 0.5) 0%, 
         rgba(255, 255, 255, 0.5) 0.15px, 
-        transparent 0.15px, 
-        transparent 100%
+        transparent 0.15px
     );
-    background-position: 0 100%; /* Position at bottom */
-    background-size: 100% 100%; /* Full width, actual height */
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 100% 100%;
 }
 
 .footer-nav a.footer-link .glow-char {
