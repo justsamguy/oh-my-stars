@@ -180,21 +180,23 @@ html, body {
     text-align: center;
     margin: 0 auto;
     background: linear-gradient(0deg, 
-        transparent 0%, 
-        transparent 96%, 
-        rgba(170, 170, 170, 0) 96%, 
-        rgba(170, 170, 170, 0) 100%
+        rgba(170, 170, 170, 0.4) 0%, 
+        rgba(170, 170, 170, 0.4) 1px, 
+        transparent 1px, 
+        transparent 100%
     );
+    background-position: bottom;
 }
 
 .footer-nav a.footer-link:hover {
     color: #fff;
     background: linear-gradient(0deg, 
-        transparent 0%, 
-        transparent 96%, 
-        rgba(255, 255, 255, 0.8) 96%, 
-        rgba(255, 255, 255, 0.8) 100%
+        rgba(255, 255, 255, 0.8) 0%, 
+        rgba(255, 255, 255, 0.8) 1px, 
+        transparent 1px, 
+        transparent 100%
     );
+    background-position: bottom;
 }
 
 .footer-nav a.footer-link .glow-char {
