@@ -3,23 +3,25 @@
 <head>
     <title>Interactive Star Map</title>
     <meta charset="utf-8">
-    <style>
-        body { margin: 0; }
-        #bg { display: block; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added for responsive design -->
+    <link rel="stylesheet" href="style.css"> <!-- Link to the new CSS file -->
     <!-- Import Map -->
     <script type="importmap">
         {
             "imports": {
                 "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
                 "three/examples/jsm/": "https://unpkg.com/three@0.163.0/examples/jsm/",
-                "@tweenjs/tween.js": "https://unpkg.com/@tweenjs/tween.js@^21/dist/tween.esm.js"
+                "@tweenjs/tween.js": "https://unpkg.com/@tweenjs/tween.js@^21/dist/tween.esm.js",
+                "three/examples/jsm/renderers/CSS3DRenderer.js": "https://unpkg.com/three@0.163.0/examples/jsm/renderers/CSS3DRenderer.js"
             }
         }
     </script>
 </head>
 <body>
-    <canvas id="bg"></canvas>
+    <div id="app-container"> <!-- Added container -->
+        <canvas id="bg"></canvas>
+        <!-- Header and Footer will be added via JS -->
+    </div> <!-- Close container -->
     <script type="module" src="main.js"></script>
 </body>
 </html>

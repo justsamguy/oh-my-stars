@@ -11,7 +11,7 @@ export let cameraTargetY = camera.position.y;
 export const raycaster = new THREE.Raycaster();
 
 // Info box logic
-let currentInfoBox = null;
+export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
@@ -139,6 +139,9 @@ function openInfoBox(poi, poiPosition) {
     wrapper.appendChild(panel);
     infoBoxContainer.appendChild(wrapper);
     currentInfoBox = wrapper;
+    currentInfoBox.dataset.poiPositionX = poiPosition.x; // Store POI 3D position
+    currentInfoBox.dataset.poiPositionY = poiPosition.y;
+    currentInfoBox.dataset.poiPositionZ = poiPosition.z;
     panel.dataset.boxWidth = boxWidth; // Store original width
 
     // Set transition before width
@@ -285,8 +288,9 @@ export function setupClickHandler(poiObjects) {
 // Scroll event
 export function setupScrollHandler() {
     window.addEventListener('wheel', (e) => {
+        e.preventDefault(); // Prevent default browser scroll
         scrollState.velocity -= e.deltaY * 0.01;
-    });
+    }, { passive: false }); // Set passive to false so preventDefault works
 }
 
 // Resize event
