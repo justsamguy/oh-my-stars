@@ -109,9 +109,10 @@ html, body {
 /* Only apply glow effect to non-link .glow-char elements */
 :not(a) > .glow-char.glow {
     color: #fff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
-                 0 0 20px rgba(255, 255, 255, 0.5),
-                 0 0 30px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                 0 0 15px rgba(255, 255, 255, 0.8),
+                 0 0 25px rgba(255, 255, 255, 0.6),
+                 0 0 35px rgba(255, 255, 255, 0.4);
 }
 
 /* Remove old header glow styles */
@@ -202,9 +203,10 @@ html, body {
 
 .footer-nav a.footer-link .glow-char.glow {
     color: #fff;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
-                 0 0 20px rgba(255, 255, 255, 0.5),
-                 0 0 30px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                 0 0 15px rgba(255, 255, 255, 0.8),
+                 0 0 25px rgba(255, 255, 255, 0.6),
+                 0 0 35px rgba(255, 255, 255, 0.4);
 }
 
 /* Remove any conflicting hover states */
