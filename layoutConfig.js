@@ -56,7 +56,7 @@ export function createFooterElement() {
     footerDiv.innerHTML = `
         <div class="footer-content" style="margin-bottom: 2px">
             <div class="footer-brand">
-                <h2 style="font-size: 6.5px; margin: 0 0 3px 0; color: #fff">${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
+                <h2 style="font-size: 6.5px; margin: 0 0 3px 0; color: #afafaf; font-weight: normal">${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
                 <p style="font-size: 4px; line-height: 1.2; color: #aaa; margin: 0">${wrapTextInGlowSpans(footerConfig.brand.description)}</p>
             </div>
             <div style="display: flex; gap: 12px">
