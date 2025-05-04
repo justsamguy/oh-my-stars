@@ -6,12 +6,10 @@ Dark mode on site
 Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly animate the camera to a selected POI when this feature is implemented.
 
 
-Mobile features:
-Site needs to resize in real-time
-Footer needs to have a new layout (Text section first, links second).
-make the star glow activate both on tap and on drag
+site tree for live/development versions of the site - dev version can be a sub-page (links to both in readme)
 
 review and adjust star size diversity
 
+real-time dynamically adjust viewport size
 
-add a subtle smooth scroll-up effect upon initial load
+add a subtle smooth scroll-up effect upon initial load (desktop only)

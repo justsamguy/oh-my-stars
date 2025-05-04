@@ -66,7 +66,49 @@ function createBottomSheet(poi) {
     // Add click handler for close button
     sheet.querySelector('.close-btn').addEventListener('click', close);
     overlay.addEventListener('click', close);
+
+    // Prevent sheet content from triggering close
+    sheet.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    // Track drag state
+    let isDragging = false;
     
+    sheet.addEventListener('touchstart', (e) => {
+        if (!e.target.closest('.pull-handle')) {
+            e.stopPropagation(); // Prevent box from closing on content touch
+            return;
+        }
+        startY = e.touches[0].clientY;
+        isDragging = false;
+    });
+    
+    sheet.addEventListener('touchmove', (e) => {
+        if (!e.target.closest('.pull-handle')) {
+            e.stopPropagation();
+            return;
+        }
+        isDragging = true;
+        currentY = e.touches[0].clientY;
+        const delta = currentY - startY;
+        if (delta > 0) {
+            sheet.style.transform = `translateY(${delta}px)`;
+        }
+    });
+    
+    sheet.addEventListener('touchend', (e) => {
+        if (!e.target.closest('.pull-handle')) {
+            e.stopPropagation();
+            return;
+        }
+        if (isDragging && currentY - startY > 100) {
+            close();
+        } else {
+            sheet.style.transform = '';
+        }
+    });
+
     // Swipe down to close
     let startY = 0;
     let currentY = 0;
@@ -396,8 +438,19 @@ export function setupMouseMoveHandler(poiObjects) {
 
 // Click event for POI info box
 export function setupClickHandler(poiObjects) {
+    let touchStartTime = 0;
+    let touchStartPos = { x: 0, y: 0 };
+    const TAP_THRESHOLD = 10; // pixels of movement allowed for a tap
+    const TAP_DURATION = 200; // max milliseconds for a tap
+
     const handleInteraction = (e) => {
-        if (e.target.closest('.info-box')) {
+        // Ignore interactions if bottom sheet is open on mobile
+        if (window.innerWidth <= MOBILE_BREAKPOINT && 
+            document.body.classList.contains('bottom-sheet-open')) {
+            return;
+        }
+
+        if (e.target.closest('.info-box') || e.target.closest('.bottom-sheet')) {
             return;
         }
 
@@ -446,18 +499,39 @@ export function setupClickHandler(poiObjects) {
         }
     };
 
-    // Mobile events - handle both touchstart and touchend
+    // Handle touch events differently for mobile
     window.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        handleInteraction(e);
-    }, { passive: false });
+        touchStartTime = Date.now();
+        touchStartPos = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY
+        };
+    }, { passive: true });
 
     window.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        handleInteraction(e);
+        // Only process if it was a quick tap with minimal movement
+        const touchEndTime = Date.now();
+        const touchDuration = touchEndTime - touchStartTime;
+        
+        if (touchDuration > TAP_DURATION) return;
+        
+        const touchEndPos = {
+            x: e.changedTouches[0].clientX,
+            y: e.changedTouches[0].clientY
+        };
+        
+        const moveDistance = Math.hypot(
+            touchEndPos.x - touchStartPos.x,
+            touchEndPos.y - touchStartPos.y
+        );
+
+        if (moveDistance <= TAP_THRESHOLD) {
+            e.preventDefault();
+            handleInteraction(e);
+        }
     }, { passive: false });
 
-    // Desktop events
+    // Keep click handler for desktop
     window.addEventListener('click', handleInteraction);
 }
 
