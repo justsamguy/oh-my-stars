@@ -268,28 +268,39 @@ export function setupMouseMoveHandler(poiObjects) {
 
 // Click event for POI info box
 export function setupClickHandler(poiObjects) {
-    const handleClick = (e) => {
-        // Prevent if clicking inside info box
+    let touchStartPos = null;
+    const MAX_TAP_MOVEMENT = 10; // pixels
+
+    const handleTouch = (e) => {
         if (e.target.closest('.info-box')) {
             return;
         }
 
-        const pos = e.changedTouches ? e.changedTouches[0] : e;
-        raycaster.setFromCamera(
-            new THREE.Vector2(
-                (pos.clientX / window.innerWidth) * 2 - 1,
-                -(pos.clientY / window.innerHeight) * 2 + 1
-            ),
-            camera
-        );
+        // Get correct position from either touch or mouse event
+        const pos = e.touches ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : e);
+        const x = (pos.clientX / window.innerWidth) * 2 - 1;
+        const y = -(pos.clientY / window.innerHeight) * 2 + 1;
 
-        // Test all POI meshes
+        // Update raycaster with current camera
+        raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+
+        // Test each POI with a larger threshold for mobile
         let foundPOI = null;
+        const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+        raycaster.params.Points.threshold = isMobile ? 20 : 1;
+
+        // Check all POIs and their children
         poiObjects.forEach(poi => {
-            // Test all children of the POI group
-            const intersects = raycaster.intersectObjects(poi.children, true);
-            if (intersects.length > 0) {
-                foundPOI = poi;
+            if (!foundPOI) { // Only check if we haven't found one yet
+                // Check each child of the POI group
+                poi.children.forEach(child => {
+                    if (!foundPOI && child.type === 'Mesh') {
+                        const intersects = raycaster.intersectObject(child);
+                        if (intersects.length > 0) {
+                            foundPOI = poi;
+                        }
+                    }
+                });
             }
         });
 
@@ -302,12 +313,46 @@ export function setupClickHandler(poiObjects) {
         }
     };
 
-    // Handle both click and touch
-    window.addEventListener('click', handleClick);
-    window.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        handleClick(e);
-    }, { passive: false });
+    // Touch event handlers
+    const handleTouchStart = (e) => {
+        if (e.touches.length === 1) {
+            touchStartPos = {
+                x: e.touches[0].clientX,
+                y: e.touches[0].clientY
+            };
+        }
+    };
+
+    const handleTouchEnd = (e) => {
+        if (!touchStartPos) return;
+
+        const touch = e.changedTouches[0];
+        const deltaX = touch.clientX - touchStartPos.x;
+        const deltaY = touch.clientY - touchStartPos.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        // Only trigger if it was a tap (minimal movement)
+        if (distance < MAX_TAP_MOVEMENT) {
+            e.preventDefault();
+            handleTouch(e);
+        }
+        touchStartPos = null;
+    };
+
+    // Desktop click handler
+    const handleClick = (e) => {
+        handleTouch(e);
+    };
+
+    // Set up event listeners
+    if ('ontouchstart' in window) {
+        // Touch device
+        window.addEventListener('touchstart', handleTouchStart, { passive: false });
+        window.addEventListener('touchend', handleTouchEnd, { passive: false });
+    } else {
+        // Desktop device
+        window.addEventListener('click', handleClick);
+    }
 }
 
 // Scroll event

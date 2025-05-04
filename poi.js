@@ -29,18 +29,7 @@ export function createPOI(poiData) {
     const group = new THREE.Group();
     const scale = 0.3;
 
-    // Main POI circle
-    const material = new THREE.MeshBasicMaterial({ 
-        color: poiData.color,
-        transparent: true,
-        opacity: 0.9,
-        side: THREE.DoubleSide
-    });
-    const mesh = new THREE.Mesh(poiGeometry, material);
-    mesh.scale.setScalar(scale);
-    group.add(mesh);
-
-    // Hitbox (slightly larger than visible circle)
+    // Hitbox (larger than visible circle)
     const hitboxGeometry = new THREE.CircleGeometry(3 * POI_HITBOX_SCALE, 32);
     const hitboxMaterial = new THREE.MeshBasicMaterial({ 
         color: poiData.color,
@@ -51,7 +40,19 @@ export function createPOI(poiData) {
     });
     const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
     hitbox.scale.setScalar(scale);
+    hitbox.position.z = 1; // Move hitbox slightly forward
     group.add(hitbox);
+
+    // Main POI circle
+    const material = new THREE.MeshBasicMaterial({ 
+        color: poiData.color,
+        transparent: true,
+        opacity: 0.9,
+        side: THREE.DoubleSide
+    });
+    const mesh = new THREE.Mesh(poiGeometry, material);
+    mesh.scale.setScalar(scale);
+    group.add(mesh);
 
     // Dashed ring
     const ringGeometry = new THREE.BufferGeometry();
