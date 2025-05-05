@@ -59,12 +59,12 @@ html, body {
 .css3d-footer {
     width: 400px;
     font-size: 1.5px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.7); /* Made more visible */
     padding: 8px 15px;
     box-sizing: border-box;
     border-radius: 8px;
-    height: auto !important; /* Remove fixed height */
-    min-height: 45px;  /* Use min-height instead */
+    height: auto !important;
+    min-height: 45px;
 }
 
 .css3d-footer nav {
@@ -308,9 +308,9 @@ html, body {
     /* Adjust footer size for better touch targets */
     .css3d-footer {
         width: 300px !important;
-        min-height: 60px;  /* Further reduced from 80px */
+        min-height: 45px; /* Reduced from 60px */
         height: auto !important;
-        padding: 6px 12px; /* Reduced top/bottom padding */
+        padding: 6px 10px;
         font-size: 2.5px;
         overflow: visible;
         background: rgba(0,0,0,0.8);
@@ -321,7 +321,7 @@ html, body {
 
     .footer-content {
         flex-direction: column;
-        gap: 6px; /* Reduced from 15px */
+        gap: 4px; /* Reduced from 6px */
         width: 100%;
     }
 
@@ -349,7 +349,7 @@ html, body {
         flex-direction: column !important;
         align-items: center;
         gap: 2px; /* Reduced gap */
-        margin: 4px 0; /* Reduced margin */
+        margin: 2px 0; /* Reduced from 4px */
     }
 
     .footer-nav a.footer-link {
@@ -363,8 +363,8 @@ html, body {
     .copyright {
         order: 3;
         font-size: 4px;
-        margin-top: 6px; /* Reduced from 8px */
-        padding-top: 6px; /* Reduced from 8px */
+        margin-top: 4px; /* Reduced from 6px */
+        padding-top: 4px; /* Reduced from 6px */
         width: 100%;
     }
 }

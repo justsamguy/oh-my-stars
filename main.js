@@ -100,7 +100,7 @@ function animate() {
     }
     // Clamp camera based on POI positions, not header/footer
     const isMobile = window.innerWidth <= 600;
-    const mobilePadding = isMobile ? 20 : paddingY;
+    const mobilePadding = isMobile ? 80 : paddingY;
     const cameraViewHeight = camera.top - camera.bottom;
     const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - mobilePadding * 1.5;
     const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + mobilePadding;
@@ -139,7 +139,7 @@ function animate() {
     headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - mobilePadding * 3;
+    footerObj.position.y = minY - mobilePadding;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -165,11 +165,11 @@ function onWindowResize() {
 
     // Adjust padding based on viewport
     const isMobile = window.innerWidth <= 600;
-    const mobilePadding = isMobile ? 20 : paddingY; // Reduced from 40
+    const mobilePadding = isMobile ? 80 : paddingY; // Increased from 20
 
-    // Calculate new viewport height with less space for footer
+    // Calculate new viewport height with more space
     const poiSpan = Math.abs(maxY - minY);
-    const margin = isMobile ? 0.1 * poiSpan : 0.2 * poiSpan; // Reduced margin on mobile
+    const margin = isMobile ? 0.25 * poiSpan : 0.2 * poiSpan; // Increased margin
     const newViewportHeight = poiSpan + margin;
     const newViewportWidth = newViewportHeight * aspect;
 
@@ -189,7 +189,7 @@ function onWindowResize() {
 
     // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
-    footerObj.position.y = minY - mobilePadding * 3;
+    footerObj.position.y = minY - mobilePadding;
 }
 
 // Initial call to set size correctly
