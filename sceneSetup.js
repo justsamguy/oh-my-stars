@@ -53,15 +53,24 @@ export const scene = new THREE.Scene();
 // Calculate viewport dimensions based on POI data
 export function getViewportHeight() {
     const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
-    const mobilePadding = window.innerWidth <= 600 ? 600 : 0;
-    // Increase viewport height for better zoom
-    return poiHeight * 1.8 + mobilePadding; // Changed from 1.1 to 1.8
+    if (window.innerWidth <= 600) {
+        // Mobile: Add padding but keep original scaling
+        return poiHeight * 1.1 + 600;
+    } else {
+        // Desktop: Keep original zoom level
+        return poiHeight * 1.1;
+    }
 }
 export function getViewportWidth() {
     const vh = getViewportHeight();
     const aspect = window.innerWidth / window.innerHeight;
-    // Increase viewport width proportionally
-    return vh * aspect * 1.2; // Added 1.2 multiplier for wider view
+    if (window.innerWidth <= 600) {
+        // Mobile: Maintain proportional width
+        return vh * aspect;
+    } else {
+        // Desktop: Keep original width calculation
+        return vh * aspect;
+    }
 }
 let viewportHeight = getViewportHeight();
 let viewportWidth = getViewportWidth();
@@ -77,7 +86,7 @@ export const camera = new THREE.OrthographicCamera(
 );
 
 // Adjust initial camera position
-camera.position.set(0, (pois[0].position.y + pois[pois.length - 1].position.y) / 2, 150); // Increased Z from 100 to 150
+camera.position.set(0, (pois[0].position.y + pois[pois.length - 1].position.y) / 2, 100);
 camera.lookAt(0, camera.position.y, 0);
 
 // Renderer setup
