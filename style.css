@@ -306,16 +306,13 @@ html, body {
     }
 
     /* Adjust footer size for better touch targets */
-    .footer-nav a.footer-link {
-        font-size: 4.2px;
-        padding: 2px 0;
-    }
-
     .css3d-footer {
-        width: 100%;
-        max-height: none; /* Remove max-height constraint */
-        padding: 15px;
+        width: 80vw !important; /* Force viewport-relative width */
+        height: auto !important;
+        max-height: none;
+        padding: 12px;
         font-size: 2.5px;
+        overflow: visible;
     }
 
     .footer-content {
@@ -332,24 +329,31 @@ html, body {
     .footer-brand h2 {
         font-size: 8px;
         margin-bottom: 6px;
+        white-space: normal; /* Allow wrapping */
     }
 
     .footer-brand p {
         font-size: 5px;
         line-height: 1.6;
+        white-space: normal; /* Allow wrapping */
+        overflow-wrap: break-word;
+        width: 100%;
     }
 
     .footer-nav {
         order: 2;
         width: 100%;
         flex-direction: row;
+        flex-wrap: wrap;
         justify-content: center;
-        gap: 12px;
+        gap: 10px;
+        margin-top: 10px;
     }
 
     .footer-nav a.footer-link {
         font-size: 5px;
-        padding: 4px 0;
+        padding: 4px 8px;
+        white-space: nowrap;
     }
 
     .copyright {
@@ -357,6 +361,7 @@ html, body {
         font-size: 4px;
         margin-top: 15px;
         padding-top: 15px;
+        width: 100%;
     }
 }
 
