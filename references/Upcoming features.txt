@@ -1,6 +1,5 @@
 Things I want to add, ordered by priority:
 
-on mobile, make the starfield glow slowly fade out when the touch stops
 
 site tree for live/development versions of the site - dev version can be a sub-page (links to both in readme)
 
