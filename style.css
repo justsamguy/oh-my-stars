@@ -308,9 +308,9 @@ html, body {
     /* Adjust footer size for better touch targets */
     .css3d-footer {
         width: 300px !important;
-        min-height: 80px;  /* Reduced from 120px */
+        min-height: 60px;  /* Further reduced from 80px */
         height: auto !important;
-        padding: 8px 12px; /* Reduced padding */
+        padding: 6px 12px; /* Reduced top/bottom padding */
         font-size: 2.5px;
         overflow: visible;
         background: rgba(0,0,0,0.8);
@@ -321,7 +321,7 @@ html, body {
 
     .footer-content {
         flex-direction: column;
-        gap: 15px;
+        gap: 6px; /* Reduced from 15px */
         width: 100%;
     }
 
@@ -329,7 +329,7 @@ html, body {
         order: 1;
         text-align: center;
         width: 50%;
-        margin: 0 auto 4px; /* Reduced bottom margin */
+        margin: 0 auto 2px; /* Reduced bottom margin */
     }
 
     .footer-brand h2 {
@@ -348,8 +348,8 @@ html, body {
         width: 100%;
         flex-direction: column !important;
         align-items: center;
-        gap: 4px; /* Reduced gap */
-        margin: 6px 0; /* Reduced margin */
+        gap: 2px; /* Reduced gap */
+        margin: 4px 0; /* Reduced margin */
     }
 
     .footer-nav a.footer-link {
@@ -363,8 +363,8 @@ html, body {
     .copyright {
         order: 3;
         font-size: 4px;
-        margin-top: 8px; /* Reduced margin */
-        padding-top: 8px;
+        margin-top: 6px; /* Reduced from 8px */
+        padding-top: 6px; /* Reduced from 8px */
         width: 100%;
     }
 }
