@@ -425,8 +425,16 @@ export function setupMouseMoveHandler(poiObjects) {
         raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
     };
 
+    // Add touchstart handler for initial tap position
+    const handleTouchStart = (e) => {
+        if (window.innerWidth <= MOBILE_BREAKPOINT) {
+            handleMove(e);
+        }
+    };
+
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchstart', handleTouchStart); // Add this line
 }
 
 // Click event for POI info box
