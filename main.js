@@ -139,10 +139,10 @@ function animate() {
     // Update footer position with consistent padding
     const footerHeight = 45;
     const footerMargin = 15;
-    const padding = 60;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - padding + footerHeight + footerMargin;
+    // Position relative to camera view bottom
+    footerObj.position.y = camera.position.y - camera.top + footerHeight + footerMargin;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -192,8 +192,7 @@ function onWindowResize() {
     // Update footer position on resize
     const footerHeight = 45;
     const footerMargin = 15;
-    const padding = 60;
-    footerObj.position.y = minY - padding + footerHeight + footerMargin;
+    footerObj.position.y = camera.position.y - camera.top + footerHeight + footerMargin;
 }
 
 // Initial call to set size correctly

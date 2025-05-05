@@ -123,7 +123,9 @@ const footerObj = new CSS3DObject(footerDiv);
 const footerHeight = 45;
 const footerMargin = 15;
 const padding = 60;
-footerObj.position.set(0, pois[pois.length - 1].position.y - padding + footerHeight + footerMargin, 0);
+
+// Position footer at viewport bottom instead of lowest POI
+footerObj.position.set(0, -viewportHeight/2 + footerHeight + footerMargin, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
