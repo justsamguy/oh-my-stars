@@ -307,18 +307,23 @@ html, body {
 
     /* Adjust footer size for better touch targets */
     .css3d-footer {
-        width: 80vw !important; /* Force viewport-relative width */
+        width: 300px !important; /* Fixed width for better control */
+        min-height: 120px;
         height: auto !important;
-        max-height: none;
         padding: 12px;
         font-size: 2.5px;
         overflow: visible;
+        background: rgba(0,0,0,0.7); /* More visible background */
+        transform-origin: center bottom;
+        display: flex;
+        flex-direction: column;
     }
 
     .footer-content {
         flex-direction: column;
-        gap: 15px;
-        margin-bottom: 15px;
+        gap: 12px;
+        margin-bottom: 12px;
+        width: 100%;
     }
 
     .footer-brand {
@@ -346,14 +351,16 @@ html, body {
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 10px;
-        margin-top: 10px;
+        gap: 8px;
+        padding: 0 4px;
     }
 
     .footer-nav a.footer-link {
         font-size: 5px;
-        padding: 4px 8px;
+        padding: 2px 4px;
         white-space: nowrap;
+        display: inline-block;
+        margin: 2px;
     }
 
     .copyright {

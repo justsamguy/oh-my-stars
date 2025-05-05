@@ -100,7 +100,7 @@ function animate() {
     }
     // Clamp camera based on POI positions, not header/footer
     const isMobile = window.innerWidth <= 600;
-    const mobilePadding = isMobile ? 60 : paddingY;
+    const mobilePadding = isMobile ? 100 : paddingY;
     const cameraViewHeight = camera.top - camera.bottom;
     const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - mobilePadding * 1.5;
     const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + mobilePadding;
@@ -136,10 +136,10 @@ function animate() {
     // Keep header/footer in correct X/Z, but let them scroll with the scene
     headerObj.position.x = 0;
     headerObj.position.z = 0;
-    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
+    headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - mobilePadding;
+    footerObj.position.y = minY - mobilePadding + (isMobile ? 60 : 30);
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -163,16 +163,17 @@ function onWindowResize() {
     maxY = Math.max(...yPositions);
     minY = Math.min(...yPositions);
 
-    // Calculate new viewport height (span of POIs plus margin)
+    // Adjust padding based on viewport
+    const isMobile = window.innerWidth <= 600;
+    const mobilePadding = isMobile ? 100 : paddingY; // Increased mobile padding
+
+    // Calculate new viewport height with more space for footer
     const poiSpan = Math.abs(maxY - minY);
-    const margin = 0.2 * poiSpan; // Increased margin
+    const margin = isMobile ? 0.3 * poiSpan : 0.2 * poiSpan; // More margin on mobile
     const newViewportHeight = poiSpan + margin;
     const newViewportWidth = newViewportHeight * aspect;
 
     // Update camera frustum
-    const isMobile = window.innerWidth <= 600;
-    const mobilePadding = isMobile ? 60 : paddingY;
-
     camera.top = newViewportHeight / 2;
     camera.bottom = -newViewportHeight / 2;
     camera.left = -newViewportWidth / 2;
@@ -188,7 +189,7 @@ function onWindowResize() {
 
     // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
-    footerObj.position.y = minY - mobilePadding;
+    footerObj.position.y = minY - mobilePadding + (isMobile ? 60 : 30);
 }
 
 // Initial call to set size correctly
