@@ -189,7 +189,7 @@ function onWindowResize() {
 
     // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
-    footerObj.position.y = minY - mobilePadding;
+    footerObj.position.y = minY - (isMobile ? mobilePadding : paddingY);
 }
 
 // Initial call to set size correctly

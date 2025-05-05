@@ -59,7 +59,7 @@ html, body {
 .css3d-footer {
     width: 400px;
     font-size: 1.5px;
-    background: rgba(0,0,0,0.7); /* Made more visible */
+    background: rgba(0,0,0,0.5);
     padding: 8px 15px;
     box-sizing: border-box;
     border-radius: 8px;
