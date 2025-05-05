@@ -63,8 +63,8 @@ html, body {
     padding: 8px 15px;
     box-sizing: border-box;
     border-radius: 8px;
-    height: auto !important;
-    min-height: 45px;
+    height: 45px;  /* Restored fixed height */
+    min-height: auto;  /* Remove min-height */
 }
 
 .css3d-footer nav {

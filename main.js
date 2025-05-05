@@ -139,7 +139,7 @@ function animate() {
     headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - mobilePadding;
+    footerObj.position.y = minY - paddingY + 15; // Restore original footer position
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -189,7 +189,7 @@ function onWindowResize() {
 
     // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
-    footerObj.position.y = minY - (isMobile ? mobilePadding : paddingY);
+    footerObj.position.y = minY - paddingY + 15; // Restore original footer position
 }
 
 // Initial call to set size correctly
