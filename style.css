@@ -307,18 +307,16 @@ html, body {
 
     /* Adjust footer size for better touch targets */
     .css3d-footer {
-        width: 80vw !important; /* Force viewport-relative width */
-        height: auto !important;
-        max-height: none;
-        padding: 12px;
-        font-size: 2.5px;
-        overflow: visible;
+        width: 90vw !important; /* Increase from 80vw for better content fit */
+        font-size: 3.5px !important; /* Increase base font size */
+        padding: 15px !important; /* Increase padding */
+        min-height: 55px !important; /* Ensure minimum height */
     }
 
     .footer-content {
         flex-direction: column;
-        gap: 15px;
-        margin-bottom: 15px;
+        gap: 12px;
+        margin-bottom: 12px;
     }
 
     .footer-brand {
@@ -327,14 +325,16 @@ html, body {
     }
 
     .footer-brand h2 {
-        font-size: 8px;
-        margin-bottom: 6px;
+        font-size: 10px !important; /* Increase from 8px */
+        margin-bottom: 8px;
         white-space: normal; /* Allow wrapping */
     }
 
     .footer-brand p {
-        font-size: 5px;
-        line-height: 1.6;
+        font-size: 6px !important; /* Increase from 5px */
+        line-height: 1.5;
+        max-width: 90%; /* Prevent text from reaching edges */
+        margin: 0 auto;
         white-space: normal; /* Allow wrapping */
         overflow-wrap: break-word;
         width: 100%;
@@ -346,21 +346,30 @@ html, body {
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 10px;
+        gap: 12px 15px; /* Add horizontal gap between items */
+        padding: 5px 0;
         margin-top: 10px;
     }
 
     .footer-nav a.footer-link {
-        font-size: 5px;
-        padding: 4px 8px;
+        font-size: 6px !important; /* Increase from 5px */
+        padding: 5px 8px;
+        min-width: 60px; /* Ensure consistent touch targets */
+        text-align: center;
         white-space: nowrap;
+    }
+
+    .footer-nav a.footer-link:active {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(0.98);
     }
 
     .copyright {
         order: 3;
-        font-size: 4px;
-        margin-top: 15px;
-        padding-top: 15px;
+        font-size: 5px !important; /* Increase from 4px */
+        margin-top: 12px;
+        padding-top: 12px;
+        opacity: 0.8; /* Slightly fade copyright */
         width: 100%;
     }
 }
@@ -478,4 +487,9 @@ body.bottom-sheet-open {
     .bottom-sheet, .overlay {
         display: none;
     }
+}
+
+/* Add smooth transition for footer resizing */
+.css3d-footer {
+    transition: width 0.3s ease-out;
 }
