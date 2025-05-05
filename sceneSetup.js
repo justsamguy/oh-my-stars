@@ -1,7 +1,5 @@
 import * as THREE from 'three';
-import { CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 import { pois } from './config.js';
-import { createFooterElement } from './layoutConfig.js';
 
 // Inject CSS styles
 const style = `
@@ -54,12 +52,7 @@ export const scene = new THREE.Scene();
 
 // Calculate viewport dimensions based on POI data
 export function getViewportHeight() {
-    const contentHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
-    const headerHeight = 44;
-    const footerHeight = 45;
-    const footerMargin = 15;
-    const padding = 60;
-    return contentHeight + headerHeight + footerHeight + footerMargin + (padding * 2);
+    return Math.abs(pois[pois.length - 1].position.y - pois[0].position.y) * 1.1;
 }
 export function getViewportWidth() {
     const vh = getViewportHeight();
@@ -116,17 +109,5 @@ const bgMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 const background = new THREE.Mesh(bgGeometry, bgMaterial);
 background.position.z = -200;
 scene.add(background);
-
-// Update footer position in the scene
-const footerDiv = createFooterElement();
-const footerObj = new CSS3DObject(footerDiv);
-const footerHeight = 45;
-const footerMargin = 15;
-const padding = 60;
-
-// Position footer at viewport bottom instead of lowest POI
-footerObj.position.set(0, -viewportHeight/2 + footerHeight + footerMargin, 0);
-footerObj.rotation.set(0, 0, 0);
-scene.add(footerObj);
 
 export { viewportWidth, viewportHeight };
