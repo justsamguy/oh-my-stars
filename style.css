@@ -374,6 +374,56 @@ html, body {
         margin-top: 15px;
         padding-top: 15px;
     }
+
+    /* Mobile Footer Styles */
+    .css3d-footer {
+        width: calc(100% - 30px);  /* Account for padding */
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 15px;
+        height: auto;
+        font-size: 2px;  /* Adjusted base size for mobile */
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .footer-brand {
+        text-align: center;
+    }
+
+    .footer-brand h2 {
+        font-size: 7px;
+        margin-bottom: 5px;
+    }
+
+    .footer-brand p {
+        font-size: 4px;
+        line-height: 1.4;
+    }
+
+    .footer-nav {
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .footer-nav a.footer-link {
+        font-size: 4px;
+        padding: 4px 8px;
+        display: block;
+        text-align: center;
+    }
+
+    .copyright {
+        font-size: 3px;
+        padding-top: 12px;
+        margin-top: 12px;
+    }
 }
 
 /* Prevent text selection during touch interactions */
