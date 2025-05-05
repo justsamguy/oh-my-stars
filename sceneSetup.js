@@ -52,7 +52,12 @@ export const scene = new THREE.Scene();
 
 // Calculate viewport dimensions based on POI data
 export function getViewportHeight() {
-    return Math.abs(pois[pois.length - 1].position.y - pois[0].position.y) * 1.1;
+    const contentHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
+    const headerHeight = 44;
+    const footerHeight = 45;
+    const footerMargin = 15;
+    const padding = 60;
+    return contentHeight + headerHeight + footerHeight + footerMargin + (padding * 2);
 }
 export function getViewportWidth() {
     const vh = getViewportHeight();
@@ -109,5 +114,15 @@ const bgMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 const background = new THREE.Mesh(bgGeometry, bgMaterial);
 background.position.z = -200;
 scene.add(background);
+
+// Update footer position in the scene
+const footerDiv = createFooterElement();
+const footerObj = new CSS3DObject(footerDiv);
+const footerHeight = 45;
+const footerMargin = 15;
+const padding = 60;
+footerObj.position.set(0, pois[0].position.y - padding + footerHeight + footerMargin, 0);
+footerObj.rotation.set(0, 0, 0);
+scene.add(footerObj);
 
 export { viewportWidth, viewportHeight };

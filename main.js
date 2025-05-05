@@ -135,9 +135,14 @@ function animate() {
     headerObj.position.x = 0;
     headerObj.position.z = 0;
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
+
+    // Update footer position with consistent padding
+    const footerHeight = 45;
+    const footerMargin = 15;
+    const padding = 60;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingY + 30;
+    footerObj.position.y = minY - padding + footerHeight + footerMargin;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -183,7 +188,12 @@ function onWindowResize() {
 
     // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    footerObj.position.y = minY - paddingY + 30;
+
+    // Update footer position on resize
+    const footerHeight = 45;
+    const footerMargin = 15;
+    const padding = 60;
+    footerObj.position.y = minY - padding + footerHeight + footerMargin;
 }
 
 // Initial call to set size correctly
