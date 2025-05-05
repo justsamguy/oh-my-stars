@@ -39,7 +39,7 @@ setupClickHandler(poiObjects);
 let yPositions = pois.map(p => p.position.y);
 let maxY = Math.max(...yPositions);
 let minY = Math.min(...yPositions);
-const paddingY = 100; // Keep this for positioning
+const paddingY = 200; // Increased from 100 to 200 for more scroll range
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
@@ -100,8 +100,8 @@ function animate() {
     }
     // Clamp camera based on POI positions, not header/footer
     const cameraViewHeight = camera.top - camera.bottom;
-    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingY;
-    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingY;
+    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 3 - paddingY; // Changed from /2 to /3
+    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 3 + paddingY; // Changed from /2 to /3
     camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
 
     // No need to update projection matrix here unless zoom changes
