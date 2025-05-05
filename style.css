@@ -22,10 +22,10 @@ html, body {
 /* Canvas Styles */
 #bg {
     position: absolute;
-    top: 44px; /* Height of header */
+    top: 0; /* Changed from 44px to 0 */
     left: 0;
     width: 100%;
-    height: calc(100% - 44px - 38px); /* Subtract header and footer heights */
+    height: 100%; /* Changed to 100% */
     display: block;
     z-index: 1; /* Base layer */
 }
@@ -41,13 +41,16 @@ html, body {
     box-sizing: border-box;
     pointer-events: auto !important;
     font-family: 'Montserrat', sans-serif !important;
+    z-index: 2; /* Ensure above canvas */
 }
 
 .css3d-header {
-    /* Specific header styles */
-    width: 500px;
-    font-size: 24px;
-    font-family: 'Montserrat', sans-serif !important;
+    width: 250px; /* Fixed width */
+    font-size: 7px !important; /* Force font size */
+    padding: 8px 15px !important; /* Add some padding */
+    background: rgba(0,0,0,0.5) !important; /* Semi-transparent background */
+    border-radius: 8px !important;
+    margin-top: 10px !important; /* Add some space from top */
 }
 
 .css3d-header h1 {
@@ -371,6 +374,11 @@ html, body {
         padding-top: 12px;
         opacity: 0.8; /* Slightly fade copyright */
         width: 100%;
+    }
+
+    .css3d-header {
+        font-size: 10px !important; /* Larger font on mobile */
+        width: 200px !important; /* Slightly smaller width */
     }
 }
 

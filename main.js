@@ -45,7 +45,7 @@ const paddingY = 120; // Increased padding for better visibility
 const headerDiv = createHeaderElement();
 const headerObj = new CSS3DObject(headerDiv);
 const headerWorldHeight = 70;
-headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
+headerObj.position.set(0, maxY + (window.innerWidth <= 600 ? 40 : paddingY) - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
@@ -136,7 +136,7 @@ function animate() {
     // Keep header/footer in correct X/Z, but let them scroll with the scene
     headerObj.position.x = 0;
     headerObj.position.z = 0;
-    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
+    headerObj.position.y = maxY + (window.innerWidth <= 600 ? 40 : paddingY) - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
     footerObj.position.y = minY - mobilePadding;
