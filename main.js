@@ -39,13 +39,13 @@ setupClickHandler(poiObjects);
 let yPositions = pois.map(p => p.position.y);
 let maxY = Math.max(...yPositions);
 let minY = Math.min(...yPositions);
-const paddingY = 120; // Increased padding for better visibility
+const paddingY = 100; // Keep this for positioning
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
 const headerObj = new CSS3DObject(headerDiv);
 const headerWorldHeight = 70;
-headerObj.position.set(0, maxY + (window.innerWidth <= 600 ? 40 : paddingY) - headerWorldHeight / 2, 0);
+headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
@@ -99,11 +99,9 @@ function animate() {
         scrollState.velocity *= SCROLL_DAMPING;
     }
     // Clamp camera based on POI positions, not header/footer
-    const isMobile = window.innerWidth <= 600;
-    const mobilePadding = isMobile ? 60 : paddingY;
     const cameraViewHeight = camera.top - camera.bottom;
-    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - mobilePadding * 1.5;
-    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + mobilePadding;
+    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingY;
+    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingY;
     camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
 
     // No need to update projection matrix here unless zoom changes
@@ -136,10 +134,10 @@ function animate() {
     // Keep header/footer in correct X/Z, but let them scroll with the scene
     headerObj.position.x = 0;
     headerObj.position.z = 0;
-    headerObj.position.y = maxY + (window.innerWidth <= 600 ? 40 : paddingY) - headerWorldHeight / 2;
+    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - mobilePadding;
+    footerObj.position.y = minY - paddingY + 30;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -165,14 +163,11 @@ function onWindowResize() {
 
     // Calculate new viewport height (span of POIs plus margin)
     const poiSpan = Math.abs(maxY - minY);
-    const margin = 0.2 * poiSpan; // Increased margin
+    const margin = 0.1 * poiSpan;
     const newViewportHeight = poiSpan + margin;
     const newViewportWidth = newViewportHeight * aspect;
 
     // Update camera frustum
-    const isMobile = window.innerWidth <= 600;
-    const mobilePadding = isMobile ? 60 : paddingY;
-
     camera.top = newViewportHeight / 2;
     camera.bottom = -newViewportHeight / 2;
     camera.left = -newViewportWidth / 2;
@@ -187,8 +182,8 @@ function onWindowResize() {
     cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
 
     // Update header/footer positions on resize (in case POI Y changes)
-    headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
-    footerObj.position.y = minY - mobilePadding;
+    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
+    footerObj.position.y = minY - paddingY + 30;
 }
 
 // Initial call to set size correctly
