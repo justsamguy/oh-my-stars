@@ -139,7 +139,7 @@ function animate() {
     headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - mobilePadding + (isMobile ? 60 : 30);
+    footerObj.position.y = minY - mobilePadding * 2; // Match the footer position
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -173,7 +173,7 @@ function onWindowResize() {
     const newViewportHeight = poiSpan + margin;
     const newViewportWidth = newViewportHeight * aspect;
 
-    // Update camera frustum
+    // Update camera frustum with bottom-aligned footer
     camera.top = newViewportHeight / 2;
     camera.bottom = -newViewportHeight / 2;
     camera.left = -newViewportWidth / 2;
@@ -189,7 +189,7 @@ function onWindowResize() {
 
     // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + mobilePadding - headerWorldHeight / 2;
-    footerObj.position.y = minY - mobilePadding + (isMobile ? 60 : 30);
+    footerObj.position.y = minY - mobilePadding * 2; // Move footer lower
 }
 
 // Initial call to set size correctly
