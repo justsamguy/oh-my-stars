@@ -5,7 +5,7 @@ import { pois, SCROLL_DAMPING, MAX_SCROLL_SPEED, BASE_STAR_COUNT } from './confi
 import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
-import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox } from './interaction.js';
+import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox, touchFadeValue } from './interaction.js';
 import { createHeaderElement, createFooterElement } from './layoutConfig.js';
 
 // --- CSS3DRenderer only for overlays and header/footer ---
@@ -108,7 +108,7 @@ function animate() {
     // camera.updateProjectionMatrix();
 
     // Update stars
-    updateStars(starsGroup, now * 0.001, camera.position.y, mouseWorldPosition);
+    updateStars(starsGroup, now * 0.001, camera.position.y, mouseWorldPosition, touchFadeValue);
     // Update POIs
     updatePOIs(poiObjects, now * 0.001, raycaster);
 

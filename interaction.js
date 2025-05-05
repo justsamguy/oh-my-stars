@@ -16,6 +16,28 @@ export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
+// Add touch fade state
+export let touchFadeValue = 1.0;
+let touchFadeInterval = null;
+const FADE_DURATION = 1000; // 1 second fade out
+const FADE_INTERVAL = 16; // ~60fps
+
+function startTouchFadeOut() {
+    if (touchFadeInterval) clearInterval(touchFadeInterval);
+    
+    const startTime = Date.now();
+    touchFadeInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed >= FADE_DURATION) {
+            touchFadeValue = 0;
+            clearInterval(touchFadeInterval);
+            touchFadeInterval = null;
+            return;
+        }
+        touchFadeValue = 1 - (elapsed / FADE_DURATION);
+    }, FADE_INTERVAL);
+}
+
 function createBottomSheet(poi) {
     // Clear any existing sheets first
     const existingSheet = document.querySelector('.bottom-sheet');
@@ -423,6 +445,12 @@ export function setupMouseMoveHandler(poiObjects) {
         const x = ((pos.clientX - rect.left) / rect.width) * 2 - 1;
         const y = -((pos.clientY - rect.top) / rect.height) * 2 + 1;
         raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+
+        // Reset touch fade on mobile touch
+        if (e.touches && window.innerWidth <= MOBILE_BREAKPOINT) {
+            touchFadeValue = 1.0;
+            if (touchFadeInterval) clearInterval(touchFadeInterval);
+        }
     };
 
     // Add touchstart handler for initial tap position
@@ -432,9 +460,17 @@ export function setupMouseMoveHandler(poiObjects) {
         }
     };
 
+    // Add touch end handler for fade out
+    const handleTouchEnd = () => {
+        if (window.innerWidth <= MOBILE_BREAKPOINT) {
+            startTouchFadeOut();
+        }
+    };
+
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('touchmove', handleMove);
-    window.addEventListener('touchstart', handleTouchStart); // Add this line
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchend', handleTouchEnd);
 }
 
 // Click event for POI info box
