@@ -63,7 +63,8 @@ html, body {
     padding: 8px 15px;
     box-sizing: border-box;
     border-radius: 8px;
-    height: 45px;  /* Match the new height */
+    height: auto !important; /* Remove fixed height */
+    min-height: 45px;  /* Use min-height instead */
 }
 
 .css3d-footer nav {
@@ -312,26 +313,9 @@ html, body {
 
     .css3d-footer {
         width: 100%;
-        height: auto !important;
-        max-height: 200px;
-        overflow-y: auto;
+        max-height: none; /* Remove max-height constraint */
         padding: 15px;
         font-size: 2.5px;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(255,255,255,0.2) rgba(0,0,0,0.1);
-    }
-
-    .css3d-footer::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .css3d-footer::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.1);
-    }
-
-    .css3d-footer::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
-        border-radius: 2px;
     }
 
     .footer-content {

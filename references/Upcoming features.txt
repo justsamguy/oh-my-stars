@@ -1,5 +1,4 @@
-Things I want to add, ordered by priority:
-
+Things I want to add:
 
 site tree for live/development versions of the site - dev version can be a sub-page (links to both in readme)
 
