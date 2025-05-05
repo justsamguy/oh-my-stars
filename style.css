@@ -424,6 +424,16 @@ html, body {
         padding-top: 12px;
         margin-top: 12px;
     }
+
+    /* Hide footer entirely on mobile */
+    .css3d-footer {
+        display: none !important;
+    }
+
+    #bg {
+        height: calc(100% - 44px); /* Only subtract header height */
+        padding-bottom: 0;
+    }
 }
 
 /* Prevent text selection during touch interactions */

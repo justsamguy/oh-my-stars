@@ -53,24 +53,13 @@ export const scene = new THREE.Scene();
 // Calculate viewport dimensions based on POI data
 export function getViewportHeight() {
     const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
-    if (window.innerWidth <= 600) {
-        // Mobile: Add padding but keep original scaling
-        return poiHeight * 1.1 + 600;
-    } else {
-        // Desktop: Keep original zoom level
-        return poiHeight * 1.1;
-    }
+    // Return to simple calculation
+    return poiHeight * 1.1;
 }
 export function getViewportWidth() {
     const vh = getViewportHeight();
     const aspect = window.innerWidth / window.innerHeight;
-    if (window.innerWidth <= 600) {
-        // Mobile: Maintain proportional width
-        return vh * aspect;
-    } else {
-        // Desktop: Keep original width calculation
-        return vh * aspect;
-    }
+    return vh * aspect;
 }
 let viewportHeight = getViewportHeight();
 let viewportWidth = getViewportWidth();
