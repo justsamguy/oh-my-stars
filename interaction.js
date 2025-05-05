@@ -72,39 +72,43 @@ function createBottomSheet(poi) {
         e.stopPropagation();
     });
 
-    // Add touch event handlers for the overlay
+    // Add better touch event handlers for the overlay
     let touchStartY = 0;
     let isDragging = false;
 
     overlay.addEventListener('touchstart', (e) => {
         touchStartY = e.touches[0].clientY;
         isDragging = false;
-    }, { passive: true });
+    }, { passive: false });
 
     overlay.addEventListener('touchmove', (e) => {
+        // Prevent scrolling on the background
+        e.preventDefault();
         isDragging = true;
-    }, { passive: true });
+    }, { passive: false });
 
     overlay.addEventListener('touchend', (e) => {
-        // Only close if it was a tap (not a drag)
         if (!isDragging) {
             close();
         }
-    }, { passive: true });
+    });
 
-    // Track drag state
+    // Update sheet touch handling
     let startY = 0;
     let currentY = 0;
 
     sheet.addEventListener('touchstart', (e) => {
+        // Only handle touch events outside content area
         if (!e.target.closest('.bottom-sheet-content')) {
+            e.preventDefault();
             startY = e.touches[0].clientY;
             isDragging = false;
         }
-    }, { passive: true });
+    }, { passive: false });
 
     sheet.addEventListener('touchmove', (e) => {
         if (!e.target.closest('.bottom-sheet-content')) {
+            e.preventDefault();
             isDragging = true;
             currentY = e.touches[0].clientY;
             const delta = currentY - startY;
@@ -112,7 +116,7 @@ function createBottomSheet(poi) {
                 sheet.style.transform = `translateY(${delta}px)`;
             }
         }
-    }, { passive: true });
+    }, { passive: false });
 
     sheet.addEventListener('touchend', (e) => {
         if (!e.target.closest('.bottom-sheet-content')) {
@@ -124,27 +128,6 @@ function createBottomSheet(poi) {
                     sheet.style.transform = '';
                 }
             }
-        }
-    }, { passive: true });
-
-    // Swipe down to close
-    sheet.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-    });
-    
-    sheet.addEventListener('touchmove', (e) => {
-        currentY = e.touches[0].clientY;
-        const delta = currentY - startY;
-        if (delta > 0) {
-            sheet.style.transform = `translateY(${delta}px)`;
-        }
-    });
-    
-    sheet.addEventListener('touchend', () => {
-        if (currentY - startY > 100) {
-            close();
-        } else {
-            sheet.style.transform = '';
         }
     });
 
