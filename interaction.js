@@ -51,62 +51,44 @@ function createBottomSheet(poi) {
         sheet.classList.add('open');
     });
 
-    // Close handlers
     const close = () => {
+        if (!currentInfoBox) return; // Prevent double-closing
         sheet.classList.remove('open');
         overlay.classList.remove('visible');
         document.body.classList.remove('bottom-sheet-open');
-        sheet.addEventListener('transitionend', () => {
-            sheet.remove();
-            overlay.remove();
-            currentInfoBox = null;
-        }, { once: true });
+        
+        const handleTransitionEnd = () => {
+            if (currentInfoBox) { // Check again in case of race condition
+                sheet.remove();
+                overlay.remove();
+                currentInfoBox = null;
+            }
+        };
+        
+        sheet.addEventListener('transitionend', handleTransitionEnd, { once: true });
     };
 
-    // Add click handler for close button
-    sheet.querySelector('.close-btn').addEventListener('click', close);
-    overlay.addEventListener('click', close);
-
-    // Prevent sheet content from triggering close
-    sheet.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
-
-    // Add better touch event handlers for the overlay
-    let touchStartY = 0;
-    let isDragging = false;
-
-    overlay.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-        isDragging = false;
-    }, { passive: false });
-
-    overlay.addEventListener('touchmove', (e) => {
-        // Prevent scrolling on the background
-        e.preventDefault();
-        isDragging = true;
-    }, { passive: false });
-
-    overlay.addEventListener('touchend', (e) => {
-        if (!isDragging) {
-            close();
-        }
-    });
-
-    // Update sheet touch handling
+    // Remove all previous event listeners and add new ones
     let startY = 0;
     let currentY = 0;
+    let isDragging = false;
 
-    sheet.addEventListener('touchstart', (e) => {
-        // Only handle touch events outside content area
+    // Single touch handler for the overlay
+    overlay.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        close();
+    }, { passive: false });
+
+    // Touch handlers for the sheet
+    const handleTouchStart = (e) => {
         if (!e.target.closest('.bottom-sheet-content')) {
             e.preventDefault();
             startY = e.touches[0].clientY;
             isDragging = false;
         }
-    }, { passive: false });
+    };
 
-    sheet.addEventListener('touchmove', (e) => {
+    const handleTouchMove = (e) => {
         if (!e.target.closest('.bottom-sheet-content')) {
             e.preventDefault();
             isDragging = true;
@@ -116,9 +98,9 @@ function createBottomSheet(poi) {
                 sheet.style.transform = `translateY(${delta}px)`;
             }
         }
-    }, { passive: false });
+    };
 
-    sheet.addEventListener('touchend', (e) => {
+    const handleTouchEnd = (e) => {
         if (!e.target.closest('.bottom-sheet-content')) {
             if (isDragging) {
                 const delta = currentY - startY;
@@ -129,6 +111,19 @@ function createBottomSheet(poi) {
                 }
             }
         }
+    };
+
+    sheet.addEventListener('touchstart', handleTouchStart, { passive: false });
+    sheet.addEventListener('touchmove', handleTouchMove, { passive: false });
+    sheet.addEventListener('touchend', handleTouchEnd);
+
+    // Add click handlers
+    sheet.querySelector('.close-btn').addEventListener('click', close);
+    overlay.addEventListener('click', close);
+
+    // Prevent clicks from propagating through the sheet
+    sheet.addEventListener('click', (e) => {
+        e.stopPropagation();
     });
 
     currentInfoBox = sheet;
