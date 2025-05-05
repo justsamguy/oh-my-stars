@@ -1,5 +1,7 @@
 import * as THREE from 'three';
+import { CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 import { pois } from './config.js';
+import { createFooterElement } from './layoutConfig.js';
 
 // Inject CSS styles
 const style = `
@@ -121,7 +123,7 @@ const footerObj = new CSS3DObject(footerDiv);
 const footerHeight = 45;
 const footerMargin = 15;
 const padding = 60;
-footerObj.position.set(0, pois[0].position.y - padding + footerHeight + footerMargin, 0);
+footerObj.position.set(0, pois[pois.length - 1].position.y - padding + footerHeight + footerMargin, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
