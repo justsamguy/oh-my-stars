@@ -52,7 +52,9 @@ export const scene = new THREE.Scene();
 
 // Calculate viewport dimensions based on POI data
 export function getViewportHeight() {
-    return Math.abs(pois[pois.length - 1].position.y - pois[0].position.y) * 1.1;
+    const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
+    const mobilePadding = window.innerWidth <= 600 ? 200 : 0; // Add extra padding for mobile
+    return poiHeight * 1.1 + mobilePadding;
 }
 export function getViewportWidth() {
     const vh = getViewportHeight();

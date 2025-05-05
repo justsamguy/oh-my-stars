@@ -304,10 +304,9 @@ html, body {
                      0 0 35px rgba(255, 255, 255, 0.4) !important;
     }
 
-    /* Adjust footer size for better touch targets */
-    .footer-nav a.footer-link {
-        font-size: 4.2px;
-        padding: 2px 0;
+    #bg {
+        padding-bottom: 200px; /* Add space for footer */
+        height: calc(100% - 44px - 200px); /* Adjust height with new padding */
     }
 
     .css3d-footer {
@@ -319,6 +318,7 @@ html, body {
         font-size: 2.5px;
         scrollbar-width: thin;
         scrollbar-color: rgba(255,255,255,0.2) rgba(0,0,0,0.1);
+        padding-bottom: 80px; /* Add bottom padding to footer */
     }
 
     .css3d-footer::-webkit-scrollbar {
