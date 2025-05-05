@@ -71,8 +71,8 @@ export function createAllStars(_, pois, viewportWidth, viewportHeight) {
     const group = new THREE.Group();
     const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
     const highestY = sortedPOIs[0].position.y + 80; // Extend higher into header
-    const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y - 40; // Reduced bottom margin
-    const edgeMargin = 80; // Reduced from 120
+    const lowestY = sortedPOIs[sortedPOIs.length - 1].position.y - 80; // Extend lower into footer
+    const edgeMargin = 120; // Larger transition zone
 
     for (let i = 0; i < count; i++) {
         const x = (Math.random() - 0.5) * viewportWidth * 2;

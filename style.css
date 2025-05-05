@@ -63,8 +63,8 @@ html, body {
     padding: 8px 15px;
     box-sizing: border-box;
     border-radius: 8px;
-    height: 45px;  /* Restored fixed height */
-    min-height: auto;  /* Remove min-height */
+    height: auto !important; /* Remove fixed height */
+    min-height: 45px;  /* Use min-height instead */
 }
 
 .css3d-footer nav {
@@ -307,64 +307,60 @@ html, body {
 
     /* Adjust footer size for better touch targets */
     .css3d-footer {
-        width: 300px !important;
-        min-height: 45px; /* Reduced from 60px */
+        width: 80vw !important; /* Force viewport-relative width */
         height: auto !important;
-        padding: 6px 10px;
+        max-height: none;
+        padding: 12px;
         font-size: 2.5px;
         overflow: visible;
-        background: rgba(0,0,0,0.8);
-        transform-origin: center bottom;
-        display: flex;
-        flex-direction: column;
     }
 
     .footer-content {
         flex-direction: column;
-        gap: 4px; /* Reduced from 6px */
-        width: 100%;
+        gap: 15px;
+        margin-bottom: 15px;
     }
 
     .footer-brand {
         order: 1;
         text-align: center;
-        width: 50%;
-        margin: 0 auto 2px; /* Reduced bottom margin */
     }
 
     .footer-brand h2 {
-        font-size: 7px; /* Slightly smaller */
-        margin-bottom: 4px; /* Reduced spacing */
+        font-size: 8px;
+        margin-bottom: 6px;
+        white-space: normal; /* Allow wrapping */
     }
 
     .footer-brand p {
         font-size: 5px;
         line-height: 1.6;
+        white-space: normal; /* Allow wrapping */
+        overflow-wrap: break-word;
         width: 100%;
     }
 
     .footer-nav {
         order: 2;
         width: 100%;
-        flex-direction: column !important;
-        align-items: center;
-        gap: 2px; /* Reduced gap */
-        margin: 2px 0; /* Reduced from 4px */
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
     }
 
     .footer-nav a.footer-link {
         font-size: 5px;
-        padding: 2px 4px;
-        text-align: center;
-        display: block;
-        margin: 0;
+        padding: 4px 8px;
+        white-space: nowrap;
     }
 
     .copyright {
         order: 3;
         font-size: 4px;
-        margin-top: 4px; /* Reduced from 6px */
-        padding-top: 4px; /* Reduced from 6px */
+        margin-top: 15px;
+        padding-top: 15px;
         width: 100%;
     }
 }
