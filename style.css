@@ -310,15 +310,34 @@ html, body {
     }
 
     .css3d-footer {
+        display: block !important; /* Override previous display: none */
         width: 100%;
-        height: auto !important;
-        max-height: 200px;
-        overflow-y: auto;
-        padding: 15px;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 10px;
+        height: auto;
         font-size: 2.5px;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(255,255,255,0.2) rgba(0,0,0,0.1);
-        padding-bottom: 200px; /* Increased from 120px */
+        background: rgba(0, 20, 40, 0.95);
+    }
+
+    .footer-content, .footer-brand, .footer-nav {
+        display: none;
+    }
+
+    .copyright {
+        display: block;
+        font-size: 8px;
+        color: #aaa;
+        text-align: center;
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
+        opacity: 0.8;
+    }
+
+    #bg {
+        height: calc(100% - 44px - 30px); /* Subtract header and new footer height */
+        padding-bottom: 0;
     }
 
     .css3d-footer::-webkit-scrollbar {
@@ -423,16 +442,6 @@ html, body {
         font-size: 3px;
         padding-top: 12px;
         margin-top: 12px;
-    }
-
-    /* Hide footer entirely on mobile */
-    .css3d-footer {
-        display: none !important;
-    }
-
-    #bg {
-        height: calc(100% - 44px); /* Only subtract header height */
-        padding-bottom: 0;
     }
 }
 
