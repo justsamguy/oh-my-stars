@@ -308,12 +308,12 @@ html, body {
     /* Adjust footer size for better touch targets */
     .css3d-footer {
         width: 300px !important;
-        min-height: 120px;
+        min-height: 80px;  /* Reduced from 120px */
         height: auto !important;
-        padding: 15px;
+        padding: 8px 12px; /* Reduced padding */
         font-size: 2.5px;
         overflow: visible;
-        background: rgba(0,0,0,0.7);
+        background: rgba(0,0,0,0.8);
         transform-origin: center bottom;
         display: flex;
         flex-direction: column;
@@ -329,12 +329,12 @@ html, body {
         order: 1;
         text-align: center;
         width: 50%;
-        margin: 0 auto;
+        margin: 0 auto 4px; /* Reduced bottom margin */
     }
 
     .footer-brand h2 {
-        font-size: 8px;
-        margin-bottom: 6px;
+        font-size: 7px; /* Slightly smaller */
+        margin-bottom: 4px; /* Reduced spacing */
     }
 
     .footer-brand p {
@@ -348,8 +348,8 @@ html, body {
         width: 100%;
         flex-direction: column !important;
         align-items: center;
-        gap: 8px;
-        margin: 12px 0;
+        gap: 4px; /* Reduced gap */
+        margin: 6px 0; /* Reduced margin */
     }
 
     .footer-nav a.footer-link {
@@ -363,8 +363,8 @@ html, body {
     .copyright {
         order: 3;
         font-size: 4px;
-        margin-top: 15px;
-        padding-top: 15px;
+        margin-top: 8px; /* Reduced margin */
+        padding-top: 8px;
         width: 100%;
     }
 }
