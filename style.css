@@ -312,8 +312,6 @@ html, body {
     .css3d-footer {
         width: 100%;
         max-width: 400px;
-        margin: 0 auto;
-        padding: 10px;
         height: min-content;
         font-size: 2.5px;
         background: rgba(0, 20, 40, 0.95);
@@ -332,13 +330,13 @@ html, body {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 1px !important;
-        margin: 10px 0;
+        gap: 0px !important;
+        margin: 0;
     }
 
     .footer-nav a.footer-link {
         font-size: 4px;
-        padding: 4px 0;
+        padding: 0;
         width: auto;
         text-align: center;
     }
