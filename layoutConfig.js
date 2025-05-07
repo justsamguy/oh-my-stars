@@ -30,7 +30,8 @@ export function wrapTextInGlowSpans(text) {
 export function createHeaderElement() {
     const headerDiv = document.createElement('div');
     headerDiv.className = 'css3d-element css3d-header';
-    // Removed inline width and fontSize to allow CSS to control them
+    headerDiv.style.width = '250px';
+    headerDiv.style.fontSize = '7px';  // Changed from '0.25em' to '7px'
     headerDiv.style.background = 'none';
     headerDiv.style.color = '#afafaf';
     headerDiv.innerHTML = `<h1>${wrapTextInGlowSpans(headerConfig.text)}</h1>`;

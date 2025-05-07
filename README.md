@@ -9,13 +9,13 @@
 <a href="#" target="_blank"></a>
 
 ### Roadmap
-<br> site tree for live/development versions of the site - dev version can be a sub-page (links to both in readme)
-<br> review and adjust star size diversity
-<br> real-time dynamically adjust viewport size
-<br> add a subtle smooth scroll-up effect upon initial load (desktop only)
-<br> Dark mode on site
-  <li> Make the entire view crack into peices, and then fall down revealing a light theme, maybe with a static grey image texture in the background (solid white for now). To return to dark mode, simply fade back into the stars.
-<br> Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly animate the camera to a selected POI when this feature is implemented.
+<li> site tree for live/development versions of the site - dev version can be a sub-page (links to both in readme)
+<li> review and adjust star size diversity
+<li> real-time dynamically adjust viewport size
+<li> add a subtle smooth scroll-up effect upon initial load (desktop only)
+<li> Dark mode on site
+  <li><li> Make the entire view crack into peices, and then fall down revealing a light theme, maybe with a static grey image texture in the background (solid white for now). To return to dark mode, simply fade back into the stars.
+<li> Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly animate the camera to a selected POI when this feature is implemented.
 
 
 <br><br> 

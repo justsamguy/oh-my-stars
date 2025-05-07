@@ -7,7 +7,7 @@ const style = `
         * { margin: 0; padding: 0; }
         body, html { 
             overflow: hidden; 
-            background: #000;
+            background: lime; /* DEBUG: Changed to lime to identify black bar */
             height: 100vh;
             width: 100vw;
         }

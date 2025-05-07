@@ -1,6 +1,11 @@
 /* Import Montserrat font */
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap');
 
+/* Custom property for mobile starfield padding */
+:root {
+    --mobile-starfield-bottom-padding: 1200px; /* Increased from 800px */
+}
+
 /* Basic Reset & Body Layout */
 html, body {
     margin: 0;
@@ -305,8 +310,7 @@ html, body {
     }
 
     #bg {
-        padding-bottom: var(--mobile-starfield-bottom-padding);
-        height: calc(100% - 44px - var(--mobile-starfield-bottom-padding));
+        height: calc(100vh - 44px - 38px + var(--mobile-starfield-bottom-padding));
     }
 
     .css3d-footer {
@@ -333,11 +337,6 @@ html, body {
         padding-top: 0;
         margin-top: 0;
         opacity: 0.8;
-    }
-
-    #bg {
-        height: calc(100% - 44px - 30px); /* Subtract header and new footer height */
-        padding-bottom: 0;
     }
 
     .css3d-footer::-webkit-scrollbar {
@@ -558,9 +557,4 @@ body.bottom-sheet-open {
     .bottom-sheet, .overlay {
         display: none;
     }
-}
-
-/* Custom property for mobile starfield padding */
-:root {
-    --mobile-starfield-bottom-padding: 800px; /* Adjust this value to find your preferred padding */
 }
