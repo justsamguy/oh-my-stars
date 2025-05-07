@@ -315,6 +315,7 @@ html, body {
         height: min-content;
         font-size: 2.5px;
         background: rgba(0, 20, 40, 0.95);
+        padding: 8px 15px;  /* Reduced top/bottom padding from 15px to 8px */
     }
 
     .footer-content, .footer-nav {
@@ -330,13 +331,14 @@ html, body {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 0px !important;
+        gap: 0px !important;  /* Reduced from previous value */
         margin: 0;
     }
 
     .footer-nav a.footer-link {
         font-size: 4px;
-        padding: 0;
+        padding: 0;  /* Removed padding */
+        margin: 1px 0;  /* Added small vertical margin instead of padding */
         width: auto;
         text-align: center;
     }
@@ -347,8 +349,8 @@ html, body {
         color: #aaa;
         text-align: center;
         border-top: none;
-        padding-top: 0;
-        margin-top: 0;
+        padding-top: 6px;  /* Reduced from 15px */
+        margin-top: 6px;  /* Reduced from 15px */
         opacity: 0.8;
     }
 
