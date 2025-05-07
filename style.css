@@ -27,10 +27,10 @@ html, body {
 /* Canvas Styles */
 #bg {
     position: absolute;
-    top: 44px; /* Height of header */
+    top: 0; /* Removed top offset to eliminate the bar */
     left: 0;
     width: 100%;
-    height: calc(100% - 44px - 38px); /* Subtract header and footer heights */
+    height: calc(100% - 38px); /* Adjusted height, only subtracting footer height */
     display: block;
     z-index: 1; /* Base layer */
 }
@@ -307,10 +307,6 @@ html, body {
                      0 0 15px rgba(255, 255, 255, 0.8),
                      0 0 25px rgba(255, 255, 255, 0.6),
                      0 0 35px rgba(255, 255, 255, 0.4) !important;
-    }
-
-    #bg {
-        height: calc(100vh - 44px - 38px + var(--mobile-starfield-bottom-padding));
     }
 
     .css3d-footer {
