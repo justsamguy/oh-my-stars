@@ -310,7 +310,6 @@ html, body {
     }
 
     .css3d-footer {
-        display: block !important; /* Override previous display: none */
         width: 100%;
         max-width: 400px;
         margin: 0 auto;
@@ -320,8 +319,28 @@ html, body {
         background: rgba(0, 20, 40, 0.95);
     }
 
-    .footer-content, .footer-brand, .footer-nav {
-        display: none;
+    .footer-content, .footer-nav {
+        display: block !important;  /* Show footer content on mobile */
+    }
+
+    .footer-brand {
+        display: none;  /* Keep brand hidden on mobile */
+    }
+
+    .footer-nav {
+        width: 100%;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin: 10px 0;
+    }
+
+    .footer-nav a.footer-link {
+        font-size: 4px;
+        padding: 4px 0;
+        width: auto;
+        text-align: center;
     }
 
     .copyright {

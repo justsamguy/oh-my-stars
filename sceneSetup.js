@@ -55,7 +55,7 @@ export function getViewportHeight() {
     const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
     const isMobile = window.innerWidth <= 600;
     // Add extra space at the bottom for mobile
-    const extraSpace = isMobile ? window.innerHeight * 3 : poiHeight * 0.1;
+    const extraSpace = isMobile ? window.innerHeight * 3.5 : poiHeight * 0.1;
     return poiHeight + extraSpace;
 }
 export function getViewportWidth() {

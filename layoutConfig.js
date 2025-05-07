@@ -42,21 +42,14 @@ export function createFooterElement() {
     const footerDiv = document.createElement('div');
     footerDiv.className = 'css3d-element css3d-footer';
     
-    // Combine all links into a single array for mobile
-    const allLinks = footerConfig.navigation.links;
-    
     // Check if mobile
     const isMobile = window.innerWidth <= 600;
     
     if (isMobile) {
         footerDiv.innerHTML = `
             <div class="footer-content">
-                <div class="footer-brand">
-                    <h2>${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
-                    <p>${wrapTextInGlowSpans(footerConfig.brand.description)}</p>
-                </div>
                 <nav class="footer-nav">
-                    ${allLinks.map(link => 
+                    ${footerConfig.navigation.links.map(link => 
                         `<a href="${link.href}" class="footer-link">${wrapTextInGlowSpans(link.text)}</a>`
                     ).join('')}
                 </nav>
