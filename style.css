@@ -316,22 +316,22 @@ html, body {
         min-height: 60px;        /* Increased to accommodate copyright */
         font-size: 2.5px;
         background: rgba(0, 20, 40, 0.95);
-        padding: 4px 0 8px 0;    /* Added bottom padding */
+        /* padding: 4px 0 8px 0;    Removed to use the more specific padding below */
         display: flex;           /* Use flexbox */
         flex-direction: column;  /* Stack children vertically */
         justify-content: space-between; /* Space between nav and copyright */
         padding: 12px 15px 8px 15px; /* Increased padding for better spacing */
     }
 
-    .footer-content, .footer-nav {
+    .footer-content, .footer-nav { /* This .footer-content is part of the first block */
         display: block !important;  /* Show footer content on mobile */
     }
 
-    .footer-brand {
+    .footer-brand { /* This .footer-brand is part of the first block */
         display: none;  /* Keep brand hidden on mobile */
     }
 
-    .footer-nav {
+    .footer-nav { /* This .footer-nav is part of the first block */
         width: 100%;
         display: flex !important;
         flex-direction: column !important;
@@ -341,12 +341,11 @@ html, body {
         margin-bottom: 4px;      /* Reduced margin before copyright */
     }
 
-    .footer-nav a.footer-link {
+    .footer-nav a.footer-link { /* This .footer-nav a.footer-link is part of the first block */
         font-size: 4.5px;        /* Increased font size */
         line-height: 1.8;        /* Increased line height */
         margin-bottom: 1px;      /* Add space between links */
     }
-
 
     .css3d-footer::-webkit-scrollbar {
         width: 4px;
@@ -361,7 +360,13 @@ html, body {
         border-radius: 2px;
     }
 
-    .footer-content {
+    /* This .footer-content and subsequent .footer-brand, .footer-nav, and .footer-nav a.footer-link 
+       were part of a second, more specific block that also had order properties.
+       These are kept as they might be intended for a different layout variation within mobile,
+       though they might also be redundant or conflicting with the first set.
+       For now, the primary goal is to fix the copyright visibility.
+    */
+    .footer-content { 
         flex-direction: column;
         gap: 15px;
         margin-bottom: 15px;
@@ -385,62 +390,20 @@ html, body {
     .footer-nav {
         order: 2;
         width: 100%;
-        flex-direction: row;
+        flex-direction: row; /* Note: This was column before, then row here */
         justify-content: center;
         gap: 12px;
     }
 
     .footer-nav a.footer-link {
-        font-size: 5px;
+        font-size: 5px; /* Slightly larger than the first block's definition */
         padding: 4px 0;
     }
 
+    /* THE CONFLICTING BLOCK STARTING WITH "Mobile Footer Styles" HAS BEEN REMOVED FROM HERE */
+    /* IT PREVIOUSLY CONTAINED YET ANOTHER .css3d-footer, .footer-content, .footer-brand, .footer-nav, and .copyright (font-size: 3px) */
 
-    /* Mobile Footer Styles */
-    .css3d-footer {
-        width: calc(100% - 30px);  /* Account for padding */
-        max-width: 400px;
-        margin: 0 auto;
-        padding: 15px;
-        height: auto;
-        font-size: 2px;  /* Adjusted base size for mobile */
-    }
-
-    .footer-content {
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 12px;
-    }
-
-    .footer-brand {
-        text-align: center;
-    }
-
-    .footer-brand h2 {
-        font-size: 7px;
-        margin-bottom: 5px;
-    }
-
-    .footer-brand p {
-        font-size: 4px;
-        line-height: 1.4;
-    }
-
-    .footer-nav {
-        width: 100%;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .footer-nav a.footer-link {
-        font-size: 4px;
-        padding: 4px 8px;
-        display: block;
-        text-align: center;
-    }
-
-    .copyright {
+    .copyright { /* This is the rule that was successfully modified earlier and should now take full effect */
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
