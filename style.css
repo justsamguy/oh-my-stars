@@ -315,7 +315,7 @@ html, body {
         height: min-content;
         font-size: 2.5px;
         background: rgba(0, 20, 40, 0.95);
-        padding: 8px 15px;  /* Reduced top/bottom padding from 15px to 8px */
+        padding: 0px 0px;  /* Reduced top/bottom padding from 15px to 8px */
     }
 
     .footer-content, .footer-nav {
@@ -349,8 +349,8 @@ html, body {
         color: #aaa;
         text-align: center;
         border-top: none;
-        padding-top: 6px;  /* Reduced from 15px */
-        margin-top: 6px;  /* Reduced from 15px */
+        padding-top: 0px;  /* Reduced from 15px */
+        margin-top: 0px;  /* Reduced from 15px */
         opacity: 0.8;
     }
 
