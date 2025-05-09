@@ -43,10 +43,9 @@ export function createFooterElement() {
     footerDiv.className = 'css3d-element css3d-footer';
     
     // Check if mobile
-    // const isMobile = window.innerWidth <= 600; // Temporarily bypass for testing
-    const forceMobileStructure = true; // Force mobile structure for diagnostics
+    const isMobile = window.innerWidth <= 600; // Temporarily bypass for testing
     
-    if (forceMobileStructure) { //  was: if (isMobile)
+    if (isMobile) { //  was: if (isMobile)
         footerDiv.innerHTML = `
             <div class="footer-content">
                 <nav class="footer-nav">
