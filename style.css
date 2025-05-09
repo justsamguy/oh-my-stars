@@ -347,13 +347,13 @@ html, body {
 
     .copyright {
         display: block;
-        font-size: 8px;
-        color: #aaa;
+        font-size: 3.2px;  /* Increased from 3px */
+        color: #fff;       /* Changed from #aaa to #fff */
         text-align: center;
-        border-top: none;
-        padding-top: 0px;  /* Reduced from 15px */
-        margin-top: 0px;  /* Reduced from 15px */
-        opacity: 0.8;
+        border-top: 0.5px solid rgba(255,255,255,0.2);  /* Made border slightly more visible */
+        padding-top: 4px;
+        margin-top: 4px;
+        opacity: 1;        /* Changed from 0.8 to 1 */
     }
 
     .css3d-footer::-webkit-scrollbar {
