@@ -347,34 +347,6 @@ html, body {
         margin-bottom: 1px;      /* Add space between links */
     }
 
-    .copyright {
-        display: block !important;
-        width: 100% !important;
-        font-size: 3px !important;        /* Adjust size for better visibility */
-        color: rgba(255,255,255,0.8) !important;  /* Brighter color */
-        text-align: center !important;
-        padding: 4px 0 2px 0 !important;
-        margin: 4px 0 0 0 !important;
-        border-top: 0.5px solid rgba(255,255,255,0.2);
-        opacity: 1 !important;
-        font-weight: 400;
-        letter-spacing: 0.2px;
-        position: relative !important;
-        z-index: 2 !important;
-        background: rgba(0, 20, 40, 0.4);  /* Subtle background for better contrast */
-        backdrop-filter: blur(2px);        /* Slight blur effect */
-        -webkit-backdrop-filter: blur(2px);
-    }
-
-    /* Remove any conflicting styles */
-    .css3d-footer .copyright {
-        display: block !important;
-        position: relative !important;
-        bottom: auto !important;
-        left: auto !important;
-        transform: none !important;
-        visibility: visible !important;
-    }
 
     .css3d-footer::-webkit-scrollbar {
         width: 4px;
@@ -423,12 +395,6 @@ html, body {
         padding: 4px 0;
     }
 
-    .copyright {
-        order: 3;
-        font-size: 4px;
-        margin-top: 15px;
-        padding-top: 15px;
-    }
 
     /* Mobile Footer Styles */
     .css3d-footer {
@@ -475,9 +441,28 @@ html, body {
     }
 
     .copyright {
-        font-size: 3px;
-        padding-top: 12px;
-        margin-top: 12px;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        font-size: 8px !important; /* Increased for better visibility/legibility */
+        color: rgba(255, 255, 255, 0.9) !important; /* Slightly brighter color */
+        text-align: center !important;
+        padding: 8px 0 4px 0 !important; /* Adjusted padding for top/bottom */
+        margin: 8px 0 0 0 !important; /* Adjusted top margin */
+        border-top: 1px solid rgba(255, 255, 255, 0.25) !important; /* Slightly more prominent border */
+        font-weight: 400;
+        letter-spacing: 0.2px;
+        position: relative !important;
+        z-index: 2 !important;
+        background: rgba(0, 10, 20, 0.5) !important;  /* Adjusted background for potentially better contrast */
+        backdrop-filter: blur(1px);
+        -webkit-backdrop-filter: blur(1px);
+        order: 3 !important; /* Ensures it's at the bottom of the flex container */
+        /* Resetting properties that might cause issues if inherited unexpectedly */
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
     }
 }
 
