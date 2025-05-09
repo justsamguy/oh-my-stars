@@ -320,6 +320,7 @@ html, body {
         display: flex;           /* Use flexbox */
         flex-direction: column;  /* Stack children vertically */
         justify-content: space-between; /* Space between nav and copyright */
+        padding: 12px 15px 8px 15px; /* Increased padding for better spacing */
     }
 
     .footer-content, .footer-nav {
@@ -337,7 +338,7 @@ html, body {
         align-items: center !important;
         gap: 3px !important;     /* Adjusted gap */
         padding: 4px 0;
-        margin-bottom: 6px;      /* Add space before copyright */
+        margin-bottom: 4px;      /* Reduced margin before copyright */
     }
 
     .footer-nav a.footer-link {
@@ -349,17 +350,20 @@ html, body {
     .copyright {
         display: block !important;
         width: 100% !important;
-        font-size: 6px !important;     /* Significantly increased */
-        color: #fff !important;         /* Pure white */
+        font-size: 3px !important;        /* Adjust size for better visibility */
+        color: rgba(255,255,255,0.8) !important;  /* Brighter color */
         text-align: center !important;
-        padding: 6px 0 2px 0 !important;
+        padding: 4px 0 2px 0 !important;
         margin: 4px 0 0 0 !important;
         border-top: 0.5px solid rgba(255,255,255,0.2);
         opacity: 1 !important;
-        font-weight: 400;               /* Normal weight */
+        font-weight: 400;
         letter-spacing: 0.2px;
-        position: relative !important;  /* Ensure proper stacking */
-        z-index: 2 !important;         /* Place above other elements */
+        position: relative !important;
+        z-index: 2 !important;
+        background: rgba(0, 20, 40, 0.4);  /* Subtle background for better contrast */
+        backdrop-filter: blur(2px);        /* Slight blur effect */
+        -webkit-backdrop-filter: blur(2px);
     }
 
     /* Remove any conflicting styles */
