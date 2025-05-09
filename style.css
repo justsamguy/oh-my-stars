@@ -312,10 +312,14 @@ html, body {
     .css3d-footer {
         width: 100%;
         max-width: 400px;
-        height: min-content;
+        height: auto !important;  /* Force auto height */
+        min-height: 45px;        /* Ensure minimum height */
         font-size: 2.5px;
         background: rgba(0, 20, 40, 0.95);
-        padding: 0px 0px;  /* Reduced top/bottom padding from 15px to 8px */
+        padding: 4px 0px;        /* Add some padding */
+        display: flex;           /* Use flexbox */
+        flex-direction: column;  /* Stack children vertically */
+        justify-content: space-between; /* Space between nav and copyright */
     }
 
     .footer-content, .footer-nav {
@@ -331,39 +335,37 @@ html, body {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 0px !important;  /* Reduced from previous value */
-        margin: 0;
-        padding: 4px 0;  /* Add small padding to container */
+        gap: 2px !important;
+        padding: 4px 0;
     }
 
     .footer-nav a.footer-link {
-        font-size: 4px;
-        padding: 0;
-        margin: 0;  /* Remove margin between links */
-        line-height: 1.2;  /* Tighten line height */
-        width: auto;
-        text-align: center;
+        font-size: 4.5px;        /* Increased font size */
+        line-height: 1.8;        /* Increased line height */
+        margin-bottom: 1px;      /* Add space between links */
     }
 
     .copyright {
-        display: block;
-        font-size: 5px !important;  /* Increased significantly from 3.2px */
-        color: #fff !important;     /* Full white for maximum contrast */
-        text-align: center;
-        border-top: 1px solid rgba(255,255,255,0.3);  /* Made border more visible */
-        padding-top: 6px;           /* Increased padding */
-        margin-top: 6px;           /* Increased margin */
-        opacity: 1;
-        font-weight: 500;          /* Added slight boldness */
-        text-shadow: 0 0 2px rgba(0,0,0,0.5);  /* Added shadow for better contrast */
-        letter-spacing: 0.2px;     /* Added slight letter spacing */
+        display: block !important;
+        width: 100% !important;
+        font-size: 4px !important;     /* Increased from previous size */
+        color: #fff !important;         /* Pure white */
+        text-align: center !important;
+        padding: 4px 0 !important;      /* Add padding */
+        margin: 4px 0 2px 0 !important; /* Adjust margins */
+        border-top: 0.5px solid rgba(255,255,255,0.2);
+        opacity: 1 !important;
+        font-weight: 400;               /* Normal weight */
+        letter-spacing: 0.2px;
     }
 
-    /* Override any conflicting styles */
+    /* Remove any conflicting styles */
     .css3d-footer .copyright {
-        font-size: 5px !important;
-        color: #fff !important;
-        opacity: 1 !important;
+        display: block !important;
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
     }
 
     .css3d-footer::-webkit-scrollbar {
