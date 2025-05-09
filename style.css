@@ -313,10 +313,10 @@ html, body {
         width: 100%;
         max-width: 400px;
         height: auto !important;  /* Force auto height */
-        min-height: 45px;        /* Ensure minimum height */
+        min-height: 60px;        /* Increased to accommodate copyright */
         font-size: 2.5px;
         background: rgba(0, 20, 40, 0.95);
-        padding: 4px 0px;        /* Add some padding */
+        padding: 4px 0 8px 0;    /* Added bottom padding */
         display: flex;           /* Use flexbox */
         flex-direction: column;  /* Stack children vertically */
         justify-content: space-between; /* Space between nav and copyright */
@@ -335,8 +335,9 @@ html, body {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 2px !important;
+        gap: 3px !important;     /* Adjusted gap */
         padding: 4px 0;
+        margin-bottom: 6px;      /* Add space before copyright */
     }
 
     .footer-nav a.footer-link {
@@ -348,15 +349,17 @@ html, body {
     .copyright {
         display: block !important;
         width: 100% !important;
-        font-size: 4px !important;     /* Increased from previous size */
+        font-size: 6px !important;     /* Significantly increased */
         color: #fff !important;         /* Pure white */
         text-align: center !important;
-        padding: 4px 0 !important;      /* Add padding */
-        margin: 4px 0 2px 0 !important; /* Adjust margins */
+        padding: 6px 0 2px 0 !important;
+        margin: 4px 0 0 0 !important;
         border-top: 0.5px solid rgba(255,255,255,0.2);
         opacity: 1 !important;
         font-weight: 400;               /* Normal weight */
         letter-spacing: 0.2px;
+        position: relative !important;  /* Ensure proper stacking */
+        z-index: 2 !important;         /* Place above other elements */
     }
 
     /* Remove any conflicting styles */
@@ -366,6 +369,7 @@ html, body {
         bottom: auto !important;
         left: auto !important;
         transform: none !important;
+        visibility: visible !important;
     }
 
     .css3d-footer::-webkit-scrollbar {
