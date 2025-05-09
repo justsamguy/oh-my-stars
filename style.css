@@ -347,13 +347,23 @@ html, body {
 
     .copyright {
         display: block;
-        font-size: 3.2px;  /* Increased from 3px */
-        color: #fff;       /* Changed from #aaa to #fff */
+        font-size: 5px !important;  /* Increased significantly from 3.2px */
+        color: #fff !important;     /* Full white for maximum contrast */
         text-align: center;
-        border-top: 0.5px solid rgba(255,255,255,0.2);  /* Made border slightly more visible */
-        padding-top: 4px;
-        margin-top: 4px;
-        opacity: 1;        /* Changed from 0.8 to 1 */
+        border-top: 1px solid rgba(255,255,255,0.3);  /* Made border more visible */
+        padding-top: 6px;           /* Increased padding */
+        margin-top: 6px;           /* Increased margin */
+        opacity: 1;
+        font-weight: 500;          /* Added slight boldness */
+        text-shadow: 0 0 2px rgba(0,0,0,0.5);  /* Added shadow for better contrast */
+        letter-spacing: 0.2px;     /* Added slight letter spacing */
+    }
+
+    /* Override any conflicting styles */
+    .css3d-footer .copyright {
+        font-size: 5px !important;
+        color: #fff !important;
+        opacity: 1 !important;
     }
 
     .css3d-footer::-webkit-scrollbar {
