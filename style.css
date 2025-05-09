@@ -333,12 +333,14 @@ html, body {
         align-items: center !important;
         gap: 0px !important;  /* Reduced from previous value */
         margin: 0;
+        padding: 4px 0;  /* Add small padding to container */
     }
 
     .footer-nav a.footer-link {
         font-size: 4px;
-        padding: 0;  /* Removed padding */
-        margin: 1px 0;  /* Added small vertical margin instead of padding */
+        padding: 0;
+        margin: 0;  /* Remove margin between links */
+        line-height: 1.2;  /* Tighten line height */
         width: auto;
         text-align: center;
     }
