@@ -325,7 +325,7 @@ html, body {
         bottom: 0 !important; /* Align to bottom */
         left: 0 !important;
         transform: none !important;
-        font-size: 6px;
+        font-size: 16px !important; /* Increased base font size */
         z-index: 1000 !important;
     }
 
@@ -360,17 +360,19 @@ html, body {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 8px !important;
-        margin-bottom: 8px !important;
-        padding: 0 !important;
+        gap: 12px !important; /* Updated gap */
+        margin-bottom: 16px !important; /* Updated margin */
     }
 
     .footer-nav a.footer-link {
-        font-size: 4.5px !important;
+        font-size: 14px !important; /* Increased font size */
+        color: rgba(255, 255, 255, 0.8) !important;
+        text-decoration: none !important;
+        display: block !important;
         width: auto !important;
-        white-space: nowrap !important;
         text-align: center !important;
         margin: 0 !important;
+        padding: 4px 0 !important; /* Updated padding */
     }
 
     .css3d-footer::-webkit-scrollbar {
@@ -388,11 +390,11 @@ html, body {
 
     .copyright {
         width: 100% !important;
-        font-size: 4px !important;
-        color: rgba(255, 255, 255, 0.8) !important;
+        font-size: 12px !important; /* Increased font size */
+        color: rgba(255, 255, 255, 0.6) !important; /* Updated color */
         text-align: center !important;
-        padding: 8px 0 4px 0 !important;
-        margin: 4px 0 0 0 !important;
+        padding-top: 12px !important; /* Updated padding */
+        margin-top: 8px !important; /* Updated margin */
         border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
         position: relative !important;
         display: block !important;
