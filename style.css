@@ -320,46 +320,15 @@ html, body {
         flex-direction: column;
         justify-content: space-between;
         padding: 12px 15px 8px 15px;
+        position: relative !important; /* Ensure proper stacking */
+        z-index: 10 !important; /* Higher z-index */
     }
 
-    .footer-content, .footer-nav { /* This .footer-content is part of the first block */
-        display: block !important;  /* Show footer content on mobile */
-    }
-
-    .footer-brand { /* This .footer-brand is part of the first block */
-        display: none;  /* Keep brand hidden on mobile */
-    }
-
-    .footer-nav { /* This .footer-nav is part of the first block */
-        width: 100%;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 3px !important;     /* Adjusted gap */
-        padding: 4px 0;
-        margin-bottom: 8px;      /* Add space before copyright */
-    }
-
-    .footer-nav a.footer-link { /* This .footer-nav a.footer-link is part of the first block */
-        font-size: 4.5px;        /* Increased font size */
-        line-height: 1.8;        /* Increased line height */
-        margin-bottom: 1px;      /* Add space between links */
-    }
-
-    .css3d-footer::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .css3d-footer::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.1);
-    }
-
-    .css3d-footer::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.2);
-        border-radius: 2px;
-    }
-
-    .footer-content { 
+    .footer-content {
+        position: relative !important;
+        z-index: 11 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
         flex-direction: column;
         gap: 15px;
         margin-bottom: 15px;
@@ -368,6 +337,7 @@ html, body {
     .footer-brand {
         order: 1;
         text-align: center;
+        display: none;  /* Keep brand hidden on mobile */
     }
 
     .footer-brand h2 {
@@ -386,28 +356,60 @@ html, body {
         flex-direction: row; /* Note: This was column before, then row here */
         justify-content: center;
         gap: 12px;
+        display: flex !important;
+        align-items: center !important;
+        gap: 3px !important;     /* Adjusted gap */
+        padding: 4px 0;
+        margin-bottom: 8px;      /* Add space before copyright */
     }
 
     .footer-nav a.footer-link {
         font-size: 5px; /* Slightly larger than the first block's definition */
         padding: 4px 0;
+        line-height: 1.8;        /* Increased line height */
+        margin-bottom: 1px;      /* Add space between links */
+    }
+
+    .css3d-footer::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .css3d-footer::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+    }
+
+    .css3d-footer::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.2);
+        border-radius: 2px;
     }
 
     .copyright {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        width: 100% !important;
+        font-size: 3.5px !important;
+        color: rgba(255, 255, 255, 0.8) !important; /* Increased opacity */
+        text-align: center !important;
+        padding: 8px 0 4px 0 !important;
+        margin: 8px 0 0 0 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+        background: none !important;
+        z-index: 12 !important; /* Highest z-index in footer */
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
-        position: relative !important;  /* Change from absolute to relative */
-        width: 100% !important;
-        font-size: 3.5px !important;   /* Adjusted size */
-        color: rgba(255, 255, 255, 0.6) !important;
-        text-align: center !important;
-        padding: 8px 0 4px 0 !important;
-        margin: 4px 0 0 0 !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-        transform: none !important;    /* Remove any transforms */
-        bottom: auto !important;       /* Remove bottom positioning */
-        left: auto !important;         /* Remove left positioning */
+        transform: none !important;
+    }
+
+    /* Remove any potentially conflicting styles */
+    .css3d-footer *,
+    .footer-content *,
+    .copyright * {
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
     }
 }
 
