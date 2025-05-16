@@ -310,18 +310,18 @@ html, body {
     }
 
     .css3d-footer {
-        width: 100%;
-        max-width: 400px;
-        height: auto !important;  /* Allow footer to expand */
-        min-height: 80px;
-        font-size: 6px;
-        background: rgba(0, 20, 40, 0.95);
+        width: 100vw !important; /* Use viewport width */
+        max-width: none !important; /* Remove max-width constraint */
+        margin: 0 !important;
+        padding: 12px 20px 8px 20px !important;
+        height: auto !important;
+        min-height: 60px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 12px 15px 8px 15px;
-        position: relative !important; /* Ensure proper stacking */
-        z-index: 10 !important; /* Higher z-index */
+        align-items: center;
+        background: rgba(0, 20, 40, 0.95);
+        font-size: 6px;
     }
 
     .footer-content {
@@ -351,23 +351,20 @@ html, body {
     }
 
     .footer-nav {
-        order: 2;
-        width: 100%;
-        flex-direction: row; /* Note: This was column before, then row here */
-        justify-content: center;
-        gap: 12px;
+        width: 100% !important;
         display: flex !important;
+        flex-direction: column !important; /* Stack links vertically */
         align-items: center !important;
-        gap: 3px !important;     /* Adjusted gap */
-        padding: 4px 0;
-        margin-bottom: 8px;      /* Add space before copyright */
+        gap: 8px !important;
+        margin-bottom: 12px !important;
     }
 
     .footer-nav a.footer-link {
-        font-size: 5px; /* Slightly larger than the first block's definition */
-        padding: 4px 0;
-        line-height: 1.8;        /* Increased line height */
-        margin-bottom: 1px;      /* Add space between links */
+        font-size: 4.5px !important;
+        width: auto !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+        margin: 0 !important;
     }
 
     .css3d-footer::-webkit-scrollbar {
@@ -381,6 +378,18 @@ html, body {
     .css3d-footer::-webkit-scrollbar-thumb {
         background: rgba(255,255,255,0.2);
         border-radius: 2px;
+    }
+
+    .copyright {
+        width: 100% !important;
+        font-size: 3.5px !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+        text-align: center !important;
+        padding-top: 8px !important;
+        margin: 8px 0 0 0 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+        position: relative !important;
+        display: block !important;
     }
 
     .copyright {
