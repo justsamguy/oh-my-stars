@@ -312,15 +312,14 @@ html, body {
     .css3d-footer {
         width: 100%;
         max-width: 400px;
-        height: auto !important;  /* Force auto height */
-        min-height: 80px;        /* Increased min-height for more space */
-        font-size: 6px;          /* Increased base font size */
+        height: auto !important;  /* Allow footer to expand */
+        min-height: 80px;
+        font-size: 6px;
         background: rgba(0, 20, 40, 0.95);
-        /* padding: 4px 0 8px 0;    Removed to use the more specific padding below */
-        display: flex;           /* Use flexbox */
-        flex-direction: column;  /* Stack children vertically */
-        justify-content: space-between; /* Space between nav and copyright */
-        padding: 12px 15px 8px 15px; /* Increased padding for better spacing */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px 15px 8px 15px;
     }
 
     .footer-content, .footer-nav { /* This .footer-content is part of the first block */
@@ -338,7 +337,7 @@ html, body {
         align-items: center !important;
         gap: 3px !important;     /* Adjusted gap */
         padding: 4px 0;
-        margin-bottom: 4px;      /* Reduced margin before copyright */
+        margin-bottom: 8px;      /* Add space before copyright */
     }
 
     .footer-nav a.footer-link { /* This .footer-nav a.footer-link is part of the first block */
@@ -360,12 +359,6 @@ html, body {
         border-radius: 2px;
     }
 
-    /* This .footer-content and subsequent .footer-brand, .footer-nav, and .footer-nav a.footer-link 
-       were part of a second, more specific block that also had order properties.
-       These are kept as they might be intended for a different layout variation within mobile,
-       though they might also be redundant or conflicting with the first set.
-       For now, the primary goal is to fix the copyright visibility.
-    */
     .footer-content { 
         flex-direction: column;
         gap: 15px;
@@ -400,32 +393,21 @@ html, body {
         padding: 4px 0;
     }
 
-    /* THE CONFLICTING BLOCK STARTING WITH "Mobile Footer Styles" HAS BEEN REMOVED FROM HERE */
-    /* IT PREVIOUSLY CONTAINED YET ANOTHER .css3d-footer, .footer-content, .footer-brand, .footer-nav, and .copyright (font-size: 3px) */
-
-    .copyright { /* This is the rule that was successfully modified earlier and should now take full effect */
+    .copyright {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
+        position: relative !important;  /* Change from absolute to relative */
         width: 100% !important;
-        font-size: 8px !important; /* Increased for better visibility/legibility */
-        color: rgba(255, 255, 255, 0.9) !important; /* Slightly brighter color */
+        font-size: 3.5px !important;   /* Adjusted size */
+        color: rgba(255, 255, 255, 0.6) !important;
         text-align: center !important;
-        padding: 8px 0 4px 0 !important; /* Adjusted padding for top/bottom */
-        margin: 8px 0 0 0 !important; /* Adjusted top margin */
-        border-top: 1px solid rgba(255, 255, 255, 0.25) !important; /* Slightly more prominent border */
-        font-weight: 400;
-        letter-spacing: 0.2px;
-        position: relative !important;
-        z-index: 2 !important;
-        background: rgba(0, 10, 20, 0.5) !important;  /* Adjusted background for potentially better contrast */
-        backdrop-filter: blur(1px);
-        -webkit-backdrop-filter: blur(1px);
-        order: 3 !important; /* Ensures it's at the bottom of the flex container */
-        /* Resetting properties that might cause issues if inherited unexpectedly */
-        bottom: auto !important;
-        left: auto !important;
-        transform: none !important;
+        padding: 8px 0 4px 0 !important;
+        margin: 4px 0 0 0 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+        transform: none !important;    /* Remove any transforms */
+        bottom: auto !important;       /* Remove bottom positioning */
+        left: auto !important;         /* Remove left positioning */
     }
 }
 
