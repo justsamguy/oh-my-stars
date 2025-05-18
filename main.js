@@ -70,6 +70,18 @@ mobileNav.innerHTML = links.map(link =>
 // Add copyright
 mobileCopyright.textContent = footerConfig.copyright;
 
+// Add touch event handlers for mobile footer links
+const mobileLinks = mobileFooter.querySelectorAll('.mobile-footer-link');
+mobileLinks.forEach(link => {
+    link.addEventListener('touchstart', function() {
+        this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+    }, {passive: true});
+    
+    link.addEventListener('touchend', function() {
+        this.style.backgroundColor = 'transparent';
+    }, {passive: true});
+});
+
 // Update glow effect handler for both header and footer
 const handleGlowEffect = (element, e) => {
     const chars = element.querySelectorAll('.glow-char');

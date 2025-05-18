@@ -2,9 +2,9 @@
 <html>
 <head>
     <title>Interactive Star Map</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added for responsive design -->
+    <meta charset="utf-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added for responsive design -->
     <link rel="stylesheet" href="style.css"> <!-- Link to the new CSS file -->
+    <link rel="stylesheet" href="mobile.css"> <!-- Mobile-specific styles -->
     <!-- Import Map -->
     <script type="importmap">
         {
@@ -17,10 +17,10 @@
         }
     </script>
 </head>
-<body>
-    <div id="app-container"> <!-- Added container -->        <canvas id="bg"></canvas>
+<body>    <div id="app-container">
+        <canvas id="bg"></canvas>
         <!-- Header and Footer will be added via JS -->
-    </div> <!-- Close container -->
+    </div>
     <div id="mobile-footer">
         <nav class="mobile-footer-nav"></nav>
         <div class="mobile-footer-copyright"></div>
