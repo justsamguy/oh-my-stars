@@ -51,10 +51,13 @@ scene.add(headerObj);
 
 // Replace footer creation with:
 const footerDiv = createFooterElement();
-const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY + 15, 0);
-footerObj.rotation.set(0, 0, 0);
-scene.add(footerObj);
+let footerObj;
+if (window.innerWidth > 600) {
+    footerObj = new CSS3DObject(footerDiv);
+    footerObj.position.set(0, minY - paddingY + 15, 0);
+    footerObj.rotation.set(0, 0, 0);
+    scene.add(footerObj);
+}
 
 // Update glow effect handler for both header and footer
 const handleGlowEffect = (element, e) => {
@@ -74,7 +77,7 @@ const handleGlowEffect = (element, e) => {
 };
 
 // Add event listeners for glow effects
-[headerDiv, footerDiv].forEach(element => {
+[headerDiv].forEach(element => {
     element.addEventListener('mousemove', (e) => handleGlowEffect(element, e));
     element.addEventListener('mouseleave', () => {
         element.querySelectorAll('.glow-char').forEach(char => {
@@ -135,9 +138,11 @@ function animate() {
     headerObj.position.x = 0;
     headerObj.position.z = 0;
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    footerObj.position.x = 0;
-    footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingY + 30;
+    if (window.innerWidth > 600 && typeof footerObj !== 'undefined') {
+        footerObj.position.x = 0;
+        footerObj.position.z = 0;
+        footerObj.position.y = minY - paddingY + 30;
+    }
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -183,7 +188,9 @@ function onWindowResize() {
 
     // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    footerObj.position.y = minY - paddingY + 30;
+    if (window.innerWidth > 600 && typeof footerObj !== 'undefined') {
+        footerObj.position.y = minY - paddingY + 30;
+    }
 }
 
 // Initial call to set size correctly
