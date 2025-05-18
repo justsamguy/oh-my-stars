@@ -50,10 +50,37 @@ export function createFooterElement() {
     footerDiv.style.boxSizing = 'border-box';
     footerDiv.style.height = '42px';
 
-    // Split navigation links into two arrays
-    const halfLength = Math.ceil(footerConfig.navigation.links.length / 2);
-    const leftLinks = footerConfig.navigation.links.slice(0, halfLength);
-    const rightLinks = footerConfig.navigation.links.slice(halfLength);
+    // Mobile detection
+    const isMobile = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
+
+    let navHTML = '';
+    if (isMobile) {
+        // Single column for all links on mobile
+        navHTML = `<nav class="footer-nav" style="width: 100%; gap: 4px; display: flex; flex-direction: column; align-items: center">
+            ${footerConfig.navigation.links.map(link =>
+                `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block">${wrapTextInGlowSpans(link.text)}</a>`
+            ).join('')}
+        </nav>`;
+    } else {
+        // Split navigation links into two arrays for desktop
+        const halfLength = Math.ceil(footerConfig.navigation.links.length / 2);
+        const leftLinks = footerConfig.navigation.links.slice(0, halfLength);
+        const rightLinks = footerConfig.navigation.links.slice(halfLength);
+        navHTML = `
+            <div style="display: flex; gap: 12px">
+                <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column; align-items: center">
+                    ${leftLinks.map(link =>
+                        `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block">${wrapTextInGlowSpans(link.text)}</a>`
+                    ).join('')}
+                </nav>
+                <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column; align-items: center">
+                    ${rightLinks.map(link =>
+                        `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block">${wrapTextInGlowSpans(link.text)}</a>`
+                    ).join('')}
+                </nav>
+            </div>
+        `;
+    }
 
     footerDiv.innerHTML = `
         <div class="footer-content" style="margin-bottom: 2px">
@@ -61,18 +88,7 @@ export function createFooterElement() {
                 <h2 style="font-size: 6px; margin: 0 0 3px 0; color: #afafaf; font-weight: normal">${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
                 <p style="font-size: 4px; line-height: 1.2; color: #aaa; margin: 0">${wrapTextInGlowSpans(footerConfig.brand.description)}</p>
             </div>
-            <div style="display: flex; gap: 12px">
-                <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column; align-items: center">
-                    ${leftLinks.map(link => 
-                        `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block">${wrapTextInGlowSpans(link.text)}</a>`
-                    ).join('')}
-                </nav>
-                <nav class="footer-nav" style="width: 45px; gap: 2px; display: flex; flex-direction: column; align-items: center">
-                    ${rightLinks.map(link => 
-                        `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block">${wrapTextInGlowSpans(link.text)}</a>`
-                    ).join('')}
-                </nav>
-            </div>
+            ${navHTML}
         </div>
         <div class="copyright" style="font-size: 2.75px; color: #aaa; text-align: center; margin-top: 2px; padding-top: 2px; border-top: 0.5px solid rgba(255,255,255,0.1)">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
     `;
