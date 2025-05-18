@@ -142,34 +142,39 @@ html, body {
 /* Update footer content styles */
 .footer-content {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 4px;
+    align-items: flex-start;
+    width: 90%;
+    max-width: 900px;
+    margin: 0 auto 8px auto;
+    gap: 32px;
 }
 
 .footer-brand {
-    flex: 1;
+    flex: 2;
     text-align: left;
 }
 
 .footer-brand h2 {
-    font-size: 16px;
-    margin: 0 0 8px 0;
+    font-size: 20px;
+    margin: 0 0 6px 0;
     color: #fff;
 }
 
 .footer-brand p {
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.4;
     color: #aaa;
     margin: 0;
 }
 
 .footer-nav {
-    width: 90px;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 6px;
+    align-items: flex-end;
     pointer-events: auto !important;
 }
 
@@ -182,25 +187,24 @@ html, body {
 }
 
 .footer-nav a.footer-link {
-    font-size: 3.8px;
+    font-size: 15px;
     color: #aaa;
     text-decoration: none;
     display: inline-block;
     pointer-events: auto !important;
     transition: color 0.2s ease;
     width: auto;
-    text-align: center;
-    margin: 0 auto;
+    text-align: right;
     background: none;
-    padding: 0 0 0.2px 0; /* Changed to only have bottom padding */
+    padding: 0 0 2px 0;
 }
 
 .footer-nav a.footer-link:hover {
     color: #fff;
     background: linear-gradient(0deg, 
         rgba(255, 255, 255, 0.5) 0%, 
-        rgba(255, 255, 255, 0.5) 0.15px, 
-        transparent 0.15px
+        rgba(255, 255, 255, 0.5) 2px, 
+        transparent 2px
     );
     background-repeat: no-repeat;
     background-position: bottom;
@@ -239,12 +243,10 @@ html, body {
 }
 
 .copyright {
-    font-size: 10px;
-    color: #666;
-    text-align: center;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    padding-top: 8px;
+    font-size: 12px;
+    color: #888;
     margin-top: 8px;
+    letter-spacing: 0.5px;
 }
 
 /* App Header and Footer (outside starfield) */
@@ -340,49 +342,26 @@ html, body {
     }
 
     .footer-content {
-        position: relative !important;
-        z-index: 11 !important;
-        opacity: 1 !important;
-        visibility: visible !important;
         flex-direction: column;
-        gap: 15px;
-        margin-bottom: 15px;
+        align-items: center;
+        gap: 12px;
+        width: 98%;
     }
 
-    .footer-brand {
-        order: 1;
+    .footer-brand, .footer-nav {
         text-align: center;
-        display: none;  /* Keep brand hidden on mobile */
-    }
-
-    .footer-brand h2 {
-        font-size: 8px;
-        margin-bottom: 6px;
-    }
-
-    .footer-brand p {
-        font-size: 5px;
-        line-height: 1.6;
+        align-items: center;
     }
 
     .footer-nav {
-        width: 100% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 12px !important; /* Updated gap */
-        margin-bottom: 16px !important; /* Updated margin */
+        flex-direction: row;
+        gap: 10px;
+        justify-content: center;
     }
 
     .footer-nav a.footer-link {
-        font-size: 14px !important; /* Increased font size */
-        color: rgba(255, 255, 255, 0.8) !important;
-        text-decoration: none !important;
-        display: block !important;
-        width: auto !important;
-        text-align: center !important;
-        margin: 0 !important;
-        padding: 4px 0 !important; /* Updated padding */
+        font-size: 13px;
+        text-align: center;
     }
 
     .css3d-footer::-webkit-scrollbar {
@@ -601,33 +580,23 @@ body.bottom-sheet-open {
 }
 
 /* Footer */
-footer {
-    flex-shrink: 0;
-    text-align: center;
-    color: #fff;
-    background: rgba(20, 20, 20, 0.7);
-    padding: 10px 0;
-    position: relative;
-    width: 100%;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-
-/* Ensure all footer variants are part of the normal document flow */
-.mobile-html-footer, .css3d-footer, .app-footer, footer {
+footer, .app-footer, .mobile-html-footer {
+  flex-shrink: 0;
+  text-align: center;
+  color: #fff;
+  background: rgba(0, 20, 40, 0.95) !important;
+  padding: 16px 0 8px 0 !important;
   position: relative !important;
   width: 100vw !important;
   left: 0 !important;
   right: 0 !important;
-  bottom: auto !important; /* Changed from 0 to auto to remove fixed/absolute positioning */
+  bottom: auto !important;
   z-index: 2 !important;
-  background: rgba(0, 20, 40, 0.95) !important;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: flex-end !important;
-  min-height: 90px !important;
+  min-height: 110px !important;
   margin: 0 !important;
-  padding: 10px 0 !important;
 }

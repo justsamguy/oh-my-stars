@@ -45,37 +45,24 @@ export function createFooterElement() {
     let mobileFooter = document.getElementById('mobile-html-footer');
     if (mobileFooter) mobileFooter.remove();
 
-    // Detect mobile (≤600px) at creation time
+    // Use a single structure for both desktop and mobile
     const isMobile = window.innerWidth <= 600;
-    if (isMobile) {
-        mobileFooter = document.createElement('footer');
-        mobileFooter.id = 'mobile-html-footer';
-        mobileFooter.className = 'mobile-html-footer';
-        mobileFooter.innerHTML = `
-            <div class="footer-content">
-                <nav class="footer-nav">
-                    ${footerConfig.navigation.links.map(link =>
-                        `<a href="${link.href}" class="footer-link">${wrapTextInGlowSpans(link.text)}</a>`
-                    ).join('')}
-                </nav>
+    const footer = document.createElement('footer');
+    footer.id = isMobile ? 'mobile-html-footer' : 'app-html-footer';
+    footer.className = isMobile ? 'mobile-html-footer app-footer' : 'app-footer';
+    footer.innerHTML = `
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2>${wrapTextInGlowSpans(footerConfig.brand.text)}</h2>
+                <p>${footerConfig.brand.description}</p>
             </div>
-            <div class="copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
-        `;
-        return mobileFooter;
-    } else {
-        htmlFooter = document.createElement('footer');
-        htmlFooter.id = 'app-html-footer';
-        htmlFooter.className = 'app-footer';
-        htmlFooter.innerHTML = `
-            <div class="footer-content">
-                <nav class="footer-nav">
-                    ${footerConfig.navigation.links.map(link =>
-                        `<a href="${link.href}" class="footer-link">${wrapTextInGlowSpans(link.text)}</a>`
-                    ).join('')}
-                </nav>
-            </div>
-            <div class="copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
-        `;
-        return htmlFooter;
-    }
+            <nav class="footer-nav">
+                ${footerConfig.navigation.links.map(link =>
+                    `<a href="${link.href}" class="footer-link" target="_blank" rel="noopener">${wrapTextInGlowSpans(link.text)}</a>`
+                ).join('')}
+            </nav>
+        </div>
+        <div class="copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
+    `;
+    return footer;
 }
