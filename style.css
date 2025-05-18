@@ -18,21 +18,22 @@ html, body {
 
 /* App Container */
 #app-container {
-    position: relative; /* Context for absolute positioning */
-    width: 100%;
-    height: 100%;
-    overflow: hidden; /* Contain absolutely positioned elements */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100vw;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* Canvas Styles */
 #bg {
-    position: absolute;
-    top: 0; /* Removed top offset to eliminate the bar */
-    left: 0;
+    position: static;
     width: 100%;
-    height: calc(100% - 38px); /* Adjusted height, only subtracting footer height */
+    height: auto;
     display: block;
-    z-index: 1; /* Base layer */
+    z-index: 0;
 }
 
 /* Styles for CSS3DObjects (Header/Footer) */
@@ -533,7 +534,7 @@ body.bottom-sheet-open {
 
 /* Mobile HTML Footer */
 .mobile-html-footer {
-  position: static;
+  position: relative;
   width: 100vw;
   min-height: 90px;
   background: none;
