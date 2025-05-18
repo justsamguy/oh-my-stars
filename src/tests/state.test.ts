@@ -1,5 +1,5 @@
 import 'jest';
-import { appState } from './state.js';
+import { appState } from '../core/state';
 
 test('state manager get/set', () => {
   appState.set('cameraY', 42);

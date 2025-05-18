@@ -1,4 +1,4 @@
-import { events } from './events.js';
+import { events } from '../core/events';
 import 'jest';
 
 test('event bus on/emit/off', () => {

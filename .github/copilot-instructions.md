@@ -4,6 +4,7 @@
 
 ### Formatting
 * 2-space indentation, semicolons **on**, single quotes.
+* When using terminal commands, format them for use in powershell.
 
 ### Security
 * All SQL must be parameterised (use `pg` tagged templates).
