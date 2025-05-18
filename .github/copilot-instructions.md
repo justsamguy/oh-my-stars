@@ -5,6 +5,9 @@
 ### Formatting
 * 2-space indentation, semicolons **on**, single quotes.
 * When using terminal commands, format them for use in powershell.
+* When using tools to run commands or make edits, consolidate their uses as much as possible.
+* When analyzing and coming to a conclusion, include 1 or 2 sentences that explain the actions being taken.
+* When something is done, decide if it is a significant enough action to request an image be shared back for further analysis.
 
 ### Security
 * All SQL must be parameterised (use `pg` tagged templates).
@@ -16,8 +19,8 @@
 ### Language preferences
 * Reply in **concise English**, include TypeScript annotations.
 
----  
-_Rules below are auto-copied from your existing Cline rules file (if present)._  
+---
+_Rules below are auto-copied from your existing Cline rules file (if present)._
 ---
 description: Guidelines for creating and maintaining Cline rules to ensure consistency.
 globs: .clinerules/**/*.txt
@@ -47,7 +50,7 @@ alwaysApply: true
   ```typescript
   // ✅ DO: Show good examples
   const goodExample = true;
-  
+
   // ❌ DON'T: Show anti-patterns
   const badExample = false;
   ```
@@ -90,11 +93,10 @@ alwaysApply: true
   - Use consistent formatting across rules
 
 ---
-
 ## Implementation Instructions
 
 1. Place this file at the indicated path inside `.clinerules/meta/`.
-2. Run **“Cline: Reload Rules”** in VS Code or restart the Cline LSP/CLI so it picks up changes.
+2. Run **“Cline: Reload Rules”** in VS Code or restart the Cline LSP/CLI so it picks up changes.
 3. Edit the `globs` pattern above if your project structure differs.
 4. Keep this guideline file under version control so the team shares the same conventions.
 ---
@@ -168,11 +170,10 @@ alwaysApply: true
   - Document breaking changes
 
 ---
-
 ## Implementation Instructions
 
 1. Place this file at the indicated path inside `.clinerules/meta/`.
-2. Run **“Cline: Reload Rules”** in VS Code or restart the Cline LSP/CLI so it picks up changes.
+2. Run **“Cline: Reload Rules”** in VS Code or restart the Cline LSP/CLI so it picks up changes.
 3. Edit the `globs` pattern above if your project structure differs.
 4. Keep this guideline file under version control so the team shares the same conventions.
 ---
@@ -209,7 +210,6 @@ alwaysApply: true
   - Inspect elements and styles using the browser's developer tools.
 
 ---
-
 ## Implementation Instructions
 
 1. Place this file at the indicated path inside `.clinerules/workflow/`.

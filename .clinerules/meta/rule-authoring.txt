@@ -27,7 +27,7 @@ alwaysApply: true
   ```typescript
   // ✅ DO: Show good examples
   const goodExample = true;
-  
+
   // ❌ DON'T: Show anti-patterns
   const badExample = false;
   ```
@@ -68,6 +68,11 @@ alwaysApply: true
   - Include both DO and DON'T examples
   - Reference actual code over theoretical examples
   - Use consistent formatting across rules
+  - Format commands for **PowerShell**.
+  - When using tools to run commands or make edits, consolidate their uses as much as possible.
+  - When analyzing and coming to a conclusion, include 1 or 2 sentences that explain the actions being taken.
+  - When something is done, decide if it is a significant enough action to request an image be shared back for further analysis.
+  - When editing files, consolidate changes per-file rather than per-rule.
 
 ---
 

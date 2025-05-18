@@ -1,5 +1,7 @@
 # Oh My Stars
-<p> A webapp, the first of many to come... </p>
+<p> A webapp, the first of many to come... 
+<br> This webapp is hosted on github and deployed using github pages.
+</p>
 
 
 ### Live at
