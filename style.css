@@ -10,38 +10,29 @@
 html, body {
     margin: 0;
     padding: 0;
-    min-height: 100vh; /* Changed from height: 100% to min-height: 100vh */
-    height: auto; /* Remove forced 100% height */
+    height: 100%; /* Ensure html and body take full height */
     font-family: sans-serif;
     background-color: #000; /* Match starfield background */
     color: #fff; /* Default text color */
-    overflow-x: hidden;
-    /* Remove overflow-y: auto or hidden to allow normal scrolling */
 }
 
 /* App Container */
 #app-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    height: auto; /* Remove forced 100vh height */
-    overflow-x: hidden;
-    /* Remove overflow-y: auto to allow body to handle scrolling */
-    z-index: 1;
-}
-
-/* Main Content */
-.main-content {
-    flex: 1 0 auto;
+    position: relative; /* Context for absolute positioning */
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Contain absolutely positioned elements */
 }
 
 /* Canvas Styles */
 #bg {
-    flex: 1 0 auto;
-    position: relative;
-    z-index: 0;
+    position: absolute;
+    top: 0; /* Removed top offset to eliminate the bar */
+    left: 0;
+    width: 100%;
+    height: calc(100% - 38px); /* Adjusted height, only subtracting footer height */
     display: block;
+    z-index: 1; /* Base layer */
 }
 
 /* Styles for CSS3DObjects (Header/Footer) */
@@ -142,39 +133,34 @@ html, body {
 /* Update footer content styles */
 .footer-content {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
-    align-items: flex-start;
-    width: 90%;
-    max-width: 900px;
-    margin: 0 auto 8px auto;
-    gap: 32px;
+    gap: 20px;
+    margin-bottom: 4px;
 }
 
 .footer-brand {
-    flex: 2;
+    flex: 1;
     text-align: left;
 }
 
 .footer-brand h2 {
-    font-size: 20px;
-    margin: 0 0 6px 0;
+    font-size: 16px;
+    margin: 0 0 8px 0;
     color: #fff;
 }
 
 .footer-brand p {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.4;
     color: #aaa;
     margin: 0;
 }
 
 .footer-nav {
-    flex: 1;
+    width: 90px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    align-items: flex-end;
+    gap: 2px;
     pointer-events: auto !important;
 }
 
@@ -187,24 +173,25 @@ html, body {
 }
 
 .footer-nav a.footer-link {
-    font-size: 15px;
+    font-size: 3.8px;
     color: #aaa;
     text-decoration: none;
     display: inline-block;
     pointer-events: auto !important;
     transition: color 0.2s ease;
     width: auto;
-    text-align: right;
+    text-align: center;
+    margin: 0 auto;
     background: none;
-    padding: 0 0 2px 0;
+    padding: 0 0 0.2px 0; /* Changed to only have bottom padding */
 }
 
 .footer-nav a.footer-link:hover {
     color: #fff;
     background: linear-gradient(0deg, 
         rgba(255, 255, 255, 0.5) 0%, 
-        rgba(255, 255, 255, 0.5) 2px, 
-        transparent 2px
+        rgba(255, 255, 255, 0.5) 0.15px, 
+        transparent 0.15px
     );
     background-repeat: no-repeat;
     background-position: bottom;
@@ -243,10 +230,12 @@ html, body {
 }
 
 .copyright {
-    font-size: 12px;
-    color: #888;
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 8px;
     margin-top: 8px;
-    letter-spacing: 0.5px;
 }
 
 /* App Header and Footer (outside starfield) */
@@ -332,36 +321,58 @@ html, body {
         justify-content: space-between !important;
         align-items: center !important;
         background: rgba(0, 20, 40, 0.95) !important;
-        position: relative !important; /* Changed to relative */
+        position: fixed !important; /* Fix to viewport */
         bottom: 0 !important; /* Align to bottom */
         left: 0 !important;
         transform: none !important;
         font-size: 16px !important; /* Increased base font size */
         z-index: 1000 !important;
-        margin-bottom: 33vh !important; /* Add margin to prevent overlap with bottom sheet */
     }
 
     .footer-content {
+        position: relative !important;
+        z-index: 11 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
         flex-direction: column;
-        align-items: center;
-        gap: 12px;
-        width: 98%;
+        gap: 15px;
+        margin-bottom: 15px;
     }
 
-    .footer-brand, .footer-nav {
+    .footer-brand {
+        order: 1;
         text-align: center;
-        align-items: center;
+        display: none;  /* Keep brand hidden on mobile */
+    }
+
+    .footer-brand h2 {
+        font-size: 8px;
+        margin-bottom: 6px;
+    }
+
+    .footer-brand p {
+        font-size: 5px;
+        line-height: 1.6;
     }
 
     .footer-nav {
-        flex-direction: row;
-        gap: 10px;
-        justify-content: center;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 12px !important; /* Updated gap */
+        margin-bottom: 16px !important; /* Updated margin */
     }
 
     .footer-nav a.footer-link {
-        font-size: 13px;
-        text-align: center;
+        font-size: 14px !important; /* Increased font size */
+        color: rgba(255, 255, 255, 0.8) !important;
+        text-decoration: none !important;
+        display: block !important;
+        width: auto !important;
+        text-align: center !important;
+        margin: 0 !important;
+        padding: 4px 0 !important; /* Updated padding */
     }
 
     .css3d-footer::-webkit-scrollbar {
@@ -517,86 +528,4 @@ body.bottom-sheet-open {
     .bottom-sheet, .overlay {
         display: none;
     }
-}
-
-/* Mobile HTML Footer */
-.mobile-html-footer {
-  position: relative;
-  width: 100vw;
-  min-height: 90px;
-  background: none;
-  z-index: 5; /* Match header layering */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0;
-  font-size: 16px;
-  box-sizing: border-box;
-  border-top: none;
-  margin-top: 32px;
-}
-.mobile-html-footer .footer-content {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  margin-bottom: 0;
-}
-.mobile-html-footer .footer-nav {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
-.mobile-html-footer .footer-link {
-  font-size: 16px;
-  color: rgba(255,255,255,0.9);
-  text-decoration: none;
-  display: block;
-  width: auto;
-  text-align: center;
-  margin: 0 0 8px 0;
-  padding: 0;
-  transition: color 0.2s;
-}
-.mobile-html-footer .footer-link:hover {
-  color: #fff;
-}
-.mobile-html-footer .copyright {
-  width: 100%;
-  font-size: 13px;
-  color: rgba(255,255,255,0.7);
-  text-align: center;
-  padding-top: 8px;
-  margin-top: 8px;
-  border-top: none;
-  background: none;
-}
-@media (min-width: 601px) {
-  .mobile-html-footer { display: none !important; }
-}
-
-/* Footer */
-footer, .app-footer, .mobile-html-footer {
-  flex-shrink: 0;
-  text-align: center;
-  color: #fff;
-  background: rgba(0, 20, 40, 0.95) !important;
-  padding: 16px 0 8px 0 !important;
-  position: relative !important;
-  width: 100vw !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: auto !important;
-  z-index: 2 !important;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  min-height: 110px !important;
-  margin: 0 !important;
 }

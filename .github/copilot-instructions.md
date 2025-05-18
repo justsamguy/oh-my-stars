@@ -21,7 +21,7 @@
 ### Communication preferences
 * Assume that my messages are based entirely on the context of the conversation and interpret them accordingly.
 * Reply in **concise English**, include annotations.
-* Add a one-line summary of the actions taken in addition to each response for saving changes. Examples: "Changed the style of the button in the header to be more prominent"; "Fixed header to fit on screen". Separate multiple actions with a semicolon.
+* Add a one-line summary of the actions taken in addition to each response for saving changes. Examples: "Changed the style of the button in the header to be more prominent"; "Fixed header, updated menu links, added new section to the page".
 
 ---
 _Rules below are auto-copied from your existing Cline rules file (if present)._
