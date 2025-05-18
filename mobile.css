@@ -1,7 +1,6 @@
 /* Mobile Footer */
 #mobile-footer {
     display: none;
-    pointer-events: none;
 }
 
 #mobile-footer .mobile-footer-nav {
@@ -10,6 +9,7 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 15px;
+    width: 100%;
 }
 
 #mobile-footer .mobile-footer-link {
@@ -37,10 +37,8 @@
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-@media (max-width: 600px) {
-    #mobile-footer {
-        display: block;
-        pointer-events: auto;
+@media (max-width: 600px) {    #mobile-footer {
+        display: block !important;
         position: fixed;
         bottom: 0;
         left: 0;
@@ -53,6 +51,8 @@
         z-index: 9999;
         color: #fff;
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+        transform: translateZ(0); /* Force GPU acceleration */
+        -webkit-transform: translateZ(0);
     }
 
     #mobile-footer .mobile-footer-nav {
@@ -61,19 +61,20 @@
         align-items: center;
         gap: 12px;
         margin-bottom: 15px;
-    }
-
-    #mobile-footer .mobile-footer-link {
-        color: rgba(255, 255, 255, 0.85);
-        text-decoration: none;
+    }    #mobile-footer .mobile-footer-link {
+        color: rgba(255, 255, 255, 0.85) !important;
+        text-decoration: none !important;
         font-size: 14px;
         padding: 8px 16px;
         border-radius: 4px;
         transition: all 0.2s ease;
-        display: block;
+        display: block !important;
         text-align: center;
         width: 100%;
         max-width: 200px;
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        visibility: visible !important;
     }
 
     #mobile-footer .mobile-footer-link:hover {
@@ -88,12 +89,15 @@
         margin-top: 10px;
         padding-top: 10px;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Hide CSS3D footer completely on mobile */
+    }    /* Hide regular footer and show mobile footer on mobile devices */
     .css3d-footer {
-        opacity: 0 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
+        display: none !important;
+    }
+    
+    #mobile-footer * {
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
     }
 }

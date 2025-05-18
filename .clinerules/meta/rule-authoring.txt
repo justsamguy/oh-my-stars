@@ -73,6 +73,8 @@ alwaysApply: true
   - When analyzing and coming to a conclusion, include 1 or 2 sentences that explain the actions being taken.
   - When something is done, decide if it is a significant enough action to request an image be shared back for further analysis.
   - When editing files, consolidate changes per-file rather than per-rule.
+    - Add a one-line summary of the actions taken inside each response for task completion. Examples: "Changed the style of the button in the header to be more prominent"; "Fixed header to fit on screen". Separate multiple actions with a semicolon.
+
 
 ---
 
