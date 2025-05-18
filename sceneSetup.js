@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { pois } from '../config/config.js';
+import { pois } from './config.js';
 
 // Inject CSS styles
 const style = `

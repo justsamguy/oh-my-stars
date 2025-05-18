@@ -45,24 +45,15 @@ export function createFooterElement() {
     const isMobile = window.innerWidth <= 600;
     
     if (isMobile) {
-        footerDiv.style.position = 'relative';
-        footerDiv.style.width = '100vw';
-        footerDiv.style.height = 'auto';
-        footerDiv.style.bottom = '0';
-        footerDiv.style.fontSize = '6px';
-        footerDiv.style.padding = '12px 20px';
-        footerDiv.style.background = 'rgba(0, 20, 40, 0.95)';
-        footerDiv.style.display = 'flex';
-        footerDiv.style.flexDirection = 'column';
-        footerDiv.style.alignItems = 'center';
-
         footerDiv.innerHTML = `
-            <nav class="footer-nav" style="margin-bottom: 12px">
-                ${footerConfig.navigation.links.map(link => 
-                    `<a href="${link.href}" class="footer-link" style="font-size: 4.5px; margin-bottom: 8px">${wrapTextInGlowSpans(link.text)}</a>`
-                ).join('')}
-            </nav>
-            <div class="copyright" style="font-size: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2); width: 100%; text-align: center">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
+            <div class="footer-content">
+                <nav class="footer-nav">
+                    ${footerConfig.navigation.links.map(link => 
+                        `<a href="${link.href}" class="footer-link">${wrapTextInGlowSpans(link.text)}</a>`
+                    ).join('')}
+                </nav>
+            </div>
+            <div class="copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
         `;
     } else {
         footerDiv.style.width = '400px';

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { pois, POI_HITBOX_SCALE, MOBILE_BREAKPOINT } from './src/config/config.js';
+import { pois, POI_HITBOX_SCALE, MOBILE_BREAKPOINT } from './config.js';
 
 // POI geometry
 const poiGeometry = new THREE.CircleGeometry(3, 32);

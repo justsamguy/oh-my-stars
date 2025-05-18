@@ -1,24 +1,6 @@
 // Configuration and constants for the star map app
 import * as THREE from 'three';
 
-export const config = {
-  starCount: {
-    base: 9000,
-    mobile: 4500
-  },
-  scrollDamping: 0.95,
-  maxScrollSpeed: 2,
-  interactionRadius: {
-    max: 75.0,
-    min: 15.0
-  },
-  mobile: {
-    breakpoint: 600,
-    scrollMultiplier: 2,
-    hitboxScale: 12
-  }
-};
-
 // Generate colors across spectrum for POIs
 export function generateSpectralColors(count) {
     return Array.from({length: count}, (_, i) => {
@@ -29,7 +11,6 @@ export function generateSpectralColors(count) {
 }
 
 export const poiColors = generateSpectralColors(7);
-
 export const pois = [
     { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'JustSamGuy      ', description: 'Sam\'s first brand. Initially concieved as an online alias, it has since grown to represent creations that fall into art & entertainment.' },
     { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Clarenova', description: 'What started as the financial operations for Sam\'s body of work has become a brand that represents the values of clarity and simplicity in a world of complex technicalities.' },

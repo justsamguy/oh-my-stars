@@ -62,65 +62,37 @@ html, body {
 }
 
 .css3d-footer {
-    width: 90vw !important;
-    max-width: 600px !important;
-    margin: 0 auto !important;
-    padding: 12px 20px 8px 20px !important;
-    min-height: 60px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    background: rgba(0, 20, 40, 0.95) !important;
-    border-radius: 10px !important;
-    font-size: 16px !important;
-    z-index: 1000 !important;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
-    border-top: 1px solid rgba(255,255,255,0.1);
-    opacity: 1 !important;
-    visibility: visible !important;
+    width: 400px;
+    font-size: 1.5px;
+    background: rgba(0,0,0,0.5);
+    padding: 8px 15px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    height: 45px;  /* Match the new height */
 }
 
 .css3d-footer nav {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
     justify-content: center;
-    margin-bottom: 4px;
+    gap: 15px;
+    margin-bottom: 8px;
 }
 
 .css3d-footer nav a {
     color: #ccc;
     text-decoration: none;
-    font-size: 15px;
-    transition: color 0.2s;
+    transition: color 0.3s ease;
+    pointer-events: auto; /* Allow clicks on links */
 }
 
 .css3d-footer nav a:hover {
     color: #fff;
 }
 
-.css3d-footer .copyright {
-    font-size: 12px;
+.css3d-footer p {
+    margin: 0;
+    font-size: 0.8em;
     color: #aaa;
-    text-align: center;
-    padding-bottom: 4px;
-}
-
-@media (max-width: 600px) {
-    .css3d-footer {
-        display: none !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-
-    .css3d-footer nav a {
-        font-size: 14px !important;
-    }
-
-    .css3d-footer .copyright {
-        font-size: 11px !important;
-    }
 }
 
 /* Glow effect classes */
@@ -338,18 +310,22 @@ html, body {
     }
 
     .css3d-footer {
-        width: 100vw !important; /* Use viewport width */
-        max-width: none !important; /* Remove max-width constraint */
+        width: 100vw !important;
+        max-width: none !important;
         margin: 0 !important;
         padding: 12px 20px 8px 20px !important;
         height: auto !important;
-        min-height: 60px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(0, 20, 40, 0.95);
-        font-size: 6px;
+        min-height: 90px !important; /* Ensure enough space for content */
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background: rgba(0, 20, 40, 0.95) !important;
+        position: fixed !important; /* Fix to viewport */
+        bottom: 0 !important; /* Align to bottom */
+        left: 0 !important;
+        transform: none !important;
+        font-size: 16px !important; /* Increased base font size */
         z-index: 1000 !important;
     }
 
@@ -384,17 +360,19 @@ html, body {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 8px !important;
-        margin-bottom: 8px !important;
-        padding: 0 !important;
+        gap: 12px !important; /* Updated gap */
+        margin-bottom: 16px !important; /* Updated margin */
     }
 
     .footer-nav a.footer-link {
-        font-size: 4.5px !important;
+        font-size: 14px !important; /* Increased font size */
+        color: rgba(255, 255, 255, 0.8) !important;
+        text-decoration: none !important;
+        display: block !important;
         width: auto !important;
-        white-space: nowrap !important;
         text-align: center !important;
         margin: 0 !important;
+        padding: 4px 0 !important; /* Updated padding */
     }
 
     .css3d-footer::-webkit-scrollbar {
@@ -412,34 +390,19 @@ html, body {
 
     .copyright {
         width: 100% !important;
-        font-size: 3.5px !important;
-        color: rgba(255, 255, 255, 0.8) !important;
+        font-size: 12px !important; /* Increased font size */
+        color: rgba(255, 255, 255, 0.6) !important; /* Updated color */
         text-align: center !important;
-        padding-top: 8px !important;
-        margin: 8px 0 0 0 !important;
+        padding-top: 12px !important; /* Updated padding */
+        margin-top: 8px !important; /* Updated margin */
         border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
         position: relative !important;
         display: block !important;
-    }
-
-    .copyright {
-        position: relative !important;
-        bottom: auto !important;
-        left: auto !important;
-        right: auto !important;
-        width: 100% !important;
-        font-size: 3.5px !important;
-        color: rgba(255, 255, 255, 0.8) !important; /* Increased opacity */
-        text-align: center !important;
-        padding: 8px 0 4px 0 !important;
-        margin: 8px 0 0 0 !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
-        background: none !important;
-        z-index: 12 !important; /* Highest z-index in footer */
-        display: block !important;
-        visibility: visible !important;
         opacity: 1 !important;
+        visibility: visible !important;
+        background: rgba(0, 10, 20, 0.3) !important;
         transform: none !important;
+        z-index: 2 !important;
     }
 
     /* Remove any potentially conflicting styles */
@@ -564,112 +527,5 @@ body.bottom-sheet-open {
 @media (min-width: 601px) {
     .bottom-sheet, .overlay {
         display: none;
-    }
-}
-
-/* Mobile-only persistent footer overlay */
-#mobile-footer {
-    display: none;
-}
-
-@media (max-width: 600px) {
-    #mobile-footer {
-        display: block;
-        width: 100vw;
-        background: transparent;
-        box-shadow: none;
-        border-radius: 0;
-        padding: 18px 0 8px 0;
-        margin: 0 auto;
-        text-align: center;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 15px;
-        color: #fff;
-        position: static;
-        z-index: 1;
-    }
-    #mobile-footer nav {
-        display: flex;
-        justify-content: center;
-        gap: 18px;
-        margin-bottom: 6px;
-    }
-    #mobile-footer nav a {
-        color: #ccc;
-        text-decoration: none;
-        font-size: 15px;
-        transition: none;
-        text-shadow: 0 0 8px rgba(255,255,255,0.7); /* static glow */
-        padding: 2px 8px;
-        border-radius: 4px;
-    }
-    #mobile-footer nav a:active,
-    #mobile-footer nav a:focus {
-        color: #fff;
-    }
-    #mobile-footer .copyright {
-        font-size: 12px;
-        color: #aaa;
-        text-shadow: 0 0 8px rgba(255,255,255,0.5); /* static glow */
-        margin-top: 2px;
-    }
-    /* Hide the 3D footer on mobile */
-    .css3d-footer {
-        display: none !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-}
-
-/* Desktop (CSS3D) footer layout fix */
-@media (min-width: 601px) {
-    .css3d-footer {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        width: 90vw !important;
-        max-width: 600px !important;
-        margin: 0 auto !important;
-        padding: 14px 24px 10px 24px !important;
-        min-height: 48px !important;
-        background: rgba(0, 20, 40, 0.95) !important;
-        border-radius: 10px !important;
-        font-size: 16px !important;
-        z-index: 1000 !important;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
-        border-top: 1px solid rgba(255,255,255,0.1);
-        opacity: 1 !important;
-        visibility: visible !important;
-        gap: 0 !important;
-    }
-    .css3d-footer nav {
-        display: flex;
-        flex-direction: row;
-        gap: 18px;
-        justify-content: flex-end;
-        margin-bottom: 0;
-        flex: 1;
-    }
-    .css3d-footer nav a {
-        color: #ccc;
-        text-decoration: none;
-        font-size: 15px;
-        transition: color 0.2s;
-        padding: 2px 8px;
-        border-radius: 4px;
-    }
-    .css3d-footer nav a:hover {
-        color: #fff;
-        background: rgba(255,255,255,0.05);
-    }
-    .css3d-footer .copyright {
-        font-size: 12px;
-        color: #aaa;
-        text-align: right;
-        padding-bottom: 0;
-        margin-left: 18px;
-        border: none;
-        flex-shrink: 0;
     }
 }
