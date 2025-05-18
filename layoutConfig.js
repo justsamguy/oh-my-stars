@@ -45,6 +45,12 @@ export function createFooterElement() {
     const isMobile = window.innerWidth <= 600;
     
     if (isMobile) {
+        footerDiv.style.width = '100%';
+        footerDiv.style.background = 'rgba(0, 20, 40, 0.95)';
+        footerDiv.style.backdropFilter = 'blur(8px)';
+        footerDiv.style.padding = '15px';
+        footerDiv.style.fontSize = '14px';
+        
         footerDiv.innerHTML = `
             <div class="footer-content">
                 <nav class="footer-nav">

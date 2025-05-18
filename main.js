@@ -136,18 +136,20 @@ function animate() {
 
         currentInfoBox.style.left = `${screenX}px`;
         currentInfoBox.style.top = `${screenY}px`;
-    }    // Keep header/footer positioned correctly
+    }        // Keep header positioned at top
     headerObj.position.x = 0;
     headerObj.position.z = 0;
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
     
-    // Update footer position based on device type
+    // Position footer relative to visible viewport
     const isMobile = window.innerWidth <= 600;
     if (isMobile) {
-        // Keep footer at fixed distance from camera
+        // Calculate footer position in screen coordinates
+        const visibleHeight = (camera.top - camera.bottom);
+        const bottomEdge = camera.position.y - visibleHeight/2;
         footerObj.position.x = 0;
-        footerObj.position.y = camera.position.y - 100;
-        footerObj.position.z = camera.position.z + 200; // Keep it in front of the camera
+        footerObj.position.y = bottomEdge + 50; // Slightly above bottom edge
+        footerObj.position.z = 0;
     } else {
         footerObj.position.x = 0;
         footerObj.position.z = 0;
