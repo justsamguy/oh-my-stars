@@ -293,14 +293,18 @@ html, body {
 }
 */
 
-/* Mobile Responsiveness - Adjust if needed for 3D elements */
-/* @media (max-width: 600px) { ... } */
-/* Note: Responsiveness for CSS3DObjects might need JS adjustments */
-/* based on viewport size rather than pure CSS media queries */
-/* depending on how their size/position is calculated. */
-
-/* Always show glow effect on mobile */
+/* Mobile Adjustments for 3D elements */
 @media (max-width: 600px) {
+    /* Debug styles to make footer very visible */
+    .css3d-footer {
+        background: rgba(255, 0, 0, 0.5) !important; /* Bright red background */
+        border: 2px solid white !important;
+        font-size: 16px !important;
+        padding: 20px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        transform: scale(1.0) !important; /* Ensure no 3D transforms */
+    }
     .glow-char {
         color: #fff !important;
         text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),

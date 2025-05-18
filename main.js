@@ -49,10 +49,17 @@ headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
-// Replace footer creation with:
+// Create and position footer
 const footerDiv = createFooterElement();
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY + 15, 0);
+// Position footer at camera's near plane distance
+const isMobile = window.innerWidth <= 600;
+if (isMobile) {
+    // For mobile, position footer closer to the camera and slightly raised
+    footerObj.position.set(0, camera.position.y - 100, -200);
+} else {
+    footerObj.position.set(0, minY - paddingY + 15, 0);
+}
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
@@ -129,15 +136,23 @@ function animate() {
 
         currentInfoBox.style.left = `${screenX}px`;
         currentInfoBox.style.top = `${screenY}px`;
-    }
-
-    // Keep header/footer in correct X/Z, but let them scroll with the scene
+    }    // Keep header/footer positioned correctly
     headerObj.position.x = 0;
     headerObj.position.z = 0;
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    footerObj.position.x = 0;
-    footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingY + 30;
+    
+    // Update footer position based on device type
+    const isMobile = window.innerWidth <= 600;
+    if (isMobile) {
+        // Keep footer at fixed distance from camera
+        footerObj.position.x = 0;
+        footerObj.position.y = camera.position.y - 100;
+        footerObj.position.z = camera.position.z + 200; // Keep it in front of the camera
+    } else {
+        footerObj.position.x = 0;
+        footerObj.position.z = 0;
+        footerObj.position.y = minY - paddingY + 30;
+    }
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
