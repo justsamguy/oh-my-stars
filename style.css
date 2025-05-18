@@ -546,3 +546,57 @@ body.bottom-sheet-open {
         display: none;
     }
 }
+
+/* Mobile-only persistent footer overlay */
+#mobile-footer {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    #mobile-footer {
+        display: block;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        min-height: 90px;
+        background: linear-gradient(0deg, rgba(0,20,40,0.98) 80%, rgba(0,0,0,0.0) 100%);
+        z-index: 2000;
+        box-shadow: 0 -2px 16px rgba(0,0,0,0.3);
+        pointer-events: auto;
+        border-radius: 16px 16px 0 0;
+        padding-bottom: env(safe-area-inset-bottom, 12px);
+    }
+    #mobile-footer .mobile-footer-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px 0 8px 0;
+        color: #fff;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 15px;
+    }
+    #mobile-footer nav {
+        display: flex;
+        gap: 18px;
+        margin-top: 4px;
+    }
+    #mobile-footer nav a {
+        color: #ccc;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.2s;
+    }
+    #mobile-footer nav a:hover {
+        color: #fff;
+    }
+    /* Hide the 3D footer on mobile */
+    .css3d-footer {
+        display: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+}

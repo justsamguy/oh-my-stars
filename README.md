@@ -17,7 +17,8 @@
 <li> add a subtle smooth scroll-up effect upon initial load (desktop only)
 <li> Dark mode on site: Make the entire view crack into peices, and then fall down revealing a light theme, maybe with a static grey image texture in the background (solid white for now). To return to dark mode, simply fade back into the stars.
 <li> Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly animate the camera to a selected POI when this feature is implemented.
-
+<li> Add favicon 
+<li> 
 
 <br><br> 
 <p> This project was made using a macro-edit approach instead of code-test-commit because of it's reliance on js and me not wanting to mess with browser security to run locally imported code. </p>
