@@ -1,4 +1,4 @@
-import type { POI } from './types.js';
+import type { POI } from '../../types';
 
 export type EventMap = {
   'mouse:move': { x: number; y: number };

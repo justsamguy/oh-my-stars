@@ -7,9 +7,9 @@ import { createAllStars, updateStars } from './src/features/stars/stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './src/features/poi/poi.js';
 import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox, touchFadeValue } from './src/features/interaction/interaction.js';
 import { createHeaderElement, createFooterElement } from './src/config/layoutConfig.js';
-import { appState } from './src/core/state.ts';
-import { events } from './src/core/events.ts';
-import { logError } from './src/core/logger.ts';
+import { appState } from './src/core/state.js';
+import { events } from './src/core/events.js';
+import { logError } from './src/core/logger.js';
 
 // --- CSS3DRenderer only for overlays and header/footer ---
 const appContainer = document.getElementById('app-container');

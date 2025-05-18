@@ -1,4 +1,4 @@
-import type { AppState, StateManager } from './types.js';
+import type { AppState, StateManager } from '../../types';
 
 class AppStateManager implements StateManager {
   private state: AppState = {
