@@ -14,8 +14,8 @@ const cssRenderer = new CSS3DRenderer();
 cssRenderer.setSize(window.innerWidth, window.innerHeight);
 cssRenderer.domElement.style.position = 'absolute';
 cssRenderer.domElement.style.top = '0px';
-cssRenderer.domElement.style.pointerEvents = 'none';
-cssRenderer.domElement.style.zIndex = '5';
+cssRenderer.domElement.style.pointerEvents = 'auto';
+cssRenderer.domElement.style.zIndex = '100';
 appContainer.appendChild(cssRenderer.domElement);
 
 // Create stars
