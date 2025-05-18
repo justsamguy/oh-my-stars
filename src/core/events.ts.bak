@@ -1,3 +1,4 @@
+// Backup of original TypeScript file
 import type { POI } from '../../types';
 
 export type EventMap = {

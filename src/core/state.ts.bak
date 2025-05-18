@@ -1,3 +1,4 @@
+// Backup of original TypeScript file
 import type { AppState, StateManager } from '../../types';
 
 class AppStateManager implements StateManager {

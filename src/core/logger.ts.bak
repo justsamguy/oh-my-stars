@@ -1,3 +1,4 @@
+// Backup of original TypeScript file
 export function logInfo(msg: string, ...args: unknown[]) {
   // eslint-disable-next-line no-console
   console.info('[INFO]', msg, ...args);
