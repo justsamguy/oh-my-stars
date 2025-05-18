@@ -59,30 +59,8 @@ footerObj.position.set(0, minY - paddingY + 15, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
-// Replace footer creation logic
-if (window.innerWidth <= 600) {
-  // Remove CSS3DObject footer if present
-  if (footerObj && scene.children.includes(footerObj)) {
-    scene.remove(footerObj);
-  }
-  // Inject a normal HTML footer for mobile
-  if (!document.querySelector('.mobile-footer')) {
-    const mobileFooter = document.createElement('div');
-    mobileFooter.className = 'mobile-footer';
-    mobileFooter.innerHTML = `
-      <nav>
-        <a href="#">Star Map</a> |
-        <a href="#">POIs</a> |
-        <a href="#">Docs</a> |
-        <a href="#">Updates</a> |
-        <a href="#">GitHub</a>
-      </nav>
-      <div class="copyright">&copy; 2025 S&A All rights reserved.</div>
-    `;
-    document.body.appendChild(mobileFooter);
-  }
-} else {
-  // Desktop: use CSS3DObject footer
+// Always add the CSS3DObject footer to the scene
+if (!scene.children.includes(footerObj)) {
   scene.add(footerObj);
 }
 
@@ -134,10 +112,8 @@ function animate() {
         const maxCameraY = maxY + paddingY;
         camera.position.y = Math.max(minCameraY, Math.min(maxCameraY, camera.position.y));
 
-        // On mobile, pin footerObj to bottom of camera viewport
-        if (window.innerWidth <= 600) {
-            footerObj.position.y = camera.position.y - camera.bottom + 45; // 45 = approx. footer height
-        }
+        // Always pin footerObj to bottom of camera viewport
+        footerObj.position.y = camera.position.y - camera.bottom + 45; // 45 = approx. footer height
 
         // Update camera position in state
         appState.set('cameraY', camera.position.y);
