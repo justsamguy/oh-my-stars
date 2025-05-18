@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { getWorldPosition } from '../../utils/utils.js';
-import { infoBoxContainer, camera, renderer } from './src/core/sceneSetup.js';
-import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER } from './src/config/config.js';
-import { events } from './src/core/events.js';
-import { logError } from './src/core/logger.js';
-import { appState } from './src/core/state.js';
+import { getWorldPosition } from './utils.js';
+import { infoBoxContainer, camera, renderer } from './sceneSetup.js';
+import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER } from './config.js';
+import { events } from './events.js';
+import { logError } from './logger.js';
+import { appState } from './state.js';
 
 // State
 export let mouseWorldPosition = new THREE.Vector3(-10000, -10000, 0);
