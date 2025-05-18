@@ -337,6 +337,26 @@ html, body {
                      0 0 35px rgba(255, 255, 255, 0.4) !important;
     }
 
+    .css3d-footer {
+        width: 100vw !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 12px 20px 8px 20px !important;
+        height: auto !important;
+        min-height: 90px !important; /* Ensure enough space for content */
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background: rgba(0, 20, 40, 0.95) !important;
+        position: fixed !important; /* Fix to viewport */
+        bottom: 0 !important; /* Align to bottom */
+        left: 0 !important;
+        transform: none !important;
+        font-size: 6px;
+        z-index: 1000 !important;
+    }
+
     .footer-content {
         position: relative !important;
         z-index: 11 !important;
@@ -368,25 +388,17 @@ html, body {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        gap: 12px !important; /* Updated gap */
-        margin-bottom: 16px !important; /* Updated margin */
+        gap: 8px !important;
+        margin-bottom: 8px !important;
+        padding: 0 !important;
     }
 
     .footer-nav a.footer-link {
-        font-size: 14px !important; /* Increased font size */
-        color: rgba(255, 255, 255, 0.8) !important;
-        text-decoration: none !important;
-        display: block !important;
+        font-size: 4.5px !important;
         width: auto !important;
+        white-space: nowrap !important;
         text-align: center !important;
         margin: 0 !important;
-        padding: 4px 0 !important; /* Updated padding */
-    }
-
-    .css3d-footer *, .footer-content *, .copyright * {
-        opacity: 1 !important;
-        visibility: visible !important;
-        z-index: 100000 !important;
     }
 
     .css3d-footer::-webkit-scrollbar {
@@ -404,11 +416,11 @@ html, body {
 
     .copyright {
         width: 100% !important;
-        font-size: 12px !important; /* Increased font size */
-        color: rgba(255, 255, 255, 0.6) !important; /* Updated color */
+        font-size: 4px !important;
+        color: rgba(255, 255, 255, 0.8) !important;
         text-align: center !important;
-        padding-top: 12px !important; /* Updated padding */
-        margin-top: 8px !important; /* Updated margin */
+        padding: 8px 0 4px 0 !important;
+        margin: 4px 0 0 0 !important;
         border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
         position: relative !important;
         display: block !important;
