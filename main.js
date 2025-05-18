@@ -59,13 +59,31 @@ footerObj.position.set(0, minY - paddingY + 15, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
-// After footerDiv and footerObj creation
+// Replace footer creation logic
 if (window.innerWidth <= 600) {
-  console.log('MOBILE FOOTER DEBUG:', footerDiv, getComputedStyle(footerDiv));
-  cssRenderer.domElement.style.width = '100vw';
-  cssRenderer.domElement.style.height = '100vh';
-  cssRenderer.domElement.style.pointerEvents = 'auto';
-  cssRenderer.domElement.style.zIndex = '99999';
+  // Remove CSS3DObject footer if present
+  if (footerObj && scene.children.includes(footerObj)) {
+    scene.remove(footerObj);
+  }
+  // Inject a normal HTML footer for mobile
+  if (!document.querySelector('.mobile-footer')) {
+    const mobileFooter = document.createElement('div');
+    mobileFooter.className = 'mobile-footer';
+    mobileFooter.innerHTML = `
+      <nav>
+        <a href="#">Star Map</a> |
+        <a href="#">POIs</a> |
+        <a href="#">Docs</a> |
+        <a href="#">Updates</a> |
+        <a href="#">GitHub</a>
+      </nav>
+      <div class="copyright">&copy; 2025 S&A All rights reserved.</div>
+    `;
+    document.body.appendChild(mobileFooter);
+  }
+} else {
+  // Desktop: use CSS3DObject footer
+  scene.add(footerObj);
 }
 
 // Update glow effect handler for both header and footer
