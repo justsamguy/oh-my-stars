@@ -10,10 +10,13 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%; /* Ensure html and body take full height */
+    min-height: 100vh; /* Changed from height: 100% to min-height: 100vh */
+    height: auto; /* Remove forced 100% height */
     font-family: sans-serif;
     background-color: #000; /* Match starfield background */
     color: #fff; /* Default text color */
+    overflow-x: hidden;
+    /* Remove overflow-y: auto or hidden to allow normal scrolling */
 }
 
 /* App Container */
@@ -22,9 +25,9 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    height: 100vh;
+    height: auto; /* Remove forced 100vh height */
     overflow-x: hidden;
-    overflow-y: auto;
+    /* Remove overflow-y: auto to allow body to handle scrolling */
     z-index: 1;
 }
 
