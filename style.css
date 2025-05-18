@@ -308,6 +308,12 @@ html, body {
                      0 0 25px rgba(255, 255, 255, 0.6),
                      0 0 35px rgba(255, 255, 255, 0.4) !important;
     }
+
+    /* Hide footer heading and description on mobile */
+    .css3d-footer .footer-brand h2,
+    .css3d-footer .footer-brand p {
+        display: none !important;
+    }
 }
 
 /* Prevent text selection during touch interactions */
