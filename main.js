@@ -168,7 +168,7 @@ function animate() {
     const maxScroll = docHeight - viewportHeight;
     const scrollProgress = Math.min(scrollY / maxScroll, 1);
       // Only show footer when scrolled near bottom on desktop
-    const footerShowThreshold = 0.85;
+    const footerShowThreshold = 0.5; // Lowered for easier testing
     if (window.innerWidth > 600) {  // Only handle desktop footer
         if (scrollProgress > footerShowThreshold) {
             const opacity = (scrollProgress - footerShowThreshold) * (1 / (1 - footerShowThreshold));

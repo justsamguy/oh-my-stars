@@ -96,6 +96,9 @@ html, body {
     opacity: 0;
 }
 
+/* To force the desktop footer visible for debugging, uncomment the next line: */
+/* .css3d-footer { opacity: 1 !important; } */
+
 .css3d-footer nav {
     display: flex;
     justify-content: center;
