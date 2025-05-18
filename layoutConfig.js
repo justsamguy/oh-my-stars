@@ -41,25 +41,32 @@ export function createHeaderElement() {
 export function createFooterElement() {
     const isMobile = window.innerWidth <= 600;
     if (isMobile) {
-        // On mobile, use a regular div (not fixed) and let it scroll with the app
+        // Remove any existing mobile footer to avoid duplicates
         let htmlFooter = document.getElementById('mobile-html-footer');
-        if (!htmlFooter) {
-            htmlFooter = document.createElement('div');
-            htmlFooter.id = 'mobile-html-footer';
-            htmlFooter.className = 'mobile-html-footer';
-            htmlFooter.innerHTML = `
-                <div class="footer-content">
-                    <nav class="footer-nav">
-                        ${footerConfig.navigation.links.map(link => 
-                            `<a href="${link.href}" class="footer-link">${wrapTextInGlowSpans(link.text)}</a>`
-                        ).join('')}
-                    </nav>
-                </div>
-                <div class="copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
-            `;
-            // Instead of appending to body, append to #app-container so it scrolls with content
-            const appContainer = document.getElementById('app-container');
-            if (appContainer) appContainer.appendChild(htmlFooter);
+        if (htmlFooter) htmlFooter.remove();
+        // Create a new footer div
+        htmlFooter = document.createElement('div');
+        htmlFooter.id = 'mobile-html-footer';
+        htmlFooter.className = 'mobile-html-footer';
+        htmlFooter.innerHTML = `
+            <div class="footer-content">
+                <nav class="footer-nav">
+                    ${footerConfig.navigation.links.map(link => 
+                        `<a href="${link.href}" class="footer-link">${wrapTextInGlowSpans(link.text)}</a>`
+                    ).join('')}
+                </nav>
+            </div>
+            <div class="copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
+        `;
+        // Append after the canvas in #app-container so it scrolls with the starfield
+        const appContainer = document.getElementById('app-container');
+        const canvas = document.getElementById('bg');
+        if (appContainer && canvas) {
+            if (canvas.nextSibling) {
+                appContainer.insertBefore(htmlFooter, canvas.nextSibling);
+            } else {
+                appContainer.appendChild(htmlFooter);
+            }
         }
         return htmlFooter;
     }
