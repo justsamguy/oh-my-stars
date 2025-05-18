@@ -107,6 +107,11 @@ function animate() {
         const maxCameraY = maxY + paddingY;
         camera.position.y = Math.max(minCameraY, Math.min(maxCameraY, camera.position.y));
 
+        // On mobile, pin footerObj to bottom of camera viewport
+        if (window.innerWidth <= 600) {
+            footerObj.position.y = camera.position.y - camera.bottom + 45; // 45 = approx. footer height
+        }
+
         // Update camera position in state
         appState.set('cameraY', camera.position.y);
 

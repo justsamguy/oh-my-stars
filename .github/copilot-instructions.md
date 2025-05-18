@@ -19,6 +19,7 @@
 
 
 ### Communication preferences
+* Assume that my messages are based entirely on the context of the conversation and interpret them accordingly.
 * Reply in **concise English**, include annotations.
 * Add a one-sentence summary of the actions taken at the end of each response.
 
