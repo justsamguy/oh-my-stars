@@ -39,7 +39,7 @@ setupClickHandler(poiObjects);
 let yPositions = pois.map(p => p.position.y);
 let maxY = Math.max(...yPositions);
 let minY = Math.min(...yPositions);
-const paddingY = 100; // Increased from 100 to 200 for more scroll range
+const paddingY = 200; // Increased from 100 to 200 for more scroll range and footer space
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
