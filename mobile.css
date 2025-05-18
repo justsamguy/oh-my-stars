@@ -13,7 +13,7 @@
     z-index: 99999;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
-    display: none;
+    display: none; /* Hidden by default, shown in media query */
     pointer-events: auto !important;
     will-change: transform;
     touch-action: none;
@@ -75,6 +75,14 @@
         color: #fff;
         visibility: visible !important;
         opacity: 1 !important;
+    }
+
+    /* Hide CSS3D footer on mobile */
+    .css3d-footer, .css3d-footer * {
+        display: none !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
     }
     
     /* Hide desktop footer */

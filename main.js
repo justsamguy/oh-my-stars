@@ -167,17 +167,20 @@ function animate() {
     const docHeight = document.documentElement.scrollHeight;
     const maxScroll = docHeight - viewportHeight;
     const scrollProgress = Math.min(scrollY / maxScroll, 1);
-    
-    // Only show footer when scrolled near bottom
-    if (scrollProgress > 0.9) {
-        footerObj.position.y = -viewportHeight/2 + (scrollProgress - 0.9) * 1000;
-        footerDiv.style.opacity = ((scrollProgress - 0.9) * 10).toString();
-    } else {
-        footerObj.position.y = -viewportHeight/2;
-        footerDiv.style.opacity = "0";
+      // Only show footer when scrolled near bottom on desktop
+    const footerShowThreshold = 0.85;
+    if (window.innerWidth > 600) {  // Only handle desktop footer
+        if (scrollProgress > footerShowThreshold) {
+            const opacity = (scrollProgress - footerShowThreshold) * (1 / (1 - footerShowThreshold));
+            footerObj.position.y = minY - paddingY + (150 * opacity);
+            footerDiv.style.opacity = opacity.toString();
+        } else {
+            footerObj.position.y = minY - paddingY;
+            footerDiv.style.opacity = "0";
+        }
+        footerObj.position.x = 0;
+        footerObj.position.z = 0;
     }
-    footerObj.position.x = 0;
-    footerObj.position.z = 0;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
