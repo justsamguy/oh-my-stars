@@ -24,9 +24,15 @@ html, body {
     align-items: center;
     width: 100vw;
     min-height: 100vh;
+    height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
     z-index: 1;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1 0 auto;
 }
 
 /* Canvas Styles */
@@ -594,4 +600,17 @@ body.bottom-sheet-open {
 }
 @media (min-width: 601px) {
   .mobile-html-footer { display: none !important; }
+}
+
+/* Footer */
+footer {
+    flex-shrink: 0;
+    text-align: center;
+    color: #fff;
+    background: rgba(20, 20, 20, 0.7);
+    padding: 10px 0;
+    position: relative;
+    width: 100%;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
+    z-index: 1;
 }
