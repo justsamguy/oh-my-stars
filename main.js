@@ -59,6 +59,15 @@ footerObj.position.set(0, minY - paddingY + 15, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
+// After footerDiv and footerObj creation
+if (window.innerWidth <= 600) {
+  console.log('MOBILE FOOTER DEBUG:', footerDiv, getComputedStyle(footerDiv));
+  cssRenderer.domElement.style.width = '100vw';
+  cssRenderer.domElement.style.height = '100vh';
+  cssRenderer.domElement.style.pointerEvents = 'auto';
+  cssRenderer.domElement.style.zIndex = '99999';
+}
+
 // Update glow effect handler for both header and footer
 const handleGlowEffect = (element, e) => {
     const chars = element.querySelectorAll('.glow-char');
