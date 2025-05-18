@@ -5,7 +5,7 @@ alwaysApply: true
 ---
 
 - **Development Workflow Process**
-  - Edit project files: `index.html`, `style.css`, `main.js`, `config.js`, `interaction.js`, `layoutConfig.js`, `poi.js`, `sceneSetup.js`, `stars.js`, `utils.js`.
+  - Edit project files: `index.html`, `style.css`, `main.js`, `config.js`, `interaction.js`, `layoutConfig.js`, `poi.js`, `sceneSetup.js`, `stars.js`, `utils.js`, `logger.js`, `state.js`.
   - Open `index.html` in a web browser to view changes and test functionality.
   - Use browser developer tools (console, elements, network) for debugging and inspection.
   - Utilize Git for version control (committing changes, creating branches, pushing to remote).
@@ -21,6 +21,8 @@ alwaysApply: true
   - `sceneSetup.js`: Sets up the 3D scene (if applicable).
   - `stars.js`: Logic related to stars.
   - `utils.js`: Utility functions.
+  - `logger.js`: Logging functionality.
+  - `state.js`: Application state management.
   - `references/`: Directory for reference materials.
 
 - **Viewing Changes**
