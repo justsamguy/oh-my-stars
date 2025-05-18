@@ -335,6 +335,12 @@ html, body {
         margin: 0 auto;
     }
 
+    .css3d-footer {
+        height: auto !important;
+        min-height: 0 !important;
+        padding-bottom: 12px;
+    }
+
     body {
         padding-bottom: 120px !important;
     }
