@@ -48,7 +48,6 @@ export function createFooterElement() {
     const rightLinks = footerConfig.navigation.links.slice(halfLength);
 
     if (isMobile) {
-        // Mobile: visually match desktop, but stack vertically and use touch-friendly spacing
         footerDiv.style.width = '98vw';
         footerDiv.style.maxWidth = '98vw';
         footerDiv.style.background = 'rgba(0, 20, 40, 0.95)';
