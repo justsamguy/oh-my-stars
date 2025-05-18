@@ -76,7 +76,6 @@ export function createFooterElement() {
             </div>
             <div class="copyright" style="font-size:12px; color:#aaa; text-align:center; margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.1); width:100%;">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
         `;
-    } else {
         footerDiv.style.width = '400px';
         footerDiv.style.fontSize = '1.5px';
         footerDiv.style.background = 'rgba(0,0,0,0.5)';
