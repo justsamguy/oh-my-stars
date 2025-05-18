@@ -54,8 +54,8 @@ export const scene = new THREE.Scene();
 export function getViewportHeight() {
     const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
     const isMobile = window.innerWidth <= 600;
-    // Add extra space at the bottom for mobile and ensure viewport includes UI elements
-    const extraSpace = isMobile ? window.innerHeight * 2 : poiHeight * 0.1;
+    // Add extra space at the bottom for mobile
+    const extraSpace = isMobile ? window.innerHeight * 3.5 : poiHeight * 0.1;
     return poiHeight + extraSpace;
 }
 export function getViewportWidth() {

@@ -39,33 +39,23 @@ export function createHeaderElement() {
 }
 
 export function createFooterElement() {
-    // Set up mobile footer if it exists
-    const mobileFooter = document.getElementById('mobile-footer');
-    if (mobileFooter) {
-        mobileFooter.innerHTML = `
-            <nav class="mobile-footer-nav">
-                ${footerConfig.navigation.links.map(link => 
-                    `<a href="${link.href}" class="mobile-footer-link">${wrapTextInGlowSpans(link.text)}</a>`
-                ).join('')}
-            </nav>
-            <div class="mobile-footer-copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
+    const footerDiv = document.createElement('div');
+    footerDiv.className = 'css3d-element css3d-footer';
+    
+    const isMobile = window.innerWidth <= 600;
+    
+    if (isMobile) {
+        footerDiv.innerHTML = `
+            <div class="footer-content">
+                <nav class="footer-nav">
+                    ${footerConfig.navigation.links.map(link => 
+                        `<a href="${link.href}" class="footer-link">${wrapTextInGlowSpans(link.text)}</a>`
+                    ).join('')}
+                </nav>
+            </div>
+            <div class="copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
         `;
-    }
-    
-    // Create the desktop footer (CSS3D version)
-    const footerDiv = document.createElement('div');
-    footerDiv.className = 'css3d-element css3d-footer';
-            mobileFooter.style.borderTop = '1px solid rgba(255, 255, 255, 0.1)';
-            mobileFooter.style.padding = '15px';
-            mobileFooter.style.zIndex = '1000';
-            mobileFooter.style.color = '#fff';
-        }
-    }
-    
-    // Create the regular footer for desktop
-    const footerDiv = document.createElement('div');
-    footerDiv.className = 'css3d-element css3d-footer';
-    if (!isMobile) {
+    } else {
         footerDiv.style.width = '400px';
         footerDiv.style.fontSize = '1.5px';
         footerDiv.style.background = 'rgba(0,0,0,0.5)';

@@ -14,8 +14,8 @@ const cssRenderer = new CSS3DRenderer();
 cssRenderer.setSize(window.innerWidth, window.innerHeight);
 cssRenderer.domElement.style.position = 'absolute';
 cssRenderer.domElement.style.top = '0px';
-cssRenderer.domElement.style.pointerEvents = 'auto';
-cssRenderer.domElement.style.zIndex = '100';
+cssRenderer.domElement.style.pointerEvents = 'none';
+cssRenderer.domElement.style.zIndex = '5';
 appContainer.appendChild(cssRenderer.domElement);
 
 // Create stars
@@ -49,7 +49,7 @@ headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
-// Create and position footer
+// Replace footer creation with:
 const footerDiv = createFooterElement();
 const footerObj = new CSS3DObject(footerDiv);
 footerObj.position.set(0, minY - paddingY + 15, 0);
@@ -129,25 +129,15 @@ function animate() {
 
         currentInfoBox.style.left = `${screenX}px`;
         currentInfoBox.style.top = `${screenY}px`;
-    }        // Keep header positioned at top
+    }
+
+    // Keep header/footer in correct X/Z, but let them scroll with the scene
     headerObj.position.x = 0;
     headerObj.position.z = 0;
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    
-    // Position footer relative to visible viewport
-    const isMobile = window.innerWidth <= 600;
-    if (isMobile) {
-        // Calculate footer position in screen coordinates
-        const visibleHeight = (camera.top - camera.bottom);
-        const bottomEdge = camera.position.y - visibleHeight/2;
-        footerObj.position.x = 0;
-        footerObj.position.y = bottomEdge + 50; // Slightly above bottom edge
-        footerObj.position.z = 0;
-    } else {
-        footerObj.position.x = 0;
-        footerObj.position.z = 0;
-        footerObj.position.y = minY - paddingY + 30;
-    }
+    footerObj.position.x = 0;
+    footerObj.position.z = 0;
+    footerObj.position.y = minY - paddingY + 30;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
