@@ -52,7 +52,8 @@ scene.add(headerObj);
 // Replace footer creation with:
 const footerDiv = createFooterElement();
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY + 15, 0);
+// Position the footer at the bottom of the viewport, regardless of scroll
+footerObj.position.set(0, -window.innerHeight/2, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
@@ -155,15 +156,28 @@ function animate() {
 
         currentInfoBox.style.left = `${screenX}px`;
         currentInfoBox.style.top = `${screenY}px`;
-    }
-
-    // Keep header/footer in correct X/Z, but let them scroll with the scene
+    }    // Keep header in correct position
     headerObj.position.x = 0;
     headerObj.position.z = 0;
     headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
+    
+    // Keep footer at the bottom of the viewport and move with scroll
+    const scrollY = window.scrollY || window.pageYOffset;
+    const viewportHeight = window.innerHeight;
+    const docHeight = document.documentElement.scrollHeight;
+    const maxScroll = docHeight - viewportHeight;
+    const scrollProgress = Math.min(scrollY / maxScroll, 1);
+    
+    // Only show footer when scrolled near bottom
+    if (scrollProgress > 0.9) {
+        footerObj.position.y = -viewportHeight/2 + (scrollProgress - 0.9) * 1000;
+        footerDiv.style.opacity = ((scrollProgress - 0.9) * 10).toString();
+    } else {
+        footerObj.position.y = -viewportHeight/2;
+        footerDiv.style.opacity = "0";
+    }
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingY + 30;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene

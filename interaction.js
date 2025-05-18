@@ -586,9 +586,20 @@ export function setupScrollHandler() {
     const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
     const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
     
+    // Track scroll position for footer visibility
+    const updateScroll = () => {
+        const viewportHeight = window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+        const maxScroll = docHeight - viewportHeight;
+        const scrollProgress = Math.min(window.scrollY / maxScroll, 1);
+        
+        updateFooterVisibility(scrollProgress);
+    };
+    
     window.addEventListener('wheel', (e) => {
         e.preventDefault();
         scrollState.velocity -= e.deltaY * 0.01 * multiplier;
+        updateScroll();
     }, { passive: false });
 
     let touchStart = 0;
@@ -600,7 +611,26 @@ export function setupScrollHandler() {
         const delta = touchStart - e.touches[0].clientY;
         scrollState.velocity -= delta * 0.01 * multiplier;
         touchStart = e.touches[0].clientY;
+        updateScroll();
     });
+
+    // Add regular scroll listener for smooth updates
+    window.addEventListener('scroll', () => {
+        requestAnimationFrame(updateScroll);
+    }, { passive: true });
+}
+
+// Add smooth scroll handling for footer visibility
+export function updateFooterVisibility(scrollProgress) {
+    const footerElement = document.querySelector('.css3d-footer');
+    if (footerElement) {
+        if (scrollProgress > 0.9) {
+            const opacity = (scrollProgress - 0.9) * 10;
+            footerElement.style.opacity = opacity.toString();
+        } else {
+            footerElement.style.opacity = '0';
+        }
+    }
 }
 
 // Resize event

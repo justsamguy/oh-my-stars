@@ -21,8 +21,11 @@ html, body {
 #app-container {
     position: relative; /* Context for absolute positioning */
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
+    height: auto;
     z-index: 1; /* Ensure proper stacking context */
+    padding-bottom: 200px; /* Space for footer */
+    overflow-y: auto;
 }
 
 @media (min-width: 601px) {
@@ -79,13 +82,18 @@ html, body {
 }
 
 .css3d-footer {
-    width: 400px;
+    width: 100%;
     font-size: 1.5px;
-    background: rgba(0,0,0,0.5);
-    padding: 8px 15px;
+    background: rgba(0,20,40,0.95);
+    padding: 12px 20px;
     box-sizing: border-box;
-    border-radius: 8px;
-    height: 45px;  /* Match the new height */
+    border-radius: 0;
+    min-height: 90px;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    opacity: 0;
 }
 
 .css3d-footer nav {

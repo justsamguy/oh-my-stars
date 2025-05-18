@@ -43,12 +43,14 @@ export function createFooterElement() {
     footerDiv.className = 'css3d-element css3d-footer';
     
     // Always create desktop footer for 3D scene
-    footerDiv.style.width = '400px';
+    footerDiv.style.width = '100%';
     footerDiv.style.fontSize = '1.5px';
-    footerDiv.style.background = 'rgba(0,0,0,0.5)';
-    footerDiv.style.padding = '6px 15px';
+    footerDiv.style.background = 'rgba(0,20,40,0.95)';
+    footerDiv.style.padding = '12px 20px';
     footerDiv.style.boxSizing = 'border-box';
-    footerDiv.style.height = '42px';
+    footerDiv.style.minHeight = '90px';
+    footerDiv.style.backdropFilter = 'blur(8px)';
+    footerDiv.style.WebkitBackdropFilter = 'blur(8px)';
 
     // Split navigation links into two arrays
     const halfLength = Math.ceil(footerConfig.navigation.links.length / 2);
