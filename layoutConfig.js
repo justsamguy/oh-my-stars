@@ -41,10 +41,10 @@ export function createHeaderElement() {
 export function createFooterElement() {
     const isMobile = window.innerWidth <= 600;
     if (isMobile) {
-        // On mobile, use a fixed HTML footer instead of a CSS3DObject
+        // On mobile, use a regular div (not fixed) and let it scroll with the app
         let htmlFooter = document.getElementById('mobile-html-footer');
         if (!htmlFooter) {
-            htmlFooter = document.createElement('footer');
+            htmlFooter = document.createElement('div');
             htmlFooter.id = 'mobile-html-footer';
             htmlFooter.className = 'mobile-html-footer';
             htmlFooter.innerHTML = `
@@ -57,7 +57,9 @@ export function createFooterElement() {
                 </div>
                 <div class="copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
             `;
-            document.body.appendChild(htmlFooter);
+            // Instead of appending to body, append to #app-container so it scrolls with content
+            const appContainer = document.getElementById('app-container');
+            if (appContainer) appContainer.appendChild(htmlFooter);
         }
         return htmlFooter;
     }
