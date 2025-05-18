@@ -334,6 +334,13 @@ html, body {
         text-align: center;
         margin: 0 auto;
     }
+
+    body {
+        padding-bottom: 120px !important;
+    }
+    #app-container {
+        padding-bottom: 120px !important;
+    }
 }
 
 /* Prevent text selection during touch interactions */
