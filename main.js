@@ -50,11 +50,24 @@ headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
 // Replace footer creation with:
-const footerDiv = createFooterElement();
-// Always inject the HTML footer into the DOM, not as a CSS3DObject
+let footerDiv = createFooterElement();
 if (appContainer && footerDiv) {
   appContainer.appendChild(footerDiv);
 }
+
+// Listen for resize to swap footer if needed
+window.addEventListener('resize', () => {
+  const currentFooter = document.getElementById('app-html-footer') || document.getElementById('mobile-html-footer');
+  const shouldBeMobile = window.innerWidth <= 600;
+  const isMobileFooter = currentFooter && currentFooter.id === 'mobile-html-footer';
+  if ((shouldBeMobile && !isMobileFooter) || (!shouldBeMobile && isMobileFooter)) {
+    if (currentFooter) currentFooter.remove();
+    footerDiv = createFooterElement();
+    if (appContainer && footerDiv) {
+      appContainer.appendChild(footerDiv);
+    }
+  }
+});
 
 // Update glow effect handler for both header and footer
 const handleGlowEffect = (element, e) => {
