@@ -7,6 +7,9 @@ import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
 import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox, touchFadeValue } from './interaction.js';
 import { createHeaderElement, createFooterElement } from './layoutConfig.js';
+import { appState } from './state.js';
+import { events } from './events.js';
+import { logError } from './logger.js';
 
 // --- CSS3DRenderer only for overlays and header/footer ---
 const appContainer = document.getElementById('app-container');
@@ -86,62 +89,35 @@ const handleGlowEffect = (element, e) => {
 // Animation loop
 let lastTime = performance.now();
 function animate() {
-    requestAnimationFrame(animate);
-    const now = performance.now();
-    const elapsed = (now - lastTime) / 1000;
-    lastTime = now;
-    // Camera scroll
-    // Clamp scrollVelocity before applying
-    if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
-    if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
-    if (Math.abs(scrollState.velocity) > 0.001) {
-        camera.position.y += scrollState.velocity;
-        scrollState.velocity *= SCROLL_DAMPING;
+    try {
+        requestAnimationFrame(animate);
+        const now = performance.now();
+        const elapsed = (now - lastTime) / 1000;
+        lastTime = now;
+
+        // Update scroll with state
+        const velocity = appState.get('scrollVelocity');
+        if (Math.abs(velocity) > 0.001) {
+            camera.position.y += velocity;
+            appState.set('scrollVelocity', velocity * SCROLL_DAMPING);
+        }
+
+        // Update camera position in state
+        appState.set('cameraY', camera.position.y);
+
+        // Update scene
+        updateStars(starsGroup, now * 0.001, camera.position.y, mouseWorldPosition, appState.get('touchFade'));
+        updatePOIs(poiObjects, now * 0.001, raycaster);
+
+        // Render
+        renderer.render(scene, camera);
+        cssRenderer.render(scene, camera);
+
+    } catch (err) {
+        logError('Animation loop error', err);
+        // Don't break the loop on error
+        requestAnimationFrame(animate);
     }
-    // Clamp camera based on POI positions, not header/footer
-    const cameraViewHeight = camera.top - camera.bottom;
-    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingY; // Changed from /2 to /3
-    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingY; // Changed from /2 to /3
-    camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
-
-    // No need to update projection matrix here unless zoom changes
-    // camera.updateProjectionMatrix();
-
-    // Update stars
-    updateStars(starsGroup, now * 0.001, camera.position.y, mouseWorldPosition, touchFadeValue);
-    // Update POIs
-    updatePOIs(poiObjects, now * 0.001, raycaster);
-
-    // Update info box position if open
-    if (currentInfoBox && currentInfoBox.dataset.poiPositionX !== undefined) {
-        const poiPosition = new THREE.Vector3(
-            parseFloat(currentInfoBox.dataset.poiPositionX),
-            parseFloat(currentInfoBox.dataset.poiPositionY),
-            parseFloat(currentInfoBox.dataset.poiPositionZ)
-        );
-        const pos = poiPosition.clone();
-        pos.project(camera); // Project using the current camera state
-
-        // Use canvas dimensions for screen coordinate calculation
-        const canvasRect = canvas.getBoundingClientRect(); // Get canvas position and size
-        const screenX = (pos.x * 0.5 + 0.5) * canvasRect.width + canvasRect.left + 20; // Add canvas left offset
-        const screenY = (-pos.y * 0.5 + 0.5) * canvasRect.height + canvasRect.top - 20; // Add canvas top offset
-
-        currentInfoBox.style.left = `${screenX}px`;
-        currentInfoBox.style.top = `${screenY}px`;
-    }
-
-    // Keep header/footer in correct X/Z, but let them scroll with the scene
-    headerObj.position.x = 0;
-    headerObj.position.z = 0;
-    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    footerObj.position.x = 0;
-    footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingY + 30;
-
-    // Render
-    renderer.render(scene, camera); // Render WebGL scene
-    cssRenderer.render(scene, camera); // Render CSS3D scene (overlays WebGL)
 }
 
 // Get the canvas element

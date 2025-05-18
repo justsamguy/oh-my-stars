@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { getWorldPosition } from './utils.js';
 import { infoBoxContainer, camera, renderer } from './sceneSetup.js';
 import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER } from './config.js';
+import { events } from './events.js';
+import { logError } from './logger.js';
+import { appState } from './state.js';
 
 // State
 export let mouseWorldPosition = new THREE.Vector3(-10000, -10000, 0);
@@ -434,22 +437,36 @@ export function hideInfoBox() {
 // Mouse move event (no info box on hover)
 export function setupMouseMoveHandler(poiObjects) {
     const handleMove = (e) => {
-        const pos = e.touches ? e.touches[0] : e;
-        const canvas = renderer.domElement;
-        const rect = canvas.getBoundingClientRect();
-        
-        // Update world position
-        mouseWorldPosition = getWorldPosition(pos.clientX, pos.clientY, camera, renderer);
-        
-        // Update raycaster with canvas-relative coordinates
-        const x = ((pos.clientX - rect.left) / rect.width) * 2 - 1;
-        const y = -((pos.clientY - rect.top) / rect.height) * 2 + 1;
-        raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+        try {
+            const pos = e.touches ? e.touches[0] : e;
+            const canvas = renderer.domElement;
+            const rect = canvas.getBoundingClientRect();
+            
+            // Update world position
+            mouseWorldPosition = getWorldPosition(pos.clientX, pos.clientY, camera, renderer);
+            
+            // Update raycaster with canvas-relative coordinates
+            const x = ((pos.clientX - rect.left) / rect.width) * 2 - 1;
+            const y = -((pos.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
 
-        // Reset touch fade on mobile touch
-        if (e.touches && window.innerWidth <= MOBILE_BREAKPOINT) {
-            touchFadeValue = 1.0;
-            if (touchFadeInterval) clearInterval(touchFadeInterval);
+            // Reset touch fade on mobile touch
+            if (e.touches && window.innerWidth <= MOBILE_BREAKPOINT) {
+                touchFadeValue = 1.0;
+                if (touchFadeInterval) clearInterval(touchFadeInterval);
+            }
+
+            // Update state
+            appState.set('mousePosition', { 
+                x: mouseWorldPosition.x, 
+                y: mouseWorldPosition.y 
+            });
+
+            // Emit move event
+            events.emit('mouse:move', { x, y });
+            
+        } catch (err) {
+            logError('Mouse move error', err);
         }
     };
 
@@ -481,56 +498,61 @@ export function setupClickHandler(poiObjects) {
     const TAP_DURATION = 200;
 
     const handleInteraction = (e) => {
-        // Ignore interactions if bottom sheet is open on mobile
-        if (window.innerWidth <= MOBILE_BREAKPOINT && 
-            document.body.classList.contains('bottom-sheet-open')) {
-            return;
-        }
+        try {
+            // Ignore interactions if bottom sheet is open on mobile
+            if (window.innerWidth <= MOBILE_BREAKPOINT && 
+                document.body.classList.contains('bottom-sheet-open')) {
+                return;
+            }
 
-        if (e.target.closest('.info-box') || e.target.closest('.bottom-sheet')) {
-            return;
-        }
+            if (e.target.closest('.info-box') || e.target.closest('.bottom-sheet')) {
+                return;
+            }
 
-        // Get coordinates from either mouse or touch event
-        const coords = e.type.includes('touch') 
-            ? (e.type === 'touchend' ? e.changedTouches[0] : e.touches[0])
-            : e;
-        if (!coords) return;
+            // Get coordinates from either mouse or touch event
+            const coords = e.type.includes('touch') 
+                ? (e.type === 'touchend' ? e.changedTouches[0] : e.touches[0])
+                : e;
+            if (!coords) return;
 
-        // Get canvas-relative coordinates
-        const canvas = renderer.domElement;
-        const rect = canvas.getBoundingClientRect();
-        
-        const clientX = coords.clientX - rect.left;
-        const clientY = coords.clientY - rect.top;
-        
-        const x = (clientX / rect.width) * 2 - 1;
-        const y = -(clientY / rect.height) * 2 + 1;
+            // Get canvas-relative coordinates
+            const canvas = renderer.domElement;
+            const rect = canvas.getBoundingClientRect();
+            
+            const clientX = coords.clientX - rect.left;
+            const clientY = coords.clientY - rect.top;
+            
+            const x = (clientX / rect.width) * 2 - 1;
+            const y = -(clientY / rect.height) * 2 + 1;
 
-        // Update raycaster
-        raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
-        raycaster.far = window.innerWidth <= MOBILE_BREAKPOINT ? 1000 : 500;
-        
-        // Find intersected POI
-        let foundPOI = null;
-        let closestDistance = Infinity;
+            // Update raycaster
+            raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+            raycaster.far = window.innerWidth <= MOBILE_BREAKPOINT ? 1000 : 500;
+            
+            // Find intersected POI
+            let foundPOI = null;
+            let closestDistance = Infinity;
 
-        for (const poi of poiObjects) {
-            const intersects = raycaster.intersectObjects(poi.children, true);
-            if (intersects.length > 0) {
-                const distance = intersects[0].distance;
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    foundPOI = poi;
+            for (const poi of poiObjects) {
+                const intersects = raycaster.intersectObjects(poi.children, true);
+                if (intersects.length > 0) {
+                    const distance = intersects[0].distance;
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        foundPOI = poi;
+                    }
                 }
             }
-        }
 
-        if (foundPOI) {
-            e.preventDefault?.();
-            showInfoBox(foundPOI.userData, foundPOI.position);
-        } else if (!e.target.closest('.info-box')) {
-            hideInfoBox();
+            if (foundPOI) {
+                e.preventDefault?.();
+                showInfoBox(foundPOI.userData, foundPOI.position);
+                events.emit('poi:selected', foundPOI.userData);
+            } else if (!e.target.closest('.info-box')) {
+                hideInfoBox();
+            }
+        } catch (err) {
+            logError('POI click error', err);
         }
     };
 
@@ -587,8 +609,13 @@ export function setupScrollHandler() {
     const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
     
     window.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        scrollState.velocity -= e.deltaY * 0.01 * multiplier;
+        try {
+            e.preventDefault();
+            const velocity = -e.deltaY * 0.01 * (appState.get('isMobile') ? MOBILE_SCROLL_MULTIPLIER : 1);
+            appState.set('scrollVelocity', velocity);
+        } catch (err) {
+            logError('Scroll error', err);
+        }
     }, { passive: false });
 
     let touchStart = 0;
