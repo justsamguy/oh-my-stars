@@ -56,6 +56,20 @@ footerObj.position.set(0, minY - paddingY + 15, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
+// Initialize mobile footer
+const mobileFooter = document.getElementById('mobile-footer');
+const mobileNav = mobileFooter.querySelector('.mobile-footer-nav');
+const mobileCopyright = mobileFooter.querySelector('.mobile-footer-copyright');
+
+// Populate mobile footer with links from config
+const { links } = footerConfig.navigation;
+mobileNav.innerHTML = links.map(link => 
+    `<a href="${link.href}" class="mobile-footer-link">${link.text}</a>`
+).join('');
+
+// Add copyright
+mobileCopyright.textContent = footerConfig.copyright;
+
 // Update glow effect handler for both header and footer
 const handleGlowEffect = (element, e) => {
     const chars = element.querySelectorAll('.glow-char');

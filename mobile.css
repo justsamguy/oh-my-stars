@@ -1,6 +1,17 @@
 /* Mobile Footer */
 #mobile-footer {
     display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 20, 40, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
 }
 
 #mobile-footer .mobile-footer-nav {
@@ -21,6 +32,10 @@
     transition: all 0.2s ease;
     display: block;
     text-align: center;
+    margin: 0 auto;
+    background: none;
+    position: relative;
+    pointer-events: auto;
 }
 
 #mobile-footer .mobile-footer-link:hover {
@@ -37,22 +52,12 @@
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-@media (max-width: 600px) {    #mobile-footer {
+@media (max-width: 600px) {
+    #mobile-footer {
         display: block !important;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: rgba(0, 20, 40, 0.95);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 15px;
-        z-index: 9999;
-        color: #fff;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
         transform: translateZ(0); /* Force GPU acceleration */
         -webkit-transform: translateZ(0);
+        color: #fff;
     }
 
     #mobile-footer .mobile-footer-nav {
