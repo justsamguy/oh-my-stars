@@ -50,9 +50,9 @@ html, body {
     
     #bg {
         height: calc(100vh - 200px);
+        display: block;
+        z-index: 1; /* Base layer */
     }
-    display: block;
-    z-index: 1; /* Base layer */
 }
 
 /* Styles for CSS3DObjects (Header/Footer) */
