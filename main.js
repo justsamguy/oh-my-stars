@@ -1,15 +1,15 @@
 // Entry point for the modularized star map app
 import * as THREE from 'three';
 import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
-import { pois, SCROLL_DAMPING, MAX_SCROLL_SPEED, BASE_STAR_COUNT } from './src/config/config.js';
-import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './src/core/sceneSetup.js';
-import { createAllStars, updateStars } from './src/features/stars/stars.js';
-import { createAllPOIs, createConnectingLines, updatePOIs } from './src/features/poi/poi.js';
-import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox, touchFadeValue } from './src/features/interaction/interaction.js';
-import { createHeaderElement, createFooterElement } from './src/config/layoutConfig.js';
-import { appState } from './src/core/state.js';
-import { events } from './src/core/events.js';
-import { logError } from './src/core/logger.js';
+import { pois, SCROLL_DAMPING, MAX_SCROLL_SPEED, BASE_STAR_COUNT } from './config.js';
+import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
+import { createAllStars, updateStars } from './stars.js';
+import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
+import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox, touchFadeValue } from './interaction.js';
+import { createHeaderElement, createFooterElement } from './layoutConfig.js';
+import { appState } from './state.js';
+import { events } from './events.js';
+import { logError } from './logger.js';
 
 // --- CSS3DRenderer only for overlays and header/footer ---
 const appContainer = document.getElementById('app-container');
