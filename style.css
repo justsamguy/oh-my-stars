@@ -616,7 +616,7 @@ footer {
   width: 100vw !important;
   left: 0 !important;
   right: 0 !important;
-  bottom: 0 !important;
+  bottom: auto !important; /* Changed from 0 to auto to remove fixed/absolute positioning */
   z-index: 2 !important;
   background: rgba(0, 20, 40, 0.95) !important;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
