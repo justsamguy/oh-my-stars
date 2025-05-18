@@ -320,7 +320,11 @@ html, body {
         flex-direction: column !important;
         justify-content: space-between !important;
         align-items: center !important;
-        background: rgba(0, 20, 40, 0.95) !important;
+        background: rgba(0, 20, 40, 0.85) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border-top: 1.5px solid rgba(255,255,255,0.08) !important;
+        box-shadow: 0 -8px 32px 0 rgba(0,0,0,0.25) !important;
         position: fixed !important; /* Fix to viewport */
         bottom: 0 !important; /* Align to bottom */
         left: 0 !important;
@@ -340,19 +344,7 @@ html, body {
     }
 
     .footer-brand {
-        order: 1;
-        text-align: center;
-        display: none;  /* Keep brand hidden on mobile */
-    }
-
-    .footer-brand h2 {
-        font-size: 8px;
-        margin-bottom: 6px;
-    }
-
-    .footer-brand p {
-        font-size: 5px;
-        line-height: 1.6;
+        display: none !important;
     }
 
     .footer-nav {
@@ -366,13 +358,20 @@ html, body {
 
     .footer-nav a.footer-link {
         font-size: 14px !important; /* Increased font size */
-        color: rgba(255, 255, 255, 0.8) !important;
+        color: rgba(255, 255, 255, 0.85) !important;
         text-decoration: none !important;
         display: block !important;
         width: auto !important;
         text-align: center !important;
         margin: 0 !important;
         padding: 4px 0 !important; /* Updated padding */
+        border-radius: 6px !important;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .footer-nav a.footer-link:hover {
+        background: rgba(255,255,255,0.08) !important;
+        color: #fff !important;
     }
 
     .css3d-footer::-webkit-scrollbar {
@@ -391,17 +390,12 @@ html, body {
     .copyright {
         width: 100% !important;
         font-size: 12px !important; /* Increased font size */
-        color: rgba(255, 255, 255, 0.6) !important; /* Updated color */
+        color: rgba(255, 255, 255, 0.7) !important; /* Updated color */
         text-align: center !important;
         padding-top: 12px !important; /* Updated padding */
         margin-top: 8px !important; /* Updated margin */
-        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
-        position: relative !important;
-        display: block !important;
-        opacity: 1 !important;
-        visibility: visible !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.13) !important;
         background: rgba(0, 10, 20, 0.3) !important;
-        transform: none !important;
         z-index: 2 !important;
     }
 
