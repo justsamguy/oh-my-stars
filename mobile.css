@@ -1,18 +1,7 @@
 /* Mobile Footer */
 #mobile-footer {
     display: none;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(0, 20, 40, 0.95);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    z-index: 9999;
-    color: #fff;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
 }
 
 #mobile-footer .mobile-footer-nav {
@@ -51,13 +40,60 @@
 @media (max-width: 600px) {
     #mobile-footer {
         display: block;
+        pointer-events: auto;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: rgba(0, 20, 40, 0.95);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        z-index: 9999;
+        color: #fff;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
     }
-    
+
+    #mobile-footer .mobile-footer-nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    #mobile-footer .mobile-footer-link {
+        color: rgba(255, 255, 255, 0.85);
+        text-decoration: none;
+        font-size: 14px;
+        padding: 8px 16px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        display: block;
+        text-align: center;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    #mobile-footer .mobile-footer-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    #mobile-footer .mobile-footer-copyright {
+        text-align: center;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Hide CSS3D footer completely on mobile */
     .css3d-footer {
-        display: none !important;
-    }
-    
-    #app-container {
-        padding-bottom: 120px;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
     }
 }

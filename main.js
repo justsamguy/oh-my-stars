@@ -52,14 +52,7 @@ scene.add(headerObj);
 // Create and position footer
 const footerDiv = createFooterElement();
 const footerObj = new CSS3DObject(footerDiv);
-// Position footer at camera's near plane distance
-const isMobile = window.innerWidth <= 600;
-if (isMobile) {
-    // For mobile, position footer closer to the camera and slightly raised
-    footerObj.position.set(0, camera.position.y - 100, -200);
-} else {
-    footerObj.position.set(0, minY - paddingY + 15, 0);
-}
+footerObj.position.set(0, minY - paddingY + 15, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 

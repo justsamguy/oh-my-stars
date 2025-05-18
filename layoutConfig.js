@@ -39,28 +39,22 @@ export function createHeaderElement() {
 }
 
 export function createFooterElement() {
-    const isMobile = window.innerWidth <= 600;
+    // Set up mobile footer if it exists
+    const mobileFooter = document.getElementById('mobile-footer');
+    if (mobileFooter) {
+        mobileFooter.innerHTML = `
+            <nav class="mobile-footer-nav">
+                ${footerConfig.navigation.links.map(link => 
+                    `<a href="${link.href}" class="mobile-footer-link">${wrapTextInGlowSpans(link.text)}</a>`
+                ).join('')}
+            </nav>
+            <div class="mobile-footer-copyright">${wrapTextInGlowSpans(footerConfig.copyright)}</div>
+        `;
+    }
     
-    if (isMobile) {
-        // Get the mobile footer container
-        const mobileFooter = document.getElementById('mobile-footer');
-        if (mobileFooter) {
-            mobileFooter.innerHTML = `
-                <nav class="mobile-footer-nav">
-                    ${footerConfig.navigation.links.map(link => 
-                        `<a href="${link.href}" class="mobile-footer-link">${link.text}</a>`
-                    ).join('')}
-                </nav>
-                <div class="mobile-footer-copyright">${footerConfig.copyright}</div>
-            `;
-            mobileFooter.style.display = 'block';
-            mobileFooter.style.position = 'fixed';
-            mobileFooter.style.bottom = '0';
-            mobileFooter.style.left = '0';
-            mobileFooter.style.width = '100%';
-            mobileFooter.style.background = 'rgba(0, 20, 40, 0.95)';
-            mobileFooter.style.backdropFilter = 'blur(8px)';
-            mobileFooter.style.WebkitBackdropFilter = 'blur(8px)';
+    // Create the desktop footer (CSS3D version)
+    const footerDiv = document.createElement('div');
+    footerDiv.className = 'css3d-element css3d-footer';
             mobileFooter.style.borderTop = '1px solid rgba(255, 255, 255, 0.1)';
             mobileFooter.style.padding = '15px';
             mobileFooter.style.zIndex = '1000';
