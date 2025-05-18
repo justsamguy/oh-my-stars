@@ -6,7 +6,7 @@ import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeig
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
 import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox, touchFadeValue } from './interaction.js';
-import { createHeaderElement, createFooterElement } from './layoutConfig.js';
+import { createHeaderElement, createFooterElement, footerConfig } from './layoutConfig.js';
 
 // --- CSS3DRenderer only for overlays and header/footer ---
 const appContainer = document.getElementById('app-container');
