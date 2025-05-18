@@ -1,5 +1,7 @@
 # Cline Rule Categories
 
+Refer to the project's main README.md for overall project context.
+
 This folder tree is ready to drop into your project’s root so Cline can load the rules automatically:
 
 ```

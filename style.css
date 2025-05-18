@@ -315,18 +315,20 @@ html, body {
         margin: 0 !important;
         padding: 12px 20px 8px 20px !important;
         height: auto !important;
-        min-height: 90px !important; /* Ensure enough space for content */
+        min-height: 90px !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;
         align-items: center !important;
         background: rgba(0, 20, 40, 0.95) !important;
-        position: fixed !important; /* Fix to viewport */
-        bottom: 0 !important; /* Align to bottom */
+        position: fixed !important;
+        bottom: 0 !important;
         left: 0 !important;
         transform: none !important;
-        font-size: 16px !important; /* Increased base font size */
-        z-index: 1000 !important;
+        font-size: 16px !important;
+        z-index: 2000 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
     }
 
     .footer-content {
@@ -373,6 +375,12 @@ html, body {
         text-align: center !important;
         margin: 0 !important;
         padding: 4px 0 !important; /* Updated padding */
+    }
+
+    .css3d-footer *, .footer-content *, .copyright * {
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 2001 !important;
     }
 
     .css3d-footer::-webkit-scrollbar {

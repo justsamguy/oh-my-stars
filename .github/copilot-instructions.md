@@ -1,6 +1,7 @@
 ### General practices
 * Use **ES Modules** (`import …`) – never `require`.
 * Prefer **async/await**; avoid `.then` chains.
+* Refer to the project's main README.md for overall project context.
 
 ### Formatting
 * 2-space indentation, semicolons **on**, single quotes.
@@ -14,10 +15,12 @@
 * Never log JWTs or secrets.
 
 ### Testing
-* Generate Jest tests beside source files (`*.test.ts`).
+* When installing dependencies, ensure they are not installed within the application directory.
 
-### Language preferences
-* Reply in **concise English**, include TypeScript annotations.
+
+### Communication preferences
+* Reply in **concise English**, include annotations.
+* Add a one-sentence summary of the actions taken at the end of each response.
 
 ---
 _Rules below are auto-copied from your existing Cline rules file (if present)._

@@ -606,12 +606,13 @@ export function setupClickHandler(poiObjects) {
 // Scroll event
 export function setupScrollHandler() {
     const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-    const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
-    
+    const wheelMultiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER * 2 : 2; // Increased multiplier
+    const touchMultiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER * 2 : 2; // Increased multiplier
+
     window.addEventListener('wheel', (e) => {
         try {
             e.preventDefault();
-            const velocity = -e.deltaY * 0.01 * (appState.get('isMobile') ? MOBILE_SCROLL_MULTIPLIER : 1);
+            const velocity = -e.deltaY * 0.02 * (appState.get('isMobile') ? MOBILE_SCROLL_MULTIPLIER * 2 : 2);
             appState.set('scrollVelocity', velocity);
         } catch (err) {
             logError('Scroll error', err);
@@ -625,7 +626,8 @@ export function setupScrollHandler() {
 
     window.addEventListener('touchmove', (e) => {
         const delta = touchStart - e.touches[0].clientY;
-        scrollState.velocity -= delta * 0.01 * multiplier;
+        const velocity = delta * 0.02 * touchMultiplier;
+        appState.set('scrollVelocity', velocity);
         touchStart = e.touches[0].clientY;
     });
 }

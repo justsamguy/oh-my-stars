@@ -102,6 +102,11 @@ function animate() {
             appState.set('scrollVelocity', velocity * SCROLL_DAMPING);
         }
 
+        // Clamp camera Y position to prevent infinite scrolling
+        const minCameraY = minY - paddingY;
+        const maxCameraY = maxY + paddingY;
+        camera.position.y = Math.max(minCameraY, Math.min(maxCameraY, camera.position.y));
+
         // Update camera position in state
         appState.set('cameraY', camera.position.y);
 
