@@ -314,6 +314,24 @@ html, body {
     .css3d-footer .footer-brand p {
         display: none !important;
     }
+
+    /* Center and stack footer links in a single column */
+    .css3d-footer .footer-content {
+        justify-content: center;
+        gap: 0;
+    }
+    .css3d-footer .footer-nav {
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 4px !important;
+    }
+    .css3d-footer .footer-link {
+        display: block !important;
+        width: 100%;
+        text-align: center;
+        margin: 0 auto;
+    }
 }
 
 /* Prevent text selection during touch interactions */
