@@ -173,17 +173,31 @@ html, body {
 }
 
 .footer-nav a.footer-link {
-    font-size: 3.8px;
-    color: #aaa;
+    position: relative;
     text-decoration: none;
-    display: inline-block;
-    pointer-events: auto !important;
-    transition: color 0.2s ease;
-    width: auto;
+    color: #aaa;
+    display: block;
+    width: 100%;
     text-align: center;
-    margin: 0 auto;
+    margin: 0 auto 6px auto;
+    padding: 8px 0 4px 0;
+    font-size: 16px !important;
     background: none;
-    padding: 0 0 0.2px 0; /* Changed to only have bottom padding */
+    border: none;
+    outline: none;
+}
+
+.footer-nav a.footer-link::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #fff 60%, transparent 100%);
+    opacity: 0.7;
+    margin: 0 auto;
+    position: absolute;
+    left: 0;
+    bottom: 0;
 }
 
 .footer-nav a.footer-link:hover {
@@ -346,6 +360,17 @@ html, body {
     }
     #app-container {
         padding-bottom: 120px !important;
+    }
+
+    .footer-nav a.footer-link {
+        font-size: 18px !important;
+        padding: 12px 0 8px 0;
+        min-height: 44px;
+        /* Large tap area for mobile */
+    }
+    .footer-nav a.footer-link::after {
+        height: 3px;
+        opacity: 1;
     }
 }
 
