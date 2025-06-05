@@ -39,7 +39,9 @@ setupClickHandler(poiObjects);
 let yPositions = pois.map(p => p.position.y);
 let maxY = Math.max(...yPositions);
 let minY = Math.min(...yPositions);
-const paddingY = 100; // Reduced from 200 to 100 as extra space is no longer needed
+// Use larger paddingY on mobile for more space below starfield
+const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+const paddingY = isMobile ? 350 : 100; // Increased padding for mobile only
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
@@ -100,8 +102,8 @@ function animate() {
     }
     // Clamp camera based on POI positions, not header/footer
     const cameraViewHeight = camera.top - camera.bottom;
-    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingY; // Changed from /2 to /3
-    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingY; // Changed from /2 to /3
+    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingY;
+    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingY;
     camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
 
     // No need to update projection matrix here unless zoom changes
