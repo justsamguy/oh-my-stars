@@ -1,7 +1,7 @@
 // Entry point for the modularized star map app
 import * as THREE from 'three';
 import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
-import { pois, SCROLL_DAMPING, MAX_SCROLL_SPEED, BASE_STAR_COUNT } from './config.js';
+import { pois, SCROLL_DAMPING, MAX_SCROLL_SPEED, BASE_STAR_COUNT, MOBILE_BREAKPOINT } from './config.js';
 import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
@@ -17,6 +17,9 @@ cssRenderer.domElement.style.top = '0px';
 cssRenderer.domElement.style.pointerEvents = 'none';
 cssRenderer.domElement.style.zIndex = '5';
 appContainer.appendChild(cssRenderer.domElement);
+
+// Get the canvas element (move this up so it's available for all uses)
+const canvas = document.getElementById('bg');
 
 // Create stars
 const starsGroup = createAllStars(BASE_STAR_COUNT, pois, viewportWidth, viewportHeight);
@@ -146,8 +149,54 @@ function animate() {
     cssRenderer.render(scene, camera); // Render CSS3D scene (overlays WebGL)
 }
 
-// Get the canvas element
-const canvas = document.getElementById('bg');
+// --- Fix for mobile scroll jitter: disable scroll damping on mobile ---
+// Detect if the user is on a mobile device (simple check)
+const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
+if (isMobileDevice) {
+    // Disable scroll damping by setting SCROLL_DAMPING to 1 (no damping)
+    SCROLL_DAMPING = 1;
+}
+
+// --- Improved mobile handling: adjust camera position on touch end ---
+let isTouching = false;
+let touchStartY = 0;
+let touchCurrentY = 0;
+let touchVelocity = 0;
+let touchStartTime = 0;
+let touchEndTime = 0;
+
+// Update touch handling to use passive listeners for better performance
+const touchOptions = { passive: true };
+
+// Touch start event
+canvas.addEventListener('touchstart', (e) => {
+    isTouching = true;
+    touchStartY = e.touches[0].clientY;
+    touchCurrentY = touchStartY;
+    touchStartTime = performance.now();
+}, touchOptions);
+
+// Touch move event
+canvas.addEventListener('touchmove', (e) => {
+    if (!isTouching) return;
+    touchCurrentY = e.touches[0].clientY;
+    // Calculate velocity as distance / time
+    const now = performance.now();
+    const elapsedTime = now - touchStartTime;
+    touchVelocity = (touchCurrentY - touchStartY) / elapsedTime;
+    touchStartY = touchCurrentY;
+    touchStartTime = now;
+}, touchOptions);
+
+// Touch end event
+canvas.addEventListener('touchend', () => {
+    isTouching = false;
+    // Apply a burst of scroll based on the final velocity
+    scrollState.velocity += touchVelocity * 10; // Multiply for stronger effect
+    // Clamp the velocity to prevent excessive scrolling
+    if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
+    if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
+});
 
 function onWindowResize() {
     // Use canvas dimensions, not window dimensions
