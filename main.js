@@ -42,22 +42,23 @@ setupClickHandler(poiObjects);
 let yPositions = pois.map(p => p.position.y);
 let maxY = Math.max(...yPositions);
 let minY = Math.min(...yPositions);
-// Use larger paddingY on mobile for more space below starfield
+// Use larger bottom padding on mobile, but keep top padding default
 const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-const paddingY = isMobile ? 350 : 100; // Increased padding for mobile only
+const paddingTopY = 100;
+const paddingBottomY = isMobile ? 350 : 100; // Increased padding for mobile only
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
 const headerObj = new CSS3DObject(headerDiv);
 const headerWorldHeight = 70;
-headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
+headerObj.position.set(0, maxY + paddingTopY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
 // Replace footer creation with:
 const footerDiv = createFooterElement();
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY + 15, 0);
+footerObj.position.set(0, minY - paddingBottomY + 15, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
@@ -108,8 +109,8 @@ function animate() {
     }
     // Clamp camera based on POI positions, not header/footer
     const cameraViewHeight = camera.top - camera.bottom;
-    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingY;
-    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingY;
+    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingBottomY;
+    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingTopY;
     camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
 
     // No need to update projection matrix here unless zoom changes
@@ -142,10 +143,10 @@ function animate() {
     // Keep header/footer in correct X/Z, but let them scroll with the scene
     headerObj.position.x = 0;
     headerObj.position.z = 0;
-    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
+    headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingY + 30;
+    footerObj.position.y = minY - paddingBottomY + 30;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -235,14 +236,14 @@ function onWindowResize() {
     cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
 
     // Update header/footer positions on resize (in case POI Y changes)
-    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    footerObj.position.y = minY - paddingY + 30;
+    headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
+    footerObj.position.y = minY - paddingBottomY + 30;
 }
 
 // Initial call to set size correctly
 onWindowResize();
 
 // Set initial camera position to top (just below header)
-camera.position.y = maxY + paddingY - camera.top;
+camera.position.y = maxY + paddingTopY - camera.top;
 
 animate();
