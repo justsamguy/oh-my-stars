@@ -88,6 +88,9 @@ const handleGlowEffect = (element, e) => {
     });
 });
 
+// Use a mutable scrollDamping variable for runtime changes
+let scrollDamping = SCROLL_DAMPING;
+
 // Animation loop
 let lastTime = performance.now();
 function animate() {
@@ -101,7 +104,7 @@ function animate() {
     if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
     if (Math.abs(scrollState.velocity) > 0.001) {
         camera.position.y += scrollState.velocity;
-        scrollState.velocity *= SCROLL_DAMPING;
+        scrollState.velocity *= scrollDamping;
     }
     // Clamp camera based on POI positions, not header/footer
     const cameraViewHeight = camera.top - camera.bottom;
@@ -153,8 +156,7 @@ function animate() {
 // Detect if the user is on a mobile device (simple check)
 const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
 if (isMobileDevice) {
-    // Disable scroll damping by setting SCROLL_DAMPING to 1 (no damping)
-    SCROLL_DAMPING = 1;
+    scrollDamping = 1;
 }
 
 // --- Improved mobile handling: adjust camera position on touch end ---
