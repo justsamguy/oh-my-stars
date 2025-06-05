@@ -294,13 +294,12 @@ html, body {
 */
 
 /* Mobile Responsiveness - Adjust if needed for 3D elements */
-/* @media (max-width: 600px) { ... } */
-/* Note: Responsiveness for CSS3DObjects might need JS adjustments */
-/* based on viewport size rather than pure CSS media queries */
-/* depending on how their size/position is calculated. */
-
-/* Always show glow effect on mobile */
 @media (max-width: 600px) {
+    :root {
+        --mobile-starfield-bottom-padding: 1800px; /* Increased for more space below starfield on mobile */
+    }
+
+    /* Always show glow effect on mobile */
     .glow-char {
         color: #fff !important;
         text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
