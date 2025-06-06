@@ -45,7 +45,7 @@ let minY = Math.min(...yPositions);
 // Use larger bottom padding on mobile, but keep top padding default
 const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
 const paddingTopY = 100;
-const paddingBottomY = isMobile ? 120 : 100; // Increased padding for mobile only
+const paddingBottomY = isMobile ? 130 : 100; // Increased padding for mobile only
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
@@ -146,7 +146,7 @@ function animate() {
     headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingBottomY + 30;
+    footerObj.position.y = minY - paddingBottomY + 0;
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
