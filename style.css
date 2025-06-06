@@ -325,7 +325,7 @@ html, body {
         flex-direction: column !important;
         align-items: center !important;
         width: 100% !important;
-        gap: 8px !important; /* Increased from 4px for better spacing */
+        gap: 2px !important; /* spacing between footer menu links */
     }
     .css3d-footer .footer-link {
         display: block !important;
