@@ -51,16 +51,16 @@ export function createFooterElement() {
     footerDiv.style.height = '42px';
 
     // Mobile detection
-    const isMobile = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
-
-    let navHTML = '';
+    const isMobile = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;    let navHTML = '';
     if (isMobile) {
         // Single column for all links on mobile
-        navHTML = `<nav class="footer-nav" style="width: 100%; gap: 4px; display: flex; flex-direction: column; align-items: center">
-            ${footerConfig.navigation.links.map(link =>
-                `<a href="${link.href}" class="footer-link" style="font-size: 3.8px; display: inline-block">${wrapTextInGlowSpans(link.text)}</a>`
-            ).join('')}
-        </nav>`;
+        navHTML = `
+            <nav class="footer-nav" style="width: 100%; gap: 6px; display: flex; flex-direction: column; align-items: center">
+                ${footerConfig.navigation.links.map(link =>
+                    `<a href="${link.href}" class="footer-link" style="font-size: 4.2px; padding: 2px 4px; display: inline-block">${wrapTextInGlowSpans(link.text)}</a>`
+                ).join('')}
+            </nav>
+        `;
     } else {
         // Split navigation links into two arrays for desktop
         const halfLength = Math.ceil(footerConfig.navigation.links.length / 2);
