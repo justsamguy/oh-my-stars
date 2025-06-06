@@ -45,7 +45,7 @@ let minY = Math.min(...yPositions);
 // Use larger bottom padding on mobile, but keep top padding default
 const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
 const paddingTopY = 100;
-const paddingBottomY = isMobile ? 350 : 100; // Increased padding for mobile only
+const paddingBottomY = isMobile ? 200 : 100; // Increased padding for mobile only
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
