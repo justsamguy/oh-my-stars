@@ -46,6 +46,9 @@ let minY = Math.min(...yPositions);
 const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
 const paddingTopY = 100;
 const paddingBottomY = isMobile ? 130 : 100; // Increased padding for mobile only
+// Footer position offsets
+const mobileFooterOffset = 45; // Larger offset for mobile
+const desktopFooterOffset = 30; // Original offset for desktop
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
@@ -141,12 +144,8 @@ function animate() {
     }    // Keep header/footer in correct X/Z, but let them scroll with the scene
     headerObj.position.x = 0;
     headerObj.position.z = 0;
-    headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
-    footerObj.position.x = 0;
+    headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;    footerObj.position.x = 0;
     footerObj.position.z = 0;
-    // Set different footer positions for mobile and desktop
-    const mobileFooterOffset = 45; // Larger offset for mobile
-    const desktopFooterOffset = 30; // Original offset for desktop
     footerObj.position.y = minY - paddingBottomY + (isMobile ? mobileFooterOffset : desktopFooterOffset);
 
     // Render
