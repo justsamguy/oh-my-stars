@@ -146,7 +146,7 @@ function animate() {
     headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingBottomY + 0;
+    footerObj.position.y = minY - paddingBottomY + 30; //<- integer controls global footer position
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
