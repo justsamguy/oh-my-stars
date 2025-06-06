@@ -333,7 +333,7 @@ html, body {
         text-align: center;
         margin: 0 auto;
         padding: 4px 0; /* Added padding for better touch target */
-        font-size: 14px !important; /* Increased from default */
+        font-size: 6px !important; /* Increased from default */
     }
 
     .css3d-footer {
