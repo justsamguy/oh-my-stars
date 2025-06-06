@@ -583,24 +583,25 @@ export function setupClickHandler(poiObjects) {
 
 // Scroll event
 export function setupScrollHandler() {
-    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-    const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
-    
-    window.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        scrollState.velocity -= e.deltaY * 0.01 * multiplier;
-    }, { passive: false });
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+  const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
 
-    let touchStart = 0;
-    window.addEventListener('touchstart', (e) => {
-        touchStart = e.touches[0].clientY;
-    });
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    scrollState.velocity -= e.deltaY * 0.01 * multiplier;
+  }, { passive: false });
 
-    window.addEventListener('touchmove', (e) => {
-        const delta = touchStart - e.touches[0].clientY;
-        scrollState.velocity -= delta * 0.01 * multiplier;
-        touchStart = e.touches[0].clientY;
-    });
+  let touchStart = 0;
+  window.addEventListener('touchstart', (e) => {
+    touchStart = e.touches[0].clientY;
+  }, { passive: false });
+
+  window.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const delta = touchStart - e.touches[0].clientY;
+    scrollState.velocity -= delta * 0.01 * multiplier;
+    touchStart = e.touches[0].clientY;
+  }, { passive: false });
 }
 
 // Resize event
