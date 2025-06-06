@@ -1,11 +1,11 @@
 // Entry point for the modularized star map app
 import * as THREE from 'three';
-import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js'; // Add CSS3DObject import
-import { pois, STAR_COUNT, SCROLL_DAMPING, MAX_SCROLL_SPEED } from './config.js';
+import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
+import { pois, SCROLL_DAMPING, MAX_SCROLL_SPEED, BASE_STAR_COUNT, MOBILE_BREAKPOINT } from './config.js';
 import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
-import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox } from './interaction.js'; // Import currentInfoBox
+import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox, touchFadeValue } from './interaction.js';
 import { createHeaderElement, createFooterElement } from './layoutConfig.js';
 
 // --- CSS3DRenderer only for overlays and header/footer ---
@@ -18,8 +18,11 @@ cssRenderer.domElement.style.pointerEvents = 'none';
 cssRenderer.domElement.style.zIndex = '5';
 appContainer.appendChild(cssRenderer.domElement);
 
+// Get the canvas element (move this up so it's available for all uses)
+const canvas = document.getElementById('bg');
+
 // Create stars
-const starsGroup = createAllStars(STAR_COUNT, pois, viewportWidth, viewportHeight);
+const starsGroup = createAllStars(BASE_STAR_COUNT, pois, viewportWidth, viewportHeight);
 scene.add(starsGroup);
 
 // Create POIs
@@ -39,20 +42,26 @@ setupClickHandler(poiObjects);
 let yPositions = pois.map(p => p.position.y);
 let maxY = Math.max(...yPositions);
 let minY = Math.min(...yPositions);
-const paddingY = 100; // Keep this for positioning
+// Use larger bottom padding on mobile, but keep top padding default
+const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+const paddingTopY = 100;
+const paddingBottomY = isMobile ? 130 : 100; // Increased padding for mobile only
+// Footer position offsets
+const mobileFooterOffset = 45; // Larger offset for mobile
+const desktopFooterOffset = 30; // Original offset for desktop
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
 const headerObj = new CSS3DObject(headerDiv);
 const headerWorldHeight = 70;
-headerObj.position.set(0, maxY + paddingY - headerWorldHeight / 2, 0);
+headerObj.position.set(0, maxY + paddingTopY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
 
 // Replace footer creation with:
 const footerDiv = createFooterElement();
 const footerObj = new CSS3DObject(footerDiv);
-footerObj.position.set(0, minY - paddingY + 15, 0);
+footerObj.position.set(0, minY - paddingBottomY + 15, 0);
 footerObj.rotation.set(0, 0, 0);
 scene.add(footerObj);
 
@@ -83,6 +92,9 @@ const handleGlowEffect = (element, e) => {
     });
 });
 
+// Use a mutable scrollDamping variable for runtime changes
+let scrollDamping = SCROLL_DAMPING;
+
 // Animation loop
 let lastTime = performance.now();
 function animate() {
@@ -96,19 +108,19 @@ function animate() {
     if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
     if (Math.abs(scrollState.velocity) > 0.001) {
         camera.position.y += scrollState.velocity;
-        scrollState.velocity *= SCROLL_DAMPING;
+        scrollState.velocity *= scrollDamping;
     }
     // Clamp camera based on POI positions, not header/footer
     const cameraViewHeight = camera.top - camera.bottom;
-    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingY;
-    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingY;
+    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingBottomY;
+    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingTopY;
     camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
 
     // No need to update projection matrix here unless zoom changes
     // camera.updateProjectionMatrix();
 
     // Update stars
-    updateStars(starsGroup, now * 0.001, camera.position.y, mouseWorldPosition);
+    updateStars(starsGroup, now * 0.001, camera.position.y, mouseWorldPosition, touchFadeValue);
     // Update POIs
     updatePOIs(poiObjects, now * 0.001, raycaster);
 
@@ -129,23 +141,65 @@ function animate() {
 
         currentInfoBox.style.left = `${screenX}px`;
         currentInfoBox.style.top = `${screenY}px`;
-    }
-
-    // Keep header/footer in correct X/Z, but let them scroll with the scene
+    }    // Keep header/footer in correct X/Z, but let them scroll with the scene
     headerObj.position.x = 0;
     headerObj.position.z = 0;
-    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    footerObj.position.x = 0;
+    headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;    footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingY + 30;
+    footerObj.position.y = minY - paddingBottomY + (isMobile ? mobileFooterOffset : desktopFooterOffset);
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
     cssRenderer.render(scene, camera); // Render CSS3D scene (overlays WebGL)
 }
 
-// Get the canvas element
-const canvas = document.getElementById('bg');
+// --- Fix for mobile scroll jitter: disable scroll damping on mobile ---
+// Detect if the user is on a mobile device (simple check)
+const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
+if (isMobileDevice) {
+    scrollDamping = 1;
+}
+
+// --- Improved mobile handling: adjust camera position on touch end ---
+let isTouching = false;
+let touchStartY = 0;
+let touchCurrentY = 0;
+let touchVelocity = 0;
+let touchStartTime = 0;
+let touchEndTime = 0;
+
+// Update touch handling to use passive listeners for better performance
+const touchOptions = { passive: true };
+
+// Touch start event
+canvas.addEventListener('touchstart', (e) => {
+    isTouching = true;
+    touchStartY = e.touches[0].clientY;
+    touchCurrentY = touchStartY;
+    touchStartTime = performance.now();
+}, touchOptions);
+
+// Touch move event
+canvas.addEventListener('touchmove', (e) => {
+    if (!isTouching) return;
+    touchCurrentY = e.touches[0].clientY;
+    // Calculate velocity as distance / time
+    const now = performance.now();
+    const elapsedTime = now - touchStartTime;
+    touchVelocity = (touchCurrentY - touchStartY) / elapsedTime;
+    touchStartY = touchCurrentY;
+    touchStartTime = now;
+}, touchOptions);
+
+// Touch end event
+canvas.addEventListener('touchend', () => {
+    isTouching = false;
+    // Apply a burst of scroll based on the final velocity
+    scrollState.velocity += touchVelocity * 10; // Multiply for stronger effect
+    // Clamp the velocity to prevent excessive scrolling
+    if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
+    if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
+});
 
 function onWindowResize() {
     // Use canvas dimensions, not window dimensions
@@ -179,17 +233,15 @@ function onWindowResize() {
     // camera.position.y = (maxY + minY) / 2; // Don't reset Y, let scroll logic handle it
 
     renderer.setSize(canvasWidth, canvasHeight); // Resize WebGL renderer
-    cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
-
-    // Update header/footer positions on resize (in case POI Y changes)
-    headerObj.position.y = maxY + paddingY - headerWorldHeight / 2;
-    footerObj.position.y = minY - paddingY + 30;
+    cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer    // Update header/footer positions on resize (in case POI Y changes)
+    headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
+    footerObj.position.y = minY - paddingBottomY + (isMobile ? mobileFooterOffset : desktopFooterOffset);
 }
 
 // Initial call to set size correctly
 onWindowResize();
 
 // Set initial camera position to top (just below header)
-camera.position.y = maxY + paddingY - camera.top;
+camera.position.y = maxY + paddingTopY - camera.top;
 
 animate();

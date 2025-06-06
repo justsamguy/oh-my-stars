@@ -7,7 +7,7 @@ const style = `
         * { margin: 0; padding: 0; }
         body, html { 
             overflow: hidden; 
-            background: #000;
+            background: #000; /* Reverted to original black background */
             height: 100vh;
             width: 100vw;
         }
@@ -52,7 +52,11 @@ export const scene = new THREE.Scene();
 
 // Calculate viewport dimensions based on POI data
 export function getViewportHeight() {
-    return Math.abs(pois[pois.length - 1].position.y - pois[0].position.y) * 1.1;
+    const poiHeight = Math.abs(pois[pois.length - 1].position.y - pois[0].position.y);
+    const isMobile = window.innerWidth <= 600;
+    // Add extra space at the bottom for mobile
+    const extraSpace = isMobile ? window.innerHeight * 3.5 : poiHeight * 0.1;
+    return poiHeight + extraSpace;
 }
 export function getViewportWidth() {
     const vh = getViewportHeight();
@@ -71,6 +75,8 @@ export const camera = new THREE.OrthographicCamera(
     -1000,
     1000
 );
+
+// Adjust initial camera position
 camera.position.set(0, (pois[0].position.y + pois[pois.length - 1].position.y) / 2, 100);
 camera.lookAt(0, camera.position.y, 0);
 
@@ -104,7 +110,10 @@ infoBoxContainer.style.pointerEvents = 'none';
 document.body.appendChild(infoBoxContainer);
 
 // Background plane
-const bgGeometry = new THREE.PlaneGeometry(viewportWidth * 2, viewportHeight * 1.5);
+const bgGeometry = new THREE.PlaneGeometry(
+    viewportWidth * 2,
+    viewportHeight * (window.innerWidth <= 600 ? 2 : 1.5)
+);
 const bgMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
 const background = new THREE.Mesh(bgGeometry, bgMaterial);
 background.position.z = -200;

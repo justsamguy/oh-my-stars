@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { pois } from './config.js';
+import { pois, POI_HITBOX_SCALE, MOBILE_BREAKPOINT } from './config.js';
 
 // POI geometry
 const poiGeometry = new THREE.CircleGeometry(3, 32);
@@ -27,15 +27,36 @@ const glowFragmentShader = `
 // Create a single POI group
 export function createPOI(poiData) {
     const group = new THREE.Group();
-    const scale = 0.3;
-    // Main POI circle
-    const material = new THREE.MeshBasicMaterial({ 
+    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+    const scale = isMobile ? 0.4 : 0.3;
+
+    // Create hitbox (much larger than visible circle)
+    const hitboxGeometry = new THREE.CircleGeometry(3 * POI_HITBOX_SCALE, 32);
+    const hitboxMaterial = new THREE.MeshBasicMaterial({
         color: poiData.color,
         transparent: true,
-        opacity: 0.9
+        opacity: 0.0,
+        side: THREE.DoubleSide,
+        depthTest: false
+    });
+    const hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
+    hitbox.scale.setScalar(scale);
+    hitbox.position.z = 0; // Keep hitbox at same Z as visual POI
+    hitbox.renderOrder = 1; // Ensure hitbox is rendered first
+    group.add(hitbox);
+
+    // Main visible POI circle
+    const material = new THREE.MeshBasicMaterial({
+        color: poiData.color,
+        transparent: true,
+        opacity: 0.9,
+        side: THREE.DoubleSide
     });
     const mesh = new THREE.Mesh(poiGeometry, material);
     mesh.scale.setScalar(scale);
+    mesh.renderOrder = 2;
+    group.add(mesh);
+
     // Dashed ring
     const ringGeometry = new THREE.BufferGeometry();
     const segments = 32;
@@ -56,6 +77,7 @@ export function createPOI(poiData) {
     ring.computeLineDistances();
     ring.userData.baseWidth = 0.5;
     ring.userData.hoverWidth = 1.0;
+
     // Glow effect
     const glowGeometry = new THREE.CircleGeometry(40, 32);
     const glowMaterial = new THREE.ShaderMaterial({
@@ -71,9 +93,9 @@ export function createPOI(poiData) {
     });
     const glow = new THREE.Mesh(glowGeometry, glowMaterial);
     glow.scale.setScalar(scale);
-    group.add(mesh);
     group.add(ring);
     group.add(glow);
+
     group.position.copy(poiData.position);
     group.userData = poiData;
     return group;

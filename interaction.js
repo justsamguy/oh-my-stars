@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { getWorldPosition } from './utils.js';
 import { infoBoxContainer, camera, renderer } from './sceneSetup.js';
+import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER } from './config.js';
 
 // State
 export let mouseWorldPosition = new THREE.Vector3(-10000, -10000, 0);
@@ -15,7 +16,147 @@ export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
+// Add touch fade state
+export let touchFadeValue = 1.0;
+let touchFadeInterval = null;
+const FADE_DURATION = 1000; // 1 second fade out
+const FADE_INTERVAL = 16; // ~60fps
+
+function startTouchFadeOut() {
+    if (touchFadeInterval) clearInterval(touchFadeInterval);
+    
+    const startTime = Date.now();
+    touchFadeInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed >= FADE_DURATION) {
+            touchFadeValue = 0;
+            clearInterval(touchFadeInterval);
+            touchFadeInterval = null;
+            return;
+        }
+        touchFadeValue = 1 - (elapsed / FADE_DURATION);
+    }, FADE_INTERVAL);
+}
+
+function createBottomSheet(poi) {
+    // Clear any existing sheets first
+    const existingSheet = document.querySelector('.bottom-sheet');
+    const existingOverlay = document.querySelector('.overlay');
+    if (existingSheet) existingSheet.remove();
+    if (existingOverlay) existingOverlay.remove();
+    
+    const sheet = document.createElement('div');
+    sheet.className = 'bottom-sheet';
+    
+    sheet.innerHTML = `
+        <div class="pull-handle"></div>
+        <div class="close-btn">&times;</div>
+        <div class="bottom-sheet-content">
+            <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
+            <p style="margin:0;line-height:1.4">${poi.description}</p>
+            <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+        </div>
+    `;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    
+    document.body.appendChild(overlay);
+    document.body.appendChild(sheet);
+
+    // Lock scrolling with class
+    document.body.classList.add('bottom-sheet-open');
+    
+    // Animate in
+    requestAnimationFrame(() => {
+        overlay.classList.add('visible');
+        sheet.classList.add('open');
+    });
+
+    const close = () => {
+        if (!currentInfoBox) return; // Prevent double-closing
+        sheet.classList.remove('open');
+        overlay.classList.remove('visible');
+        document.body.classList.remove('bottom-sheet-open');
+        
+        const handleTransitionEnd = () => {
+            if (currentInfoBox) { // Check again in case of race condition
+                sheet.remove();
+                overlay.remove();
+                currentInfoBox = null;
+            }
+        };
+        
+        sheet.addEventListener('transitionend', handleTransitionEnd, { once: true });
+    };
+
+    // Remove all previous event listeners and add new ones
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    // Single touch handler for the overlay
+    overlay.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        close();
+    }, { passive: false });
+
+    // Touch handlers for the sheet
+    const handleTouchStart = (e) => {
+        if (!e.target.closest('.bottom-sheet-content')) {
+            e.preventDefault();
+            startY = e.touches[0].clientY;
+            isDragging = false;
+        }
+    };
+
+    const handleTouchMove = (e) => {
+        if (!e.target.closest('.bottom-sheet-content')) {
+            e.preventDefault();
+            isDragging = true;
+            currentY = e.touches[0].clientY;
+            const delta = currentY - startY;
+            if (delta > 0) {
+                sheet.style.transform = `translateY(${delta}px)`;
+            }
+        }
+    };
+
+    const handleTouchEnd = (e) => {
+        if (!e.target.closest('.bottom-sheet-content')) {
+            if (isDragging) {
+                const delta = currentY - startY;
+                if (delta > 100) {
+                    close();
+                } else {
+                    sheet.style.transform = '';
+                }
+            }
+        }
+    };
+
+    sheet.addEventListener('touchstart', handleTouchStart, { passive: false });
+    sheet.addEventListener('touchmove', handleTouchMove, { passive: false });
+    sheet.addEventListener('touchend', handleTouchEnd);
+
+    // Add click handlers
+    sheet.querySelector('.close-btn').addEventListener('click', close);
+    overlay.addEventListener('click', close);
+
+    // Prevent clicks from propagating through the sheet
+    sheet.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    currentInfoBox = sheet;
+    return { sheet, overlay, close };
+}
+
 function openInfoBox(poi, poiPosition) {
+    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+        return createBottomSheet(poi);
+    }
+
     infoBoxAnimating = true;
     // Project POI position to screen
     const pos = poiPosition.clone();
@@ -165,6 +306,7 @@ function openInfoBox(poi, poiPosition) {
         infoBoxAnimating = false;
     }, contentFadeStart + 10);
 }
+
 function queueAndHideInfoBox(nextInfoBox) {
     // Always set the queue, then close the current box
     queuedInfoBox = nextInfoBox;
@@ -181,8 +323,42 @@ function queueAndHideInfoBox(nextInfoBox) {
 function closeCurrentInfoBox() {
     if (!currentInfoBox) return;
     infoBoxAnimating = true;
+
+    // Handle bottom sheet closing
+    if (currentInfoBox.classList.contains('bottom-sheet')) {
+        currentInfoBox.classList.remove('open');
+        const overlay = document.querySelector('.overlay');
+        if (overlay) overlay.classList.remove('visible');
+        document.body.classList.remove('bottom-sheet-open');
+        
+        currentInfoBox.addEventListener('transitionend', () => {
+            currentInfoBox.remove();
+            if (overlay) overlay.remove();
+            currentInfoBox = null;
+            infoBoxAnimating = false;
+            
+            // Handle queued info box
+            if (queuedInfoBox) {
+                const { poi, poiPosition } = queuedInfoBox;
+                queuedInfoBox = null;
+                openInfoBox(poi, poiPosition);
+            }
+        }, { once: true });
+        
+        return;
+    }
+
+    // Handle desktop info box closing
     const wrapper = currentInfoBox;
     const panel = wrapper.querySelector('.info-box');
+    if (!panel) {
+        // Fallback cleanup if structure is invalid
+        if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+        currentInfoBox = null;
+        infoBoxAnimating = false;
+        return;
+    }
+
     const content = panel.querySelector('.info-box-content');
     const closeBtn = panel.querySelector('.close-btn');
 
@@ -236,6 +412,11 @@ function closeCurrentInfoBox() {
 }
 
 export function showInfoBox(poi, poiPosition) {
+    // If mobile, remove any existing desktop info box
+    if (window.innerWidth <= MOBILE_BREAKPOINT && currentInfoBox && !currentInfoBox.classList.contains('bottom-sheet')) {
+        hideInfoBox();
+    }
+    
     // If animating or open, queue the new box and close current
     if (infoBoxAnimating || currentInfoBox) {
         queueAndHideInfoBox({ poi, poiPosition });
@@ -252,45 +433,174 @@ export function hideInfoBox() {
 
 // Mouse move event (no info box on hover)
 export function setupMouseMoveHandler(poiObjects) {
-    window.addEventListener('mousemove', (e) => {
-        mouseWorldPosition = getWorldPosition(e.clientX, e.clientY, camera, renderer);
-        // Raycast for POI hover (for highlight only, not info box)
-        raycaster.setFromCamera({
-            x: (e.clientX / window.innerWidth) * 2 - 1,
-            y: -(e.clientY / window.innerHeight) * 2 + 1
-        }, camera);
-    });
+    const handleMove = (e) => {
+        const pos = e.touches ? e.touches[0] : e;
+        const canvas = renderer.domElement;
+        const rect = canvas.getBoundingClientRect();
+        
+        // Update world position
+        mouseWorldPosition = getWorldPosition(pos.clientX, pos.clientY, camera, renderer);
+        
+        // Update raycaster with canvas-relative coordinates
+        const x = ((pos.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -((pos.clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+
+        // Reset touch fade on mobile touch
+        if (e.touches && window.innerWidth <= MOBILE_BREAKPOINT) {
+            touchFadeValue = 1.0;
+            if (touchFadeInterval) clearInterval(touchFadeInterval);
+        }
+    };
+
+    // Add touchstart handler for initial tap position
+    const handleTouchStart = (e) => {
+        if (window.innerWidth <= MOBILE_BREAKPOINT) {
+            handleMove(e);
+        }
+    };
+
+    // Add touch end handler for fade out
+    const handleTouchEnd = () => {
+        if (window.innerWidth <= MOBILE_BREAKPOINT) {
+            startTouchFadeOut();
+        }
+    };
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchend', handleTouchEnd);
 }
 
 // Click event for POI info box
 export function setupClickHandler(poiObjects) {
-    window.addEventListener('click', (e) => {
-        raycaster.setFromCamera({
-            x: (e.clientX / window.innerWidth) * 2 - 1,
-            y: -(e.clientY / window.innerHeight) * 2 + 1
-        }, camera);
+    let touchStartTime = 0;
+    let touchStartPos = { x: 0, y: 0 };
+    const TAP_THRESHOLD = 10;
+    const TAP_DURATION = 200;
+
+    const handleInteraction = (e) => {
+        // Ignore interactions if bottom sheet is open on mobile
+        if (window.innerWidth <= MOBILE_BREAKPOINT && 
+            document.body.classList.contains('bottom-sheet-open')) {
+            return;
+        }
+
+        if (e.target.closest('.info-box') || e.target.closest('.bottom-sheet')) {
+            return;
+        }
+
+        // Get coordinates from either mouse or touch event
+        const coords = e.type.includes('touch') 
+            ? (e.type === 'touchend' ? e.changedTouches[0] : e.touches[0])
+            : e;
+        if (!coords) return;
+
+        // Get canvas-relative coordinates
+        const canvas = renderer.domElement;
+        const rect = canvas.getBoundingClientRect();
+        
+        const clientX = coords.clientX - rect.left;
+        const clientY = coords.clientY - rect.top;
+        
+        const x = (clientX / rect.width) * 2 - 1;
+        const y = -(clientY / rect.height) * 2 + 1;
+
+        // Update raycaster
+        raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
+        raycaster.far = window.innerWidth <= MOBILE_BREAKPOINT ? 1000 : 500;
+        
+        // Find intersected POI
         let foundPOI = null;
+        let closestDistance = Infinity;
+
         for (const poi of poiObjects) {
-            const intersects = raycaster.intersectObject(poi, true);
+            const intersects = raycaster.intersectObjects(poi.children, true);
             if (intersects.length > 0) {
-                foundPOI = poi;
-                break;
+                const distance = intersects[0].distance;
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    foundPOI = poi;
+                }
             }
         }
+
         if (foundPOI) {
+            e.preventDefault?.();
             showInfoBox(foundPOI.userData, foundPOI.position);
-        } else {
+        } else if (!e.target.closest('.info-box')) {
             hideInfoBox();
         }
+    };
+
+    // Desktop clicks
+    window.addEventListener('click', (e) => {
+        if (window.innerWidth > MOBILE_BREAKPOINT) {
+            handleInteraction(e);
+        }
     });
+
+    // Mobile touches
+    let isTapping = false;
+
+    window.addEventListener('touchstart', (e) => {
+        touchStartTime = Date.now();
+        touchStartPos = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY
+        };
+        isTapping = true;
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+        if (!isTapping) return;
+        
+        const moveDistance = Math.hypot(
+            e.touches[0].clientX - touchStartPos.x,
+            e.touches[0].clientY - touchStartPos.y
+        );
+        
+        if (moveDistance > TAP_THRESHOLD) {
+            isTapping = false;
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+        if (!isTapping) return;
+        
+        const touchEndTime = Date.now();
+        const touchDuration = touchEndTime - touchStartTime;
+        
+        if (touchDuration <= TAP_DURATION) {
+            e.preventDefault();
+            handleInteraction(e);
+        }
+        
+        isTapping = false;
+    }, { passive: false });
 }
 
 // Scroll event
 export function setupScrollHandler() {
+    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+    const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
+    
     window.addEventListener('wheel', (e) => {
-        e.preventDefault(); // Prevent default browser scroll
-        scrollState.velocity -= e.deltaY * 0.01;
-    }, { passive: false }); // Set passive to false so preventDefault works
+        e.preventDefault();
+        scrollState.velocity -= e.deltaY * 0.01 * multiplier;
+    }, { passive: false });
+
+    let touchStart = 0;
+    window.addEventListener('touchstart', (e) => {
+        touchStart = e.touches[0].clientY;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+        const delta = touchStart - e.touches[0].clientY;
+        scrollState.velocity -= delta * 0.01 * multiplier;
+        touchStart = e.touches[0].clientY;
+    });
 }
 
 // Resize event

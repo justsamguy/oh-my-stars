@@ -1,9 +1,10 @@
 import * as THREE from 'three';
-import { pois, STAR_COUNT, MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS } from './config.js';
+import { pois, BASE_STAR_COUNT, MOBILE_STAR_COUNT, MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, MOBILE_BREAKPOINT } from './config.js';
 
 // Star shaders (as string constants)
 const vertexShader = `
     uniform float cameraY;
+    uniform bool isMobile;
     varying vec2 vUv;
     varying vec3 vWorldPosition;
     varying float vRandomSeed;
@@ -15,6 +16,9 @@ const vertexShader = `
         vRandomSeed = hash(position.xy);
         vec3 pos = position;
         float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0;
+        if (isMobile) {
+            parallaxStrength *= 2.0;
+        }
         vec3 worldPos = (modelMatrix * vec4(position, 1.0)).xyz;
         worldPos.y -= cameraY * parallaxStrength;
         vWorldPosition = worldPos;
@@ -28,6 +32,7 @@ const fragmentShader = `
     uniform vec3 mousePosition;
     uniform float twinkleFrequency;
     uniform float twinklePhase;
+    uniform float touchFade;
     varying vec2 vUv;
     varying vec3 vWorldPosition;
     varying float vRandomSeed;
@@ -40,7 +45,7 @@ const fragmentShader = `
     const float TWINKLE_AMPLITUDE = 0.35;
     void main() {
         float mouseDist = length(vWorldPosition.xy - mousePosition.xy);
-        float mouseProximity = smoothstep(MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, mouseDist);
+        float mouseProximity = smoothstep(MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, mouseDist) * touchFade;
         float coreDist = length(vUv - vec2(0.5));
         float coreAlpha = smoothstep(0.15, 0.05, coreDist);
         vec3 coreColor = vec3(1.0);
@@ -60,7 +65,9 @@ const fragmentShader = `
 `;
 
 // Create all stars
-export function createAllStars(count, pois, viewportWidth, viewportHeight) {
+export function createAllStars(_, pois, viewportWidth, viewportHeight) {
+    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+    const count = isMobile ? MOBILE_STAR_COUNT : BASE_STAR_COUNT;
     const group = new THREE.Group();
     const sortedPOIs = [...pois].sort((a, b) => b.position.y - a.position.y);
     const highestY = sortedPOIs[0].position.y + 80; // Extend higher into header
@@ -116,7 +123,8 @@ export function createAllStars(count, pois, viewportWidth, viewportHeight) {
                 cameraY: { value: 0 },
                 mousePosition: { value: new THREE.Vector3(-10000, -10000, 0) },
                 twinkleFrequency: { value: 2.5 + Math.random() * 1.5 },
-                twinklePhase: { value: Math.random() * Math.PI * 2 }
+                twinklePhase: { value: Math.random() * Math.PI * 2 },
+                touchFade: { value: 1.0 }
             },
             vertexShader,
             fragmentShader,
@@ -136,11 +144,12 @@ export function createAllStars(count, pois, viewportWidth, viewportHeight) {
 }
 
 // Update stars in animation loop
-export function updateStars(starsGroup, elapsedTime, cameraY, mouseWorldPosition) {
+export function updateStars(starsGroup, elapsedTime, cameraY, mouseWorldPosition, touchFade = 1.0) {
     starsGroup.children.forEach(star => {
         star.material.uniforms.time.value = elapsedTime;
         star.material.uniforms.cameraY.value = cameraY;
         star.material.uniforms.mousePosition.value.copy(mouseWorldPosition);
+        star.material.uniforms.touchFade.value = touchFade;
         const originalScale = star.userData.originalScale;
         if (originalScale) {
             const starPos = star.position;

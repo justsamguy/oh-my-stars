@@ -1,6 +1,11 @@
 /* Import Montserrat font */
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap');
 
+/* Custom property for mobile starfield padding */
+:root {
+    --mobile-starfield-bottom-padding: 1200px; /* Increased from 800px */
+}
+
 /* Basic Reset & Body Layout */
 html, body {
     margin: 0;
@@ -22,10 +27,10 @@ html, body {
 /* Canvas Styles */
 #bg {
     position: absolute;
-    top: 44px; /* Height of header */
+    top: 0; /* Removed top offset to eliminate the bar */
     left: 0;
     width: 100%;
-    height: calc(100% - 44px - 38px); /* Subtract header and footer heights */
+    height: calc(100% - 38px); /* Adjusted height, only subtracting footer height */
     display: block;
     z-index: 1; /* Base layer */
 }
@@ -289,7 +294,166 @@ html, body {
 */
 
 /* Mobile Responsiveness - Adjust if needed for 3D elements */
-/* @media (max-width: 600px) { ... } */
-/* Note: Responsiveness for CSS3DObjects might need JS adjustments */
-/* based on viewport size rather than pure CSS media queries */
-/* depending on how their size/position is calculated. */
+@media (max-width: 600px) {
+    :root {
+        --mobile-starfield-bottom-padding: 1800px; /* Increased for more space below starfield on mobile */
+    }
+
+    /* Always show glow effect on mobile */
+    .glow-char {
+        color: #fff !important;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                     0 0 15px rgba(255, 255, 255, 0.8),
+                     0 0 25px rgba(255, 255, 255, 0.6),
+                     0 0 35px rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Hide footer heading and description on mobile */
+    .css3d-footer .footer-brand h2,
+    .css3d-footer .footer-brand p {
+        display: none !important;
+    }
+
+    /* Center and stack footer links in a single column */
+    .css3d-footer .footer-content {
+        justify-content: center;
+        gap: 0;
+        flex-direction: column;
+        align-items: center;
+    }
+    .css3d-footer .footer-nav {
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 2px !important; /* spacing between footer menu links */
+    }
+    .css3d-footer .footer-link {
+        display: block !important;
+        width: 100%;
+        text-align: center;
+        margin: 0 auto;
+        padding: 4px 0; /* Added padding for better touch target */
+        font-size: 6px !important; /* Increased from default */
+    }
+
+    .css3d-footer {
+        height: auto !important;
+        min-height: 0 !important;
+        padding-bottom: 12px;
+    }
+
+    body {
+        padding-bottom: 120px !important;
+    }
+    #app-container {
+        padding-bottom: 120px !important;
+    }
+}
+
+/* Prevent text selection during touch interactions */
+.css3d-header, .css3d-footer {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Bottom Sheet Styles (Mobile Only) */
+.bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 20, 40, 0.95);
+    border-radius: 16px 16px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s ease;
+    z-index: 1000;
+    pointer-events: auto;
+    height: 33vh;
+    padding: 20px;
+    box-sizing: border-box;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.2);
+    font-family: 'Courier New', monospace !important;
+}
+
+.bottom-sheet h3 {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+    font-size: 20px;
+    margin: 0 0 10px 0;
+}
+
+.bottom-sheet .timestamp {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 10px;
+}
+
+.bottom-sheet .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    color: inherit;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.bottom-sheet .close-btn:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.bottom-sheet.open {
+    transform: translateY(0);
+    box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.3);
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background-color 0.3s ease;
+    pointer-events: none;
+    z-index: 999;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+}
+
+.overlay.visible {
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* Ensure content is styled properly */
+.bottom-sheet-content {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: calc(100% - 30px);
+    overflow-y: auto;
+}
+
+.bottom-sheet.open .bottom-sheet-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Prevent body scroll when sheet is open */
+body.bottom-sheet-open {
+    overflow: hidden;
+    touch-action: none;
+}
