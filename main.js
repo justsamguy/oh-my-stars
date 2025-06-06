@@ -138,15 +138,16 @@ function animate() {
 
         currentInfoBox.style.left = `${screenX}px`;
         currentInfoBox.style.top = `${screenY}px`;
-    }
-
-    // Keep header/footer in correct X/Z, but let them scroll with the scene
+    }    // Keep header/footer in correct X/Z, but let them scroll with the scene
     headerObj.position.x = 0;
     headerObj.position.z = 0;
     headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
     footerObj.position.x = 0;
     footerObj.position.z = 0;
-    footerObj.position.y = minY - paddingBottomY + 30; //<- integer controls global footer position
+    // Set different footer positions for mobile and desktop
+    const mobileFooterOffset = 45; // Larger offset for mobile
+    const desktopFooterOffset = 30; // Original offset for desktop
+    footerObj.position.y = minY - paddingBottomY + (isMobile ? mobileFooterOffset : desktopFooterOffset);
 
     // Render
     renderer.render(scene, camera); // Render WebGL scene
@@ -233,11 +234,9 @@ function onWindowResize() {
     // camera.position.y = (maxY + minY) / 2; // Don't reset Y, let scroll logic handle it
 
     renderer.setSize(canvasWidth, canvasHeight); // Resize WebGL renderer
-    cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
-
-    // Update header/footer positions on resize (in case POI Y changes)
+    cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer    // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
-    footerObj.position.y = minY - paddingBottomY + 30;
+    footerObj.position.y = minY - paddingBottomY + (isMobile ? mobileFooterOffset : desktopFooterOffset);
 }
 
 // Initial call to set size correctly
