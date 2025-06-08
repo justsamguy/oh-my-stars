@@ -30,8 +30,7 @@ export function wrapTextInGlowSpans(text) {
 export function createHeaderElement() {
     const headerDiv = document.createElement('div');
     headerDiv.className = 'css3d-element css3d-header';
-    headerDiv.style.width = '250px';
-    headerDiv.style.fontSize = '7px';  // Changed from '0.25em' to '7px'
+    // Remove fixed width and fontSize; let CSS handle it
     headerDiv.style.background = 'none';
     headerDiv.style.color = '#afafaf';
     headerDiv.innerHTML = `<h1>${wrapTextInGlowSpans(headerConfig.text)}</h1>`;
@@ -42,13 +41,10 @@ export function createFooterElement() {
     const footerDiv = document.createElement('div');
     footerDiv.className = 'css3d-element css3d-footer';
 
-    // Always use the desktop footer layout for all screens
-    footerDiv.style.width = '400px';
-    footerDiv.style.fontSize = '1.5px';
+    // Remove fixed width and fontSize; let CSS handle it
     footerDiv.style.background = 'rgba(0,0,0,0.5)';
     footerDiv.style.padding = '6px 15px';
     footerDiv.style.boxSizing = 'border-box';
-    footerDiv.style.height = '42px';
 
     // Mobile detection
     const isMobile = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;    let navHTML = '';
