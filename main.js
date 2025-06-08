@@ -166,4 +166,25 @@ onWindowResize();
 // Set initial camera position to top (just below header)
 camera.position.y = maxY + paddingTopY - camera.top;
 
+// --- Added onWindowResize function definition ---
+function onWindowResize() {
+  // Get new dimensions
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  // Update camera aspect and orthographic bounds
+  const aspect = width / height;
+  const viewportHeight = getViewportHeight();
+  const viewportWidth = getViewportWidth();
+  camera.left = -viewportWidth / 2;
+  camera.right = viewportWidth / 2;
+  camera.top = viewportHeight / 2;
+  camera.bottom = -viewportHeight / 2;
+  camera.updateProjectionMatrix();
+
+  // Update renderers
+  renderer.setSize(width, height);
+  cssRenderer.setSize(width, height);
+}
+
 animate();
