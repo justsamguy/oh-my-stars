@@ -166,4 +166,42 @@ onWindowResize();
 // Set initial camera position to top (just below header)
 camera.position.y = maxY + paddingTopY - camera.top;
 
+// Move the onWindowResize function definition above its first usage to ensure it is defined before being called
+function onWindowResize() {
+    // Use canvas dimensions, not window dimensions
+    const canvasWidth = canvas.clientWidth;
+    const canvasHeight = canvas.clientHeight;
+
+    // --- Recalculate viewport dimensions based on POI data and aspect ratio ---
+    // Get new aspect ratio
+    const aspect = canvasWidth / canvasHeight;
+
+    // Get POI Y range
+    yPositions = pois.map(p => p.position.y);
+    maxY = Math.max(...yPositions);
+    minY = Math.min(...yPositions);
+
+    // Calculate new viewport height (span of POIs plus margin)
+    const poiSpan = Math.abs(maxY - minY);
+    const margin = 0.1 * poiSpan;
+    const newViewportHeight = poiSpan + margin;
+    const newViewportWidth = newViewportHeight * aspect;
+
+    // Update camera frustum
+    camera.top = newViewportHeight / 2;
+    camera.bottom = -newViewportHeight / 2;
+    camera.left = -newViewportWidth / 2;
+    camera.right = newViewportWidth / 2;
+    camera.updateProjectionMatrix();
+
+    // Optionally, keep camera centered on POIs
+    camera.position.x = 0;
+    // camera.position.y = (maxY + minY) / 2; // Don't reset Y, let scroll logic handle it
+
+    renderer.setSize(canvasWidth, canvasHeight); // Resize WebGL renderer
+    cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer    // Update header/footer positions on resize (in case POI Y changes)
+    headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
+    footerObj.position.y = minY - paddingBottomY + (isMobile ? mobileFooterOffset : desktopFooterOffset);
+}
+
 animate();
