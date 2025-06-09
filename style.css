@@ -49,23 +49,35 @@ html, body {
 }
 
 .css3d-header, .css3d-footer {
-  width: 90vw;
-  max-width: 500px;
-  min-width: 180px;
-  margin: 0 auto;
-  font-size: 0.2rem; /* header font size control */
-  background: none !important;
-  color: #fff;
-  text-align: center;
-  box-sizing: border-box;
-  pointer-events: auto !important;
-  font-family: 'Montserrat', sans-serif !important;
+    width: 90vw;
+    max-width: 500px;
+    min-width: 180px;
+    margin: 0 auto;
+    font-size: 0.2rem; /* base font size control */
+    background: none !important;
+    color: #fff;
+    text-align: center;
+    box-sizing: border-box;
+    pointer-events: auto !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Consistent heading styles for both header and footer */
+.css3d-header h1,
+.footer-brand h2 {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 400;
+    font-size: 6px;
+    margin: 0;
+    padding: 0;
+    color: #afafaf;
+    letter-spacing: 0.05em;
 }
 
 @media (max-width: 800px) {
-  .css3d-header {
-    font-size: 3vw; /* Reduced from 6vw */
-  }
+    .css3d-header {
+        font-size: 3vw; /* Reduced from 6vw */
+    }
 }
 
 .css3d-footer {
