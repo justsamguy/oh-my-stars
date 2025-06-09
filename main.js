@@ -53,7 +53,7 @@ const desktopFooterOffset = 30; // Original offset for desktop
 // Replace header creation with:
 const headerDiv = createHeaderElement();
 const headerObj = new CSS3DObject(headerDiv);
-const headerWorldHeight = 7; // Reduced from 70
+const headerWorldHeight = 70;
 headerObj.position.set(0, maxY + paddingTopY - headerWorldHeight / 2, 0);
 headerObj.rotation.set(0, 0, 0);
 scene.add(headerObj);
