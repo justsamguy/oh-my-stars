@@ -96,6 +96,7 @@ alwaysApply: true
   - Include both DO and DON'T examples
   - Reference actual code over theoretical examples
   - Use consistent formatting across rules
+  - Remember that modifying code may impact other parts of the application, so ensure changes don't introduce new issues.
 
 ---
 ## Implementation Instructions
