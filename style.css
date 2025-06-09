@@ -53,7 +53,7 @@ html, body {
   max-width: 500px;
   min-width: 180px;
   margin: 0 auto;
-  font-size: 0.4rem; /* header font size control */
+  font-size: 0.04rem; /* header font size control */
   background: none !important;
   color: #fff;
   text-align: center;
