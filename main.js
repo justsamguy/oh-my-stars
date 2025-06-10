@@ -157,49 +157,10 @@ function animate() {
 // Detect if the user is on a mobile device (simple check)
 const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
 if (isMobileDevice) {
-    scrollDamping = 1;
+  scrollDamping = 1;
 }
 
-// --- Improved mobile handling: adjust camera position on touch end ---
-let isTouching = false;
-let touchStartY = 0;
-let touchCurrentY = 0;
-let touchVelocity = 0;
-let touchStartTime = 0;
-let touchEndTime = 0;
-
-// Update touch handling to use passive listeners for better performance
-const touchOptions = { passive: true };
-
-// Touch start event
-canvas.addEventListener('touchstart', (e) => {
-    isTouching = true;
-    touchStartY = e.touches[0].clientY;
-    touchCurrentY = touchStartY;
-    touchStartTime = performance.now();
-}, touchOptions);
-
-// Touch move event
-canvas.addEventListener('touchmove', (e) => {
-    if (!isTouching) return;
-    touchCurrentY = e.touches[0].clientY;
-    // Calculate velocity as distance / time
-    const now = performance.now();
-    const elapsedTime = now - touchStartTime;
-    touchVelocity = (touchCurrentY - touchStartY) / elapsedTime;
-    touchStartY = touchCurrentY;
-    touchStartTime = now;
-}, touchOptions);
-
-// Touch end event
-canvas.addEventListener('touchend', () => {
-    isTouching = false;
-    // Apply a burst of scroll based on the final velocity
-    scrollState.velocity += touchVelocity * 10; // Multiply for stronger effect
-    // Clamp the velocity to prevent excessive scrolling
-    if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
-    if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
-});
+// Remove old touch scroll event listeners (handled in interaction.js)
 
 function onWindowResize() {
     // Use canvas dimensions, not window dimensions

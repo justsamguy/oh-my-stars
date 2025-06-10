@@ -583,24 +583,48 @@ export function setupClickHandler(poiObjects) {
 
 // Scroll event
 export function setupScrollHandler() {
-    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-    const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
-    
-    window.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        scrollState.velocity -= e.deltaY * 0.01 * multiplier;
-    }, { passive: false });
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+  const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
 
-    let touchStart = 0;
-    window.addEventListener('touchstart', (e) => {
-        touchStart = e.touches[0].clientY;
-    });
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    scrollState.velocity -= e.deltaY * 0.01 * multiplier;
+  }, { passive: false });
 
-    window.addEventListener('touchmove', (e) => {
-        const delta = touchStart - e.touches[0].clientY;
-        scrollState.velocity -= delta * 0.01 * multiplier;
-        touchStart = e.touches[0].clientY;
-    });
+  let touchStartY = 0;
+  let lastTouchTime = 0;
+  let lastTouchY = 0;
+  let lastVelocity = 0;
+
+  window.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+    touchStartY = e.touches[0].clientY;
+    lastTouchY = touchStartY;
+    lastTouchTime = performance.now();
+    lastVelocity = 0;
+  });
+
+  window.addEventListener('touchmove', (e) => {
+    if (e.touches.length !== 1) return;
+    const currentY = e.touches[0].clientY;
+    const now = performance.now();
+    const deltaY = currentY - lastTouchY;
+    const deltaTime = now - lastTouchTime;
+    if (deltaTime > 0) {
+      lastVelocity = deltaY / deltaTime;
+    }
+    scrollState.velocity -= deltaY * 0.04 * multiplier; // More responsive for mobile
+    lastTouchY = currentY;
+    lastTouchTime = now;
+  });
+
+  window.addEventListener('touchend', () => {
+    // Apply momentum based on last velocity
+    scrollState.velocity += lastVelocity * 400 * multiplier; // scale for effect
+    // Clamp velocity
+    if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
+    if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
+  });
 }
 
 // Resize event
