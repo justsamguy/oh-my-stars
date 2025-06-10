@@ -140,7 +140,15 @@ function createBottomSheet(poi) {
     sheet.addEventListener('touchend', handleTouchEnd);
 
     // Add click handlers
-    sheet.querySelector('.close-btn').addEventListener('click', close);
+    const closeBtn = sheet.querySelector('.close-btn');
+    if (closeBtn) {
+      closeBtn.style.zIndex = '1001'; // Ensure on top
+      closeBtn.style.pointerEvents = 'auto';
+      closeBtn.addEventListener('click', close);
+    } else {
+      // Defensive: log warning if not found
+      console.warn('Mobile info popup: close button not found');
+    }
     overlay.addEventListener('click', close);
 
     // Prevent clicks from propagating through the sheet
