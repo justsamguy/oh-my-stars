@@ -635,34 +635,42 @@ export function setupScrollHandler() {
     if (deltaTime > 0) {
       lastVelocity = deltaY / deltaTime;
     }
-    // Map screen pixel movement to world units for 1:1 tracking, but reduce sensitivity
+    // Slightly increase sensitivity for more natural tracking
     const canvas = renderer.domElement;
     const canvasHeight = canvas.clientHeight || window.innerHeight;
     const frustumHeight = camera.top - camera.bottom;
-    // Reduce pixelToWorld by 0.5 for less sensitivity
-    const pixelToWorld = (frustumHeight / canvasHeight) * 0.5;
+    const pixelToWorld = (frustumHeight / canvasHeight) * 0.65;
     const totalDelta = currentY - touchStartY;
-    // Clamp to allowed scroll range (match main.js)
     const cameraViewHeight = camera.top - camera.bottom;
     const clampMinY = Math.min(...pois.map(p => p.position.y)) + cameraViewHeight / 2 -  (window.innerWidth <= MOBILE_BREAKPOINT ? 130 : 100);
     const clampMaxY = Math.max(...pois.map(p => p.position.y)) - cameraViewHeight / 2 + 100;
     let targetY = lastCameraY + totalDelta * pixelToWorld;
     targetY = Math.max(clampMinY, Math.min(clampMaxY, targetY));
-    scrollState.dragY = targetY; // Camera will follow finger in real time
+    scrollState.dragY = targetY;
     scrollState.velocity = 0;
     lastTouchY = currentY;
     lastTouchTime = now;
   }, { passive: false });
 
+  // Smooth transition from drag to momentum
+  let dragReleaseY = null;
+  let dragReleaseFrames = 0;
   window.addEventListener('touchend', () => {
     if (!USE_CUSTOM_SCROLL) return;
     scrollState.isDragging = false;
+    dragReleaseY = scrollState.dragY;
+    dragReleaseFrames = 6; // Interpolate for a few frames
     scrollState.dragY = null;
     // Apply momentum based on last velocity
-    scrollState.velocity += lastVelocity * 400 * multiplier;
+    scrollState.velocity += lastVelocity * 400;
     if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
     if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
   });
+
+  // Patch for main.js animate loop: interpolate camera position after drag ends
+  if (typeof window !== 'undefined') {
+    window.__interactionDragRelease = { get dragReleaseY() { return dragReleaseY; }, set dragReleaseY(v) { dragReleaseY = v; }, get dragReleaseFrames() { return dragReleaseFrames; }, set dragReleaseFrames(v) { dragReleaseFrames = v; } };
+  }
 }
 
 // Resize event

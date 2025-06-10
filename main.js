@@ -103,10 +103,16 @@ function animate() {
     const elapsed = (now - lastTime) / 1000;
     lastTime = now;
     // Camera scroll
-    // Clamp scrollVelocity before applying
     if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
     if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
-    if (scrollState.isDragging && scrollState.dragY !== null) {
+    // Smooth transition after drag ends
+    if (typeof window !== 'undefined' && window.__interactionDragRelease && window.__interactionDragRelease.dragReleaseFrames > 0 && window.__interactionDragRelease.dragReleaseY !== null) {
+      camera.position.y += (window.__interactionDragRelease.dragReleaseY - camera.position.y) * 0.45;
+      window.__interactionDragRelease.dragReleaseFrames--;
+      if (window.__interactionDragRelease.dragReleaseFrames <= 0) {
+        window.__interactionDragRelease.dragReleaseY = null;
+      }
+    } else if (scrollState.isDragging && scrollState.dragY !== null) {
         camera.position.y = scrollState.dragY;
     } else if (Math.abs(scrollState.velocity) > 0.001) {
         camera.position.y += scrollState.velocity;
