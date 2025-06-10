@@ -585,6 +585,7 @@ export function setupClickHandler(poiObjects) {
 export function setupScrollHandler() {
   const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
   const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
+  const isIOS = /iP(ad|hone|od)/.test(navigator.userAgent) && !window.MSStream;
 
   window.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -595,6 +596,7 @@ export function setupScrollHandler() {
   let lastTouchTime = 0;
   let lastTouchY = 0;
   let lastVelocity = 0;
+  let lastCameraY = 0;
 
   window.addEventListener('touchstart', (e) => {
     if (e.touches.length !== 1) return;
@@ -602,6 +604,11 @@ export function setupScrollHandler() {
     lastTouchY = touchStartY;
     lastTouchTime = performance.now();
     lastVelocity = 0;
+    if (isIOS) {
+      // Save camera position for direct tracking
+      lastCameraY = camera.position.y;
+      scrollState.velocity = 0;
+    }
   });
 
   window.addEventListener('touchmove', (e) => {
@@ -613,7 +620,14 @@ export function setupScrollHandler() {
     if (deltaTime > 0) {
       lastVelocity = deltaY / deltaTime;
     }
-    scrollState.velocity += deltaY * 0.04 * multiplier; // touch scrolling
+    if (isIOS) {
+      // Directly track finger for iOS Safari
+      const totalDelta = currentY - touchStartY;
+      camera.position.y = lastCameraY + totalDelta * 0.04 * multiplier;
+      scrollState.velocity = 0;
+    } else {
+      scrollState.velocity += deltaY * 0.04 * multiplier; // touch scrolling
+    }
     lastTouchY = currentY;
     lastTouchTime = now;
   });
