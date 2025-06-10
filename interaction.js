@@ -622,7 +622,13 @@ export function setupScrollHandler() {
     const frustumHeight = camera.top - camera.bottom;
     const pixelToWorld = frustumHeight / canvasHeight;
     const totalDelta = currentY - touchStartY;
-    camera.position.y = lastCameraY + totalDelta * pixelToWorld * multiplier;
+    let targetY = lastCameraY + totalDelta * pixelToWorld * multiplier;
+    // Clamp to allowed scroll range (match main.js)
+    const cameraViewHeight = camera.top - camera.bottom;
+    const clampMinY = Math.min(...pois.map(p => p.position.y)) + cameraViewHeight / 2 -  (window.innerWidth <= MOBILE_BREAKPOINT ? 130 : 100);
+    const clampMaxY = Math.max(...pois.map(p => p.position.y)) - cameraViewHeight / 2 + 100;
+    targetY = Math.max(clampMinY, Math.min(clampMaxY, targetY));
+    camera.position.y = targetY;
     scrollState.velocity = 0;
     lastTouchY = currentY;
     lastTouchTime = now;
