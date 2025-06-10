@@ -153,13 +153,6 @@ function animate() {
     cssRenderer.render(scene, camera); // Render CSS3D scene (overlays WebGL)
 }
 
-// --- Fix for mobile scroll jitter: disable scroll damping on mobile ---
-// Detect if the user is on a mobile device (simple check)
-const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
-if (isMobileDevice) {
-  scrollDamping = 1;
-}
-
 // Remove old touch scroll event listeners (handled in interaction.js)
 
 function onWindowResize() {
