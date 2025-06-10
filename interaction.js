@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { getWorldPosition } from './utils.js';
 import { infoBoxContainer, camera, renderer } from './sceneSetup.js';
-import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER, MAX_SCROLL_SPEED } from './config.js';
+import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER, MAX_SCROLL_SPEED, pois } from './config.js';
 
 // State
 export let mouseWorldPosition = new THREE.Vector3(-10000, -10000, 0);
