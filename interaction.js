@@ -583,12 +583,27 @@ export function setupClickHandler(poiObjects) {
 
 // Scroll event
 export function setupScrollHandler() {
+  /**
+   * Custom Camera Scroll vs Native Scroll
+   * -------------------------------------
+   * To switch between custom camera scroll (3D view follows finger) and native scroll:
+   * - Set USE_CUSTOM_SCROLL = true for custom camera scroll (default, recommended for 3D scenes).
+   * - Set USE_CUSTOM_SCROLL = false to allow native browser scrolling (e.g., for accessibility/testing).
+   * - You can toggle based on user agent, feature flag, or a query param.
+   *
+   * Example:
+   *   const USE_CUSTOM_SCROLL = window.innerWidth <= MOBILE_BREAKPOINT;
+   *   // or
+   *   const USE_CUSTOM_SCROLL = !/iPhone|iPad|Android/i.test(navigator.userAgent);
+   */
+  const USE_CUSTOM_SCROLL = true;
   const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
   const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
 
   window.addEventListener('wheel', (e) => {
+    if (!USE_CUSTOM_SCROLL) return;
     e.preventDefault();
-    scrollState.velocity -= e.deltaY * 0.01 * multiplier; // wheel scrolling
+    scrollState.velocity -= e.deltaY * 0.01 * multiplier;
   }, { passive: false });
 
   let touchStartY = 0;
@@ -598,6 +613,7 @@ export function setupScrollHandler() {
   let lastCameraY = 0;
 
   window.addEventListener('touchstart', (e) => {
+    if (!USE_CUSTOM_SCROLL) return;
     if (e.touches.length !== 1) return;
     touchStartY = e.touches[0].clientY;
     lastTouchY = touchStartY;
@@ -609,7 +625,9 @@ export function setupScrollHandler() {
   });
 
   window.addEventListener('touchmove', (e) => {
+    if (!USE_CUSTOM_SCROLL) return;
     if (e.touches.length !== 1) return;
+    e.preventDefault(); // Prevent native scroll
     const currentY = e.touches[0].clientY;
     const now = performance.now();
     const deltaY = currentY - lastTouchY;
@@ -623,24 +641,24 @@ export function setupScrollHandler() {
     const frustumHeight = camera.top - camera.bottom;
     const pixelToWorld = frustumHeight / canvasHeight;
     const totalDelta = currentY - touchStartY;
-    let targetY = lastCameraY + totalDelta * pixelToWorld * multiplier;
     // Clamp to allowed scroll range (match main.js)
     const cameraViewHeight = camera.top - camera.bottom;
     const clampMinY = Math.min(...pois.map(p => p.position.y)) + cameraViewHeight / 2 -  (window.innerWidth <= MOBILE_BREAKPOINT ? 130 : 100);
     const clampMaxY = Math.max(...pois.map(p => p.position.y)) - cameraViewHeight / 2 + 100;
+    let targetY = lastCameraY + totalDelta * pixelToWorld * multiplier;
     targetY = Math.max(clampMinY, Math.min(clampMaxY, targetY));
-    scrollState.dragY = targetY;
+    scrollState.dragY = targetY; // Camera will follow finger in real time
     scrollState.velocity = 0;
     lastTouchY = currentY;
     lastTouchTime = now;
-  });
+  }, { passive: false });
 
   window.addEventListener('touchend', () => {
+    if (!USE_CUSTOM_SCROLL) return;
     scrollState.isDragging = false;
     scrollState.dragY = null;
     // Apply momentum based on last velocity
-    scrollState.velocity += lastVelocity * 400 * multiplier; // scale for effect
-    // Clamp velocity
+    scrollState.velocity += lastVelocity * 400 * multiplier;
     if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
     if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
   });
