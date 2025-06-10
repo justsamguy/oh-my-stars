@@ -588,7 +588,7 @@ export function setupScrollHandler() {
 
   window.addEventListener('wheel', (e) => {
     e.preventDefault();
-    scrollState.velocity -= e.deltaY * 0.01 * multiplier;
+    scrollState.velocity += e.deltaY * 0.01 * multiplier; // Invert sign
   }, { passive: false });
 
   let touchStartY = 0;
@@ -613,7 +613,7 @@ export function setupScrollHandler() {
     if (deltaTime > 0) {
       lastVelocity = deltaY / deltaTime;
     }
-    scrollState.velocity -= deltaY * 0.04 * multiplier; // More responsive for mobile
+    scrollState.velocity += deltaY * 0.04 * multiplier; // Invert sign
     lastTouchY = currentY;
     lastTouchTime = now;
   });
