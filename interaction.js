@@ -635,17 +635,18 @@ export function setupScrollHandler() {
     if (deltaTime > 0) {
       lastVelocity = deltaY / deltaTime;
     }
-    // Map screen pixel movement to world units for 1:1 tracking
+    // Map screen pixel movement to world units for 1:1 tracking, but reduce sensitivity
     const canvas = renderer.domElement;
     const canvasHeight = canvas.clientHeight || window.innerHeight;
     const frustumHeight = camera.top - camera.bottom;
-    const pixelToWorld = frustumHeight / canvasHeight;
+    // Reduce pixelToWorld by 0.5 for less sensitivity
+    const pixelToWorld = (frustumHeight / canvasHeight) * 0.5;
     const totalDelta = currentY - touchStartY;
     // Clamp to allowed scroll range (match main.js)
     const cameraViewHeight = camera.top - camera.bottom;
     const clampMinY = Math.min(...pois.map(p => p.position.y)) + cameraViewHeight / 2 -  (window.innerWidth <= MOBILE_BREAKPOINT ? 130 : 100);
     const clampMaxY = Math.max(...pois.map(p => p.position.y)) - cameraViewHeight / 2 + 100;
-    let targetY = lastCameraY + totalDelta * pixelToWorld * multiplier;
+    let targetY = lastCameraY + totalDelta * pixelToWorld;
     targetY = Math.max(clampMinY, Math.min(clampMaxY, targetY));
     scrollState.dragY = targetY; // Camera will follow finger in real time
     scrollState.velocity = 0;
