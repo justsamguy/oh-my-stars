@@ -616,9 +616,13 @@ export function setupScrollHandler() {
     if (deltaTime > 0) {
       lastVelocity = deltaY / deltaTime;
     }
-    // Directly track finger for all mobile browsers
+    // Map screen pixel movement to world units for 1:1 tracking
+    const canvas = renderer.domElement;
+    const canvasHeight = canvas.clientHeight || window.innerHeight;
+    const frustumHeight = camera.top - camera.bottom;
+    const pixelToWorld = frustumHeight / canvasHeight;
     const totalDelta = currentY - touchStartY;
-    camera.position.y = lastCameraY + totalDelta * 0.04 * multiplier;
+    camera.position.y = lastCameraY + totalDelta * pixelToWorld * multiplier;
     scrollState.velocity = 0;
     lastTouchY = currentY;
     lastTouchTime = now;
