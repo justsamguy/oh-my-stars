@@ -5,7 +5,7 @@ import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER, MAX_SCROLL_SPEED } from '.
 
 // State
 export let mouseWorldPosition = new THREE.Vector3(-10000, -10000, 0);
-export const scrollState = { velocity: 0 };
+export const scrollState = { velocity: 0, dragY: null, isDragging: false };
 export let cameraTargetY = camera.position.y;
 
 // Raycaster for POI hover
@@ -605,6 +605,7 @@ export function setupScrollHandler() {
     lastVelocity = 0;
     lastCameraY = camera.position.y;
     scrollState.velocity = 0;
+    scrollState.isDragging = true;
   });
 
   window.addEventListener('touchmove', (e) => {
@@ -628,13 +629,15 @@ export function setupScrollHandler() {
     const clampMinY = Math.min(...pois.map(p => p.position.y)) + cameraViewHeight / 2 -  (window.innerWidth <= MOBILE_BREAKPOINT ? 130 : 100);
     const clampMaxY = Math.max(...pois.map(p => p.position.y)) - cameraViewHeight / 2 + 100;
     targetY = Math.max(clampMinY, Math.min(clampMaxY, targetY));
-    camera.position.y = targetY;
+    scrollState.dragY = targetY;
     scrollState.velocity = 0;
     lastTouchY = currentY;
     lastTouchTime = now;
   });
 
   window.addEventListener('touchend', () => {
+    scrollState.isDragging = false;
+    scrollState.dragY = null;
     // Apply momentum based on last velocity
     scrollState.velocity += lastVelocity * 400 * multiplier; // scale for effect
     // Clamp velocity

@@ -106,7 +106,9 @@ function animate() {
     // Clamp scrollVelocity before applying
     if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
     if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
-    if (Math.abs(scrollState.velocity) > 0.001) {
+    if (scrollState.isDragging && scrollState.dragY !== null) {
+        camera.position.y = scrollState.dragY;
+    } else if (Math.abs(scrollState.velocity) > 0.001) {
         camera.position.y += scrollState.velocity;
         scrollState.velocity *= scrollDamping;
     }
