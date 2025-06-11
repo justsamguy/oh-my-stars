@@ -28,6 +28,6 @@ export const MAX_SCROLL_SPEED = 2;
 export const MAX_INTERACTION_RADIUS = 75.0;
 export const MIN_INTERACTION_RADIUS = 15.0;
 export const MOBILE_BREAKPOINT = 600;
-export const MOBILE_SCROLL_MULTIPLIER = 2;
+export const MOBILE_SCROLL_MULTIPLIER = 2.5;
 export const POI_HITBOX_SCALE = window.innerWidth <= MOBILE_BREAKPOINT ? 12 : 8; // Increased mobile hitbox
 export const POI_INTERACTION_THRESHOLD = window.innerWidth <= MOBILE_BREAKPOINT ? 0.7 : 0.5; // More forgiving on mobile
