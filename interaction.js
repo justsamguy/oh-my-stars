@@ -670,11 +670,15 @@ export function setupScrollHandler() {
   window.addEventListener('touchend', () => {
     if (!USE_CUSTOM_SCROLL) return;
     scrollState.isDragging = false;
-    dragReleaseY = scrollState.dragY;
-    dragReleaseFrames = 10; // Interpolate for a few more frames for smoother handoff
     scrollState.dragY = null;
-    // Apply momentum based on last velocity
-    scrollState.velocity += lastVelocity * 60; // Lower multiplier for more natural scroll
+    // Calculate pixel-to-world ratio for velocity
+    const canvas = renderer.domElement;
+    const canvasHeight = canvas.clientHeight || window.innerHeight;
+    const frustumHeight = camera.top - camera.bottom;
+    const pixelToWorld = (frustumHeight / canvasHeight) * 0.65;
+    // Set velocity in world units per ms, then scale to per frame (assuming 60fps, ~16ms per frame)
+    scrollState.velocity = lastVelocity * pixelToWorld * 16; // 16ms per frame
+    // Clamp velocity
     if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
     if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
   });
