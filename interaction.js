@@ -671,10 +671,10 @@ export function setupScrollHandler() {
     if (!USE_CUSTOM_SCROLL) return;
     scrollState.isDragging = false;
     dragReleaseY = scrollState.dragY;
-    dragReleaseFrames = 6; // Interpolate for a few frames
+    dragReleaseFrames = 10; // Interpolate for a few more frames for smoother handoff
     scrollState.dragY = null;
     // Apply momentum based on last velocity
-    scrollState.velocity += lastVelocity * 400;
+    scrollState.velocity += lastVelocity * 60; // Lower multiplier for more natural scroll
     if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
     if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
   });
