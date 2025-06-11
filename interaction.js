@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { getWorldPosition } from './utils.js';
 import { infoBoxContainer, camera, renderer } from './sceneSetup.js';
-import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER } from './config.js';
+import { MOBILE_BREAKPOINT, MOBILE_SCROLL_MULTIPLIER, MAX_SCROLL_SPEED, pois } from './config.js';
 
 // State
 export let mouseWorldPosition = new THREE.Vector3(-10000, -10000, 0);
-export const scrollState = { velocity: 0 };
+export const scrollState = { velocity: 0, dragY: null, isDragging: false };
 export let cameraTargetY = camera.position.y;
 
 // Raycaster for POI hover
@@ -140,7 +140,19 @@ function createBottomSheet(poi) {
     sheet.addEventListener('touchend', handleTouchEnd);
 
     // Add click handlers
-    sheet.querySelector('.close-btn').addEventListener('click', close);
+    const closeBtn = sheet.querySelector('.close-btn');
+    if (closeBtn) {
+      closeBtn.style.zIndex = '2000'; // Ensure on top
+      closeBtn.style.pointerEvents = 'auto';
+      closeBtn.addEventListener('click', close);
+      closeBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        close();
+      });
+    } else {
+      // Defensive: log warning if not found
+      console.warn('Mobile info popup: close button not found');
+    }
     overlay.addEventListener('click', close);
 
     // Prevent clicks from propagating through the sheet
@@ -583,24 +595,98 @@ export function setupClickHandler(poiObjects) {
 
 // Scroll event
 export function setupScrollHandler() {
-    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-    const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
-    
-    window.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        scrollState.velocity -= e.deltaY * 0.01 * multiplier;
-    }, { passive: false });
+  /**
+   * Custom Camera Scroll vs Native Scroll
+   * -------------------------------------
+   * To switch between custom camera scroll (3D view follows finger) and native scroll:
+   * - Set USE_CUSTOM_SCROLL = true for custom camera scroll (default, recommended for 3D scenes).
+   * - Set USE_CUSTOM_SCROLL = false to allow native browser scrolling (e.g., for accessibility/testing).
+   * - You can toggle based on user agent, feature flag, or a query param.
+   *
+   * Example:
+   *   const USE_CUSTOM_SCROLL = window.innerWidth <= MOBILE_BREAKPOINT;
+   *   // or
+   *   const USE_CUSTOM_SCROLL = !/iPhone|iPad|Android/i.test(navigator.userAgent);
+   */
+  const USE_CUSTOM_SCROLL = true;
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+  const multiplier = isMobile ? MOBILE_SCROLL_MULTIPLIER : 1;
 
-    let touchStart = 0;
-    window.addEventListener('touchstart', (e) => {
-        touchStart = e.touches[0].clientY;
-    });
+  window.addEventListener('wheel', (e) => {
+    if (!USE_CUSTOM_SCROLL) return;
+    e.preventDefault();
+    scrollState.velocity -= e.deltaY * 0.01 * multiplier;
+  }, { passive: false });
 
-    window.addEventListener('touchmove', (e) => {
-        const delta = touchStart - e.touches[0].clientY;
-        scrollState.velocity -= delta * 0.01 * multiplier;
-        touchStart = e.touches[0].clientY;
-    });
+  let touchStartY = 0;
+  let lastTouchTime = 0;
+  let lastTouchY = 0;
+  let lastVelocity = 0;
+  let lastCameraY = 0;
+
+  window.addEventListener('touchstart', (e) => {
+    if (!USE_CUSTOM_SCROLL) return;
+    if (e.touches.length !== 1) return;
+    touchStartY = e.touches[0].clientY;
+    lastTouchY = touchStartY;
+    lastTouchTime = performance.now();
+    lastVelocity = 0;
+    lastCameraY = camera.position.y;
+    scrollState.velocity = 0;
+    scrollState.isDragging = true;
+  });
+
+  window.addEventListener('touchmove', (e) => {
+    if (!USE_CUSTOM_SCROLL) return;
+    if (e.touches.length !== 1) return;
+    e.preventDefault(); // Prevent native scroll
+    const currentY = e.touches[0].clientY;
+    const now = performance.now();
+    const deltaY = currentY - lastTouchY;
+    const deltaTime = now - lastTouchTime;
+    if (deltaTime > 0) {
+      lastVelocity = deltaY / deltaTime;
+    }
+    // Slightly increase sensitivity for more natural tracking
+    const canvas = renderer.domElement;
+    const canvasHeight = canvas.clientHeight || window.innerHeight;
+    const frustumHeight = camera.top - camera.bottom;
+    const pixelToWorld = (frustumHeight / canvasHeight) * 0.65;
+    const totalDelta = currentY - touchStartY;
+    const cameraViewHeight = camera.top - camera.bottom;
+    const clampMinY = Math.min(...pois.map(p => p.position.y)) + cameraViewHeight / 2 -  (window.innerWidth <= MOBILE_BREAKPOINT ? 130 : 100);
+    const clampMaxY = Math.max(...pois.map(p => p.position.y)) - cameraViewHeight / 2 + 100;
+    let targetY = lastCameraY + totalDelta * pixelToWorld;
+    targetY = Math.max(clampMinY, Math.min(clampMaxY, targetY));
+    scrollState.dragY = targetY;
+    scrollState.velocity = 0;
+    lastTouchY = currentY;
+    lastTouchTime = now;
+  }, { passive: false });
+
+  // Smooth transition from drag to momentum
+  let dragReleaseY = null;
+  let dragReleaseFrames = 0;
+  window.addEventListener('touchend', () => {
+    if (!USE_CUSTOM_SCROLL) return;
+    scrollState.isDragging = false;
+    scrollState.dragY = null;
+    // Calculate pixel-to-world ratio for velocity
+    const canvas = renderer.domElement;
+    const canvasHeight = canvas.clientHeight || window.innerHeight;
+    const frustumHeight = camera.top - camera.bottom;
+    const pixelToWorld = (frustumHeight / canvasHeight) * 0.65;
+    // Set velocity in world units per ms, then scale to per frame (assuming 60fps, ~16ms per frame)
+    scrollState.velocity = lastVelocity * pixelToWorld * 16; // 16ms per frame
+    // Clamp velocity
+    if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
+    if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
+  });
+
+  // Patch for main.js animate loop: interpolate camera position after drag ends
+  if (typeof window !== 'undefined') {
+    window.__interactionDragRelease = { get dragReleaseY() { return dragReleaseY; }, set dragReleaseY(v) { dragReleaseY = v; }, get dragReleaseFrames() { return dragReleaseFrames; }, set dragReleaseFrames(v) { dragReleaseFrames = v; } };
+  }
 }
 
 // Resize event

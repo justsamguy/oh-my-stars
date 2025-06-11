@@ -21,7 +21,7 @@
 ### Communication preferences
 * Assume that my messages are based entirely on the context of the conversation and interpret them accordingly.
 * Reply in **concise English**, include annotations.
-* Add a one-line summary of the actions taken in addition to each response for saving changes. Examples: "Changed the style of the button in the header to be more prominent"; "Fixed header to fit on screen". Separate multiple actions with a semicolon.
+* Add a one-line summary of the actions taken in addition to each response for saving changes. Examples: "Changed the style of the button in the header to be more prominent"; "Fixed header to fit on screen". Separate multiple actions with a semicolon. If you opt to make a list of changes, include the one-line summary after the list.
 
 
 ---
@@ -96,6 +96,7 @@ alwaysApply: true
   - Include both DO and DON'T examples
   - Reference actual code over theoretical examples
   - Use consistent formatting across rules
+  - Remember that modifying code may impact other parts of the application, so ensure changes don't introduce new issues.
 
 ---
 ## Implementation Instructions

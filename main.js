@@ -103,10 +103,13 @@ function animate() {
     const elapsed = (now - lastTime) / 1000;
     lastTime = now;
     // Camera scroll
-    // Clamp scrollVelocity before applying
     if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
     if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
-    if (Math.abs(scrollState.velocity) > 0.001) {
+    // Smooth transition after drag ends
+    // (Removed dragReleaseY/dragReleaseFrames logic for direct velocity handoff)
+    if (scrollState.isDragging && scrollState.dragY !== null) {
+        camera.position.y = scrollState.dragY;
+    } else if (Math.abs(scrollState.velocity) > 0.001) {
         camera.position.y += scrollState.velocity;
         scrollState.velocity *= scrollDamping;
     }
@@ -153,53 +156,7 @@ function animate() {
     cssRenderer.render(scene, camera); // Render CSS3D scene (overlays WebGL)
 }
 
-// --- Fix for mobile scroll jitter: disable scroll damping on mobile ---
-// Detect if the user is on a mobile device (simple check)
-const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
-if (isMobileDevice) {
-    scrollDamping = 1;
-}
-
-// --- Improved mobile handling: adjust camera position on touch end ---
-let isTouching = false;
-let touchStartY = 0;
-let touchCurrentY = 0;
-let touchVelocity = 0;
-let touchStartTime = 0;
-let touchEndTime = 0;
-
-// Update touch handling to use passive listeners for better performance
-const touchOptions = { passive: true };
-
-// Touch start event
-canvas.addEventListener('touchstart', (e) => {
-    isTouching = true;
-    touchStartY = e.touches[0].clientY;
-    touchCurrentY = touchStartY;
-    touchStartTime = performance.now();
-}, touchOptions);
-
-// Touch move event
-canvas.addEventListener('touchmove', (e) => {
-    if (!isTouching) return;
-    touchCurrentY = e.touches[0].clientY;
-    // Calculate velocity as distance / time
-    const now = performance.now();
-    const elapsedTime = now - touchStartTime;
-    touchVelocity = (touchCurrentY - touchStartY) / elapsedTime;
-    touchStartY = touchCurrentY;
-    touchStartTime = now;
-}, touchOptions);
-
-// Touch end event
-canvas.addEventListener('touchend', () => {
-    isTouching = false;
-    // Apply a burst of scroll based on the final velocity
-    scrollState.velocity += touchVelocity * 10; // Multiply for stronger effect
-    // Clamp the velocity to prevent excessive scrolling
-    if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
-    if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
-});
+// Remove old touch scroll event listeners (handled in interaction.js)
 
 function onWindowResize() {
     // Use canvas dimensions, not window dimensions
@@ -228,12 +185,14 @@ function onWindowResize() {
     camera.right = newViewportWidth / 2;
     camera.updateProjectionMatrix();
 
-    // Optionally, keep camera centered on POIs
+    // Keep camera centered on POIs horizontally
     camera.position.x = 0;
     // camera.position.y = (maxY + minY) / 2; // Don't reset Y, let scroll logic handle it
 
     renderer.setSize(canvasWidth, canvasHeight); // Resize WebGL renderer
-    cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer    // Update header/footer positions on resize (in case POI Y changes)
+    cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
+    
+    // Update header/footer positions on resize (in case POI Y changes)
     headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
     footerObj.position.y = minY - paddingBottomY + (isMobile ? mobileFooterOffset : desktopFooterOffset);
 }
