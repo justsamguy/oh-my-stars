@@ -142,9 +142,13 @@ function createBottomSheet(poi) {
     // Add click handlers
     const closeBtn = sheet.querySelector('.close-btn');
     if (closeBtn) {
-      closeBtn.style.zIndex = '1001'; // Ensure on top
+      closeBtn.style.zIndex = '2000'; // Ensure on top
       closeBtn.style.pointerEvents = 'auto';
       closeBtn.addEventListener('click', close);
+      closeBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        close();
+      });
     } else {
       // Defensive: log warning if not found
       console.warn('Mobile info popup: close button not found');
