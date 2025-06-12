@@ -189,11 +189,9 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
 
     // Keep camera centered on POIs horizontally
-    camera.position.x = 0;
-
-    // Update renderers with new dimensions and pixel ratio
+    camera.position.x = 0;    // Update renderers with new dimensions
+    // Only WebGLRenderer supports pixel ratio
     renderer.setPixelRatio(dpr);
-    cssRenderer.setPixelRatio(dpr);
     renderer.setSize(canvasWidth, canvasHeight);
     cssRenderer.setSize(canvasWidth, canvasHeight);
     
