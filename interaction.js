@@ -256,10 +256,9 @@ function openInfoBox(poi, poiPosition) {
     content.className = 'info-box-content';
     content.style.opacity = '0';
     content.style.transition = `opacity ${contentFadeDuration}ms`;
-    // Remove content.style.width, content.style.maxWidth, content.style.boxSizing, content.style.position
     content.innerHTML = `
-      <h3 style="margin:0 0 10px 0;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}">${poi.name}</h3>
-      <p style="margin:0">${poi.description}</p>
+      <h3>${poi.name}</h3>
+      <p>${poi.description}</p>
       <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
     `;
     const closeBtn = document.createElement('div');
