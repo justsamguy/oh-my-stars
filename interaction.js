@@ -241,9 +241,7 @@ function openInfoBox(poi, poiPosition) {
     panel.style.height = contentHeight + 'px';
     panel.style.background = 'rgba(0,20,40,0.92)';
     panel.style.color = '#fff';
-    panel.style.padding = '22px 22px 18px 22px'; // <-- all padding here
     panel.style.borderRadius = '5px';
-    panel.style.maxWidth = maxBoxWidth + 'px';
     panel.style.pointerEvents = 'auto';
     panel.style.border = `1px solid #${poi.color.toString(16)}`;
     panel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
@@ -251,19 +249,18 @@ function openInfoBox(poi, poiPosition) {
     panel.style.transformOrigin = 'left center';
     panel.style.opacity = '1';
     panel.style.boxSizing = 'border-box';
-    // Append closeBtn and content
+    // Remove panel.style.padding and panel.style.maxWidth
+
+    // --- Content ---
     const content = document.createElement('div');
+    content.className = 'info-box-content';
     content.style.opacity = '0';
     content.style.transition = `opacity ${contentFadeDuration}ms`;
-    content.style.width = '100%'; // ensure content stays inside panel
-    content.style.maxWidth = '100%';
-    content.style.boxSizing = 'border-box';
-    content.style.position = 'relative';
-    content.className = 'info-box-content'; // Add class
+    // Remove content.style.width, content.style.maxWidth, content.style.boxSizing, content.style.position
     content.innerHTML = `
-        <h3 style=\"margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}\">${poi.name}</h3>
-        <p style=\"margin:0\">${poi.description}</p>
-        <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+      <h3 style="margin:0 0 10px 0;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}">${poi.name}</h3>
+      <p style="margin:0">${poi.description}</p>
+      <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
     `;
     const closeBtn = document.createElement('div');
     closeBtn.className = 'close-btn';

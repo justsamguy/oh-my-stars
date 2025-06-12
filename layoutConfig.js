@@ -30,8 +30,6 @@ export function wrapTextInGlowSpans(text) {
 export function createHeaderElement() {
     const headerDiv = document.createElement('div');
     headerDiv.className = 'css3d-element css3d-header';
-    
-    // Remove fixed width and fontSize
     headerDiv.style.background = 'none';
     headerDiv.style.boxSizing = 'border-box';
 
@@ -47,8 +45,6 @@ export function createHeaderElement() {
 export function createFooterElement() {
     const footerDiv = document.createElement('div');
     footerDiv.className = 'css3d-element css3d-footer';
-
-    // Remove fixed width and fontSize
     footerDiv.style.background = 'rgba(0,0,0,0.5)';
     footerDiv.style.boxSizing = 'border-box';
 
