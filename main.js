@@ -158,57 +158,52 @@ function animate() {
 
 // Remove old touch scroll event listeners (handled in interaction.js)
 
+// Attach window resize handler
+window.addEventListener('resize', onWindowResize);
+
 function onWindowResize() {
-    // Use canvas dimensions, not window dimensions
-    const canvasWidth = canvas.clientWidth;
-    const canvasHeight = canvas.clientHeight;
+  // Use window dimensions for responsive layout
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const aspect = width / height;
+  const isMobile = width <= 600;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    // Update isMobile check and get device pixel ratio
-    const isMobile = window.matchMedia('(max-width: 600px)').matches;
-    const dpr = Math.min(window.devicePixelRatio, 2); // Cap at 2x for performance
+  // Get POI Y range
+  yPositions = pois.map(p => p.position.y);
+  maxY = Math.max(...yPositions);
+  minY = Math.min(...yPositions);
 
-    // Get new aspect ratio
-    const aspect = canvasWidth / canvasHeight;
+  // Calculate viewport
+  const poiSpan = Math.abs(maxY - minY);
+  const margin = isMobile ? poiSpan * 0.2 : poiSpan * 0.1;
+  const newViewportHeight = poiSpan + margin;
+  const newViewportWidth = newViewportHeight * aspect;
 
-    // Get POI Y range with additional padding for mobile
-    yPositions = pois.map(p => p.position.y);
-    maxY = Math.max(...yPositions);
-    minY = Math.min(...yPositions);
+  // Camera frustum
+  camera.top = newViewportHeight / 2;
+  camera.bottom = -newViewportHeight / 2;
+  camera.left = -newViewportWidth / 2;
+  camera.right = newViewportWidth / 2;
+  camera.updateProjectionMatrix();
+  camera.position.x = 0;
 
-    // Calculate new viewport height with dynamic margins
-    const poiSpan = Math.abs(maxY - minY);
-    const margin = isMobile ? poiSpan * 0.2 : poiSpan * 0.1; // Larger margin on mobile
-    const newViewportHeight = poiSpan + margin;
-    const newViewportWidth = newViewportHeight * aspect;
+  // Renderer
+  renderer.setPixelRatio(dpr);
+  renderer.setSize(width, height);
+  cssRenderer.setSize(width, height);
 
-    // Update camera frustum with proper pixel ratio scaling
-    camera.top = (newViewportHeight / 2) / dpr;
-    camera.bottom = (-newViewportHeight / 2) / dpr;
-    camera.left = (-newViewportWidth / 2) / dpr;
-    camera.right = (newViewportWidth / 2) / dpr;
-    camera.updateProjectionMatrix();
+  // Header/footer
+  const headerOffset = isMobile ? headerWorldHeight * 0.7 : headerWorldHeight * 0.5;
+  const footerOffset = isMobile ? headerWorldHeight * 0.3 : headerWorldHeight * 0.4;
+  headerObj.position.y = maxY + paddingTopY - headerOffset;
+  footerObj.position.y = minY - paddingBottomY + footerOffset;
 
-    // Keep camera centered on POIs horizontally
-    camera.position.x = 0;    // Update renderers with new dimensions
-    // Only WebGLRenderer supports pixel ratio
-    renderer.setPixelRatio(dpr);
-    renderer.setSize(canvasWidth, canvasHeight);
-    cssRenderer.setSize(canvasWidth, canvasHeight);
-    
-    // Update header/footer positions with dynamic offsets
-    const headerOffset = isMobile ? headerWorldHeight * 0.7 : headerWorldHeight * 0.5;
-    const footerOffset = isMobile ? headerWorldHeight * 0.3 : headerWorldHeight * 0.4;
-    
-    headerObj.position.y = maxY + paddingTopY - headerOffset;
-    footerObj.position.y = minY - paddingBottomY + footerOffset;
-
-    // Update any bottom sheets that are open
-    const bottomSheet = document.querySelector('.bottom-sheet.open');
-    if (bottomSheet) {
-        bottomSheet.style.height = isMobile ? 
-            'clamp(200px, 50vh, 400px)' : 
-            'clamp(250px, 45vh, 600px)';
-    }
+  // Update bottom sheet height if open
+  const bottomSheet = document.querySelector('.bottom-sheet.open');
+  if (bottomSheet) {
+    bottomSheet.style.height = isMobile ? '50vh' : '33vh';
+  }
 }
 
 // Initial call to set size correctly
