@@ -379,14 +379,14 @@ html, body {
 .bottom-sheet h3 {
     font-family: 'Courier New', monospace;
     letter-spacing: 0.5px;
-    font-size: clamp(16px, 2.5vw, 24px);
-    margin: 0 0 clamp(8px, 2vw, 15px) 0;
+    font-size: 20px;
+    margin: 0 0 10px 0;
 }
 
 .bottom-sheet .timestamp {
-    font-size: clamp(12px, 1.5vw, 16px);
+    font-size: 0.8em;
     color: #666;
-    margin-top: clamp(8px, 2vw, 15px);
+    margin-top: 10px;
 }
 
 .bottom-sheet .close-btn {
