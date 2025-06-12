@@ -163,38 +163,54 @@ function onWindowResize() {
     const canvasWidth = canvas.clientWidth;
     const canvasHeight = canvas.clientHeight;
 
-    // --- Recalculate viewport dimensions based on POI data and aspect ratio ---
+    // Update isMobile check and get device pixel ratio
+    const isMobile = window.matchMedia('(max-width: 600px)').matches;
+    const dpr = Math.min(window.devicePixelRatio, 2); // Cap at 2x for performance
+
     // Get new aspect ratio
     const aspect = canvasWidth / canvasHeight;
 
-    // Get POI Y range
+    // Get POI Y range with additional padding for mobile
     yPositions = pois.map(p => p.position.y);
     maxY = Math.max(...yPositions);
     minY = Math.min(...yPositions);
 
-    // Calculate new viewport height (span of POIs plus margin)
+    // Calculate new viewport height with dynamic margins
     const poiSpan = Math.abs(maxY - minY);
-    const margin = 0.1 * poiSpan;
+    const margin = isMobile ? poiSpan * 0.2 : poiSpan * 0.1; // Larger margin on mobile
     const newViewportHeight = poiSpan + margin;
     const newViewportWidth = newViewportHeight * aspect;
 
-    // Update camera frustum
-    camera.top = newViewportHeight / 2;
-    camera.bottom = -newViewportHeight / 2;
-    camera.left = -newViewportWidth / 2;
-    camera.right = newViewportWidth / 2;
+    // Update camera frustum with proper pixel ratio scaling
+    camera.top = (newViewportHeight / 2) / dpr;
+    camera.bottom = (-newViewportHeight / 2) / dpr;
+    camera.left = (-newViewportWidth / 2) / dpr;
+    camera.right = (newViewportWidth / 2) / dpr;
     camera.updateProjectionMatrix();
 
     // Keep camera centered on POIs horizontally
     camera.position.x = 0;
-    // camera.position.y = (maxY + minY) / 2; // Don't reset Y, let scroll logic handle it
 
-    renderer.setSize(canvasWidth, canvasHeight); // Resize WebGL renderer
-    cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
+    // Update renderers with new dimensions and pixel ratio
+    renderer.setPixelRatio(dpr);
+    cssRenderer.setPixelRatio(dpr);
+    renderer.setSize(canvasWidth, canvasHeight);
+    cssRenderer.setSize(canvasWidth, canvasHeight);
     
-    // Update header/footer positions on resize (in case POI Y changes)
-    headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
-    footerObj.position.y = minY - paddingBottomY + (isMobile ? mobileFooterOffset : desktopFooterOffset);
+    // Update header/footer positions with dynamic offsets
+    const headerOffset = isMobile ? headerWorldHeight * 0.7 : headerWorldHeight * 0.5;
+    const footerOffset = isMobile ? headerWorldHeight * 0.3 : headerWorldHeight * 0.4;
+    
+    headerObj.position.y = maxY + paddingTopY - headerOffset;
+    footerObj.position.y = minY - paddingBottomY + footerOffset;
+
+    // Update any bottom sheets that are open
+    const bottomSheet = document.querySelector('.bottom-sheet.open');
+    if (bottomSheet) {
+        bottomSheet.style.height = isMobile ? 
+            'clamp(200px, 50vh, 400px)' : 
+            'clamp(250px, 45vh, 600px)';
+    }
 }
 
 // Initial call to set size correctly
