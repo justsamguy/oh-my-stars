@@ -244,10 +244,10 @@ function openInfoBox(poi, poiPosition) {
     const r = (color >> 16) & 0xff;
     const g = (color >> 8) & 0xff;
     const b = color & 0xff;
-    // Blend with black for a dark shade (factor 0.18)
-    const darkR = Math.round(r * 0.18);
-    const darkG = Math.round(g * 0.18);
-    const darkB = Math.round(b * 0.18);
+    // Blend with black for a dark shade (factor controls darkness)
+    const darkR = Math.round(r * 0.09);
+    const darkG = Math.round(g * 0.09);
+    const darkB = Math.round(b * 0.09);
     const darkBg = `rgba(${darkR},${darkG},${darkB},0.92)`;
     panel.style.background = darkBg;
     panel.style.color = '#fff';
