@@ -187,6 +187,38 @@ function onWindowResize() {
   footerObj.position.y = minY - paddingBottomY + (window.innerWidth <= MOBILE_BREAKPOINT ? mobileFooterOffset : desktopFooterOffset);
 }
 
+let lastIsMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+
+function replaceFooter() {
+  // Remove old footer object from scene
+  scene.remove(footerObj);
+  // Remove old footer DOM element from CSS3DRenderer
+  if (footerObj.element && footerObj.element.parentNode) {
+    footerObj.element.parentNode.removeChild(footerObj.element);
+  }
+  // Create new footer
+  const newFooterDiv = createFooterElement();
+  const newFooterObj = new CSS3DObject(newFooterDiv);
+  newFooterObj.position.set(0, minY - paddingBottomY + (window.innerWidth <= MOBILE_BREAKPOINT ? mobileFooterOffset : desktopFooterOffset), 0);
+  newFooterObj.rotation.set(0, 0, 0);
+  scene.add(newFooterObj);
+  // Update global reference
+  footerObj.element = newFooterDiv;
+  footerObj.position.copy(newFooterObj.position);
+  footerObj.rotation.copy(newFooterObj.rotation);
+  footerObj.children = newFooterObj.children;
+}
+
+function handleBreakpointResize() {
+  const isMobileNow = window.innerWidth <= MOBILE_BREAKPOINT;
+  if (isMobileNow !== lastIsMobile) {
+    lastIsMobile = isMobileNow;
+    replaceFooter();
+  }
+}
+
+window.addEventListener('resize', handleBreakpointResize);
+
 // Initial call to set size correctly
 onWindowResize();
 
