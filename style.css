@@ -189,13 +189,13 @@ html, body {
 }
 
 .footer-nav {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 1vw;
-    justify-content: center;
-    pointer-events: auto !important;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2vw;
+  justify-content: center;
+  pointer-events: auto !important;
 }
 
 .footer-nav a {
@@ -2437,4 +2437,24 @@ html.bottom-sheet-open {
 .overlay {
   pointer-events: auto;
   z-index: 999;
+}
+
+/* Prevent text selection during touch interactions */
+.css3d-header, .css3d-footer {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Footer nav adjustments for mobile */
+@media (max-width: 600px) {
+  .footer-nav {
+    flex-direction: column;
+    gap: 2vw;
+    align-items: center;
+  }
+  .footer-content {
+    flex-direction: column;
+    gap: 2vw;
+    align-items: center;
+  }
 }

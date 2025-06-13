@@ -159,42 +159,32 @@ function animate() {
 // Remove old touch scroll event listeners (handled in interaction.js)
 
 function onWindowResize() {
-    // Use canvas dimensions, not window dimensions
-    const canvasWidth = canvas.clientWidth;
-    const canvasHeight = canvas.clientHeight;
+  // Use window dimensions for resizing
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
-    // --- Recalculate viewport dimensions based on POI data and aspect ratio ---
-    // Get new aspect ratio
-    const aspect = canvasWidth / canvasHeight;
+  // --- Recalculate viewport dimensions based on POI data and aspect ratio ---
+  const aspect = width / height;
+  yPositions = pois.map(p => p.position.y);
+  maxY = Math.max(...yPositions);
+  minY = Math.min(...yPositions);
+  const poiSpan = Math.abs(maxY - minY);
+  const margin = 0.1 * poiSpan;
+  const newViewportHeight = poiSpan + margin;
+  const newViewportWidth = newViewportHeight * aspect;
 
-    // Get POI Y range
-    yPositions = pois.map(p => p.position.y);
-    maxY = Math.max(...yPositions);
-    minY = Math.min(...yPositions);
+  camera.top = newViewportHeight / 2;
+  camera.bottom = -newViewportHeight / 2;
+  camera.left = -newViewportWidth / 2;
+  camera.right = newViewportWidth / 2;
+  camera.updateProjectionMatrix();
+  camera.position.x = 0;
 
-    // Calculate new viewport height (span of POIs plus margin)
-    const poiSpan = Math.abs(maxY - minY);
-    const margin = 0.1 * poiSpan;
-    const newViewportHeight = poiSpan + margin;
-    const newViewportWidth = newViewportHeight * aspect;
+  renderer.setSize(width, height);
+  cssRenderer.setSize(width, height);
 
-    // Update camera frustum
-    camera.top = newViewportHeight / 2;
-    camera.bottom = -newViewportHeight / 2;
-    camera.left = -newViewportWidth / 2;
-    camera.right = newViewportWidth / 2;
-    camera.updateProjectionMatrix();
-
-    // Keep camera centered on POIs horizontally
-    camera.position.x = 0;
-    // camera.position.y = (maxY + minY) / 2; // Don't reset Y, let scroll logic handle it
-
-    renderer.setSize(canvasWidth, canvasHeight); // Resize WebGL renderer
-    cssRenderer.setSize(canvasWidth, canvasHeight); // Resize CSS3D renderer
-    
-    // Update header/footer positions on resize (in case POI Y changes)
-    headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
-    footerObj.position.y = minY - paddingBottomY + (isMobile ? mobileFooterOffset : desktopFooterOffset);
+  headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
+  footerObj.position.y = minY - paddingBottomY + (window.innerWidth <= MOBILE_BREAKPOINT ? mobileFooterOffset : desktopFooterOffset);
 }
 
 // Initial call to set size correctly
