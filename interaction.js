@@ -239,15 +239,25 @@ function openInfoBox(poi, poiPosition) {
     panel.style.left = '0';
     panel.style.top = '0';
     panel.style.height = contentHeight + 'px';
-    panel.style.background = 'rgba(0,20,40,0.92)';
+    // Calculate a dark background color based on the POI color
+    const color = typeof poi.color === 'number' ? poi.color : parseInt(poi.color, 16);
+    const r = (color >> 16) & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = color & 0xff;
+    // Blend with black for a dark shade (factor 0.18)
+    const darkR = Math.round(r * 0.18);
+    const darkG = Math.round(g * 0.18);
+    const darkB = Math.round(b * 0.18);
+    const darkBg = `rgba(${darkR},${darkG},${darkB},0.92)`;
+    panel.style.background = darkBg;
     panel.style.color = '#fff';
-    panel.style.padding = '22px 22px 18px 22px'; // <-- all padding here
+    panel.style.padding = '22px 22px 18px 22px';
     panel.style.borderRadius = '5px';
     panel.style.maxWidth = maxBoxWidth + 'px';
     panel.style.pointerEvents = 'auto';
     panel.style.border = `1px solid #${poi.color.toString(16)}`;
     panel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-    panel.style.overflow = 'hidden'; // was 'visible'
+    panel.style.overflow = 'hidden';
     panel.style.transformOrigin = 'left center';
     panel.style.opacity = '1';
     panel.style.boxSizing = 'border-box';
