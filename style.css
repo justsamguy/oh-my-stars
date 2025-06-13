@@ -53,7 +53,7 @@ html, body {
     max-width: 500px;
     min-width: 180px;
     margin: 0 auto;
-    font-size: 0.2rem;
+    /* font-size unchanged */
     background: none !important;
     color: #fff;
     text-align: center;
@@ -87,17 +87,47 @@ html, body {
 @media (max-width: 800px) {
     .css3d-header {
         font-size: 3vw; /* Reduced from 6vw */
+  }
+}
+
+/* Problematic Desktop Range: 600px - 1810px */
+@media (min-width: 601px) and (max-width: 1810px) {
+    .css3d-footer .footer-content {
+        flex-direction: column; /* Stack brand text and nav vertically */
+        align-items: center; /* Center items */
+        gap: 15px; /* Adjust gap as needed */
+    }
+
+    .css3d-footer .footer-brand {
+        text-align: center; /* Center brand text */
+    }
+
+    .css3d-footer .footer-brand h2,
+    .css3d-footer .footer-brand p {
+        display: block !important; /* Ensure brand text is visible */
+    }
+
+    .css3d-footer .footer-nav {
+        flex-direction: row !important; /* Keep navigation links in a row */
+        justify-content: center; /* Center navigation links */
+        gap: 15px !important; /* Adjust gap as needed */
+    }
+
+    .css3d-footer .footer-link {
+        padding: 0 8px; /* Add some padding */
     }
 }
 
 .css3d-footer {
-    width: 400px;
-    font-size: 1.5px;
+    width: 90vw;
+    max-width: 500px;
+    min-width: 180px;
+    /* font-size unchanged */
     background: rgba(0,0,0,0.5);
-    padding: 8px 15px;
+    padding: 8px 2vw;
     box-sizing: border-box;
     border-radius: 8px;
-    height: 45px;  /* Match the new height */
+    height: auto;
 }
 
 .css3d-footer nav {
@@ -162,8 +192,9 @@ html, body {
 /* Update footer content styles */
 .footer-content {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 20px;
+    gap: 2vw;
     margin-bottom: 4px;
 }
 
@@ -186,11 +217,14 @@ html, body {
 }
 
 .footer-nav {
-    width: 90px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    pointer-events: auto !important;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 2vw;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto !important;
 }
 
 .footer-nav a {
@@ -202,7 +236,7 @@ html, body {
 }
 
 .footer-nav a.footer-link {
-    font-size: 3.8px;
+    font-size: 4px;
     color: #aaa;
     text-decoration: none;
     display: inline-block;
@@ -210,9 +244,11 @@ html, body {
     transition: color 0.2s ease;
     width: auto;
     text-align: center;
-    margin: 0 auto;
+    margin: 0;
     background: none;
-    padding: 0 0 0.2px 0; /* Changed to only have bottom padding */
+    padding: 0;
+    white-space: nowrap;
+    line-height: 1;
 }
 
 .footer-nav a.footer-link:hover {
@@ -2432,4 +2468,24 @@ html.bottom-sheet-open {
 .overlay {
   pointer-events: auto;
   z-index: 999;
+}
+
+/* Prevent text selection during touch interactions */
+.css3d-header, .css3d-footer {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Footer nav adjustments for mobile */
+@media (max-width: 600px) {
+  .footer-nav {
+    flex-direction: column;
+    gap: 2vw;
+    align-items: center;
+  }
+  .footer-content {
+    flex-direction: column;
+    gap: 2vw;
+    align-items: center;
+  }
 }
