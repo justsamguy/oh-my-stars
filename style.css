@@ -53,7 +53,7 @@ html, body {
     max-width: 500px;
     min-width: 180px;
     margin: 0 auto;
-    font-size: 0.2rem;
+    /* font-size unchanged */
     background: none !important;
     color: #fff;
     text-align: center;
@@ -91,13 +91,15 @@ html, body {
 }
 
 .css3d-footer {
-    width: 400px;
-    font-size: 1.5px;
+    width: 90vw;
+    max-width: 500px;
+    min-width: 180px;
+    /* font-size unchanged */
     background: rgba(0,0,0,0.5);
-    padding: 8px 15px;
+    padding: 8px 2vw;
     box-sizing: border-box;
     border-radius: 8px;
-    height: 45px;  /* Match the new height */
+    height: auto;
 }
 
 .css3d-footer nav {
@@ -162,8 +164,9 @@ html, body {
 /* Update footer content styles */
 .footer-content {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 20px;
+    gap: 2vw;
     margin-bottom: 4px;
 }
 
@@ -186,10 +189,12 @@ html, body {
 }
 
 .footer-nav {
-    width: 90px;
+    width: 100%;
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1vw;
+    justify-content: center;
     pointer-events: auto !important;
 }
 
