@@ -168,10 +168,18 @@ html, body {
 }
 
 .css3d-footer {
-    height: var(--footer-height);
+    width: 100%;
+    max-width: 95vw;
+    margin: 0 auto;
     background: rgba(0,0,0,0.5) !important;
-    padding: calc(var(--page-padding) * 0.5);
+    color: #fff;
+    text-align: center;
+    box-sizing: border-box;
     border-radius: var(--border-radius);
+    font-family: 'Montserrat', sans-serif !important;
+    padding: calc(var(--page-padding) * 0.5);
+    height: auto;
+    font-size: clamp(0.8rem, 1.5vw, 1.1rem);
 }
 
 /* Footer content */

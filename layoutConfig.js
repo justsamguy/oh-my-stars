@@ -45,6 +45,7 @@ export function createHeaderElement() {
 export function createFooterElement() {
     const footerDiv = document.createElement('div');
     footerDiv.className = 'css3d-element css3d-footer';
+    // Remove any inline width/fontSize settings; sizing is controlled by CSS only
     footerDiv.style.background = 'rgba(0,0,0,0.5)';
     footerDiv.style.boxSizing = 'border-box';
 
