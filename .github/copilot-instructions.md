@@ -188,11 +188,6 @@ globs: *.html, *.css, *.js
 alwaysApply: true
 ---
 
-- **Development Workflow Process**
-  - Edit project files: `index.html`, `style.css`, `main.js`, `config.js`, `interaction.js`, `layoutConfig.js`, `poi.js`, `sceneSetup.js`, `stars.js`, `utils.js`.
-  - Open `index.html` in a web browser to view changes and test functionality.
-  - Use browser developer tools (console, elements, network) for debugging and inspection.
-  - Utilize Git for version control (committing changes, creating branches, pushing to remote).
 
 - **Project Structure**
   - `index.html`: Main HTML file.
