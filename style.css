@@ -208,7 +208,7 @@ html, body {
 }
 
 .footer-nav a.footer-link {
-    font-size: 3.8px;
+    font-size: 4px;
     color: #aaa;
     text-decoration: none;
     display: inline-block;
@@ -216,9 +216,11 @@ html, body {
     transition: color 0.2s ease;
     width: auto;
     text-align: center;
-    margin: 0 auto;
+    margin: 0;
     background: none;
-    padding: 0 0 0.2px 0; /* Changed to only have bottom padding */
+    padding: 0;
+    white-space: nowrap;
+    line-height: 1;
 }
 
 .footer-nav a.footer-link:hover {
