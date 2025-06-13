@@ -2489,3 +2489,9 @@ html.bottom-sheet-open {
     align-items: center;
   }
 }
+
+/* Info Box Minimum Width */
+.info-box {
+  min-width: 350px;
+}
+

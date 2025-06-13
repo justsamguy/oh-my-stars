@@ -244,7 +244,7 @@ function openInfoBox(poi, poiPosition) {
     const r = (color >> 16) & 0xff;
     const g = (color >> 8) & 0xff;
     const b = color & 0xff;
-    // Blend with black for a dark shade (factor controls darkness)
+    // Blend with black for a dark shade (factor controls darkness of infobox background)
     const darkR = Math.round(r * 0.03);
     const darkG = Math.round(g * 0.03);
     const darkB = Math.round(b * 0.03);
