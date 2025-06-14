@@ -2,6 +2,7 @@
 .info-box-wrapper {
   pointer-events: auto;
   display: flex;
+  will-change: transform;
 }
 
 .info-box {
@@ -11,9 +12,12 @@
   transition: transform 420ms cubic-bezier(0.25, 1, 0.5, 1);
   overflow: hidden;
   will-change: transform;
+  transform: scaleX(0);
 }
 
 .info-box-content {
   opacity: 0;
-  transition: opacity 120ms ease-out;
+  transition: opacity 200ms ease-out;
+  will-change: opacity;
+  backface-visibility: hidden;
 }

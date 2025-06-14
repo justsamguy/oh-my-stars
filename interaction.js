@@ -181,6 +181,7 @@ function openInfoBox(poi, poiPosition) {
     }
 
     infoBoxAnimating = true;
+
     // Project POI position to screen
     const pos = poiPosition.clone();
     pos.project(camera);
@@ -189,9 +190,7 @@ function openInfoBox(poi, poiPosition) {
 
     // Animation timing
     const totalDuration = 420; // ms
-    const unfoldDuration = totalDuration;
     const contentFadeStart = Math.round(totalDuration * 0.7);
-    const contentFadeDuration = totalDuration - contentFadeStart;
 
     // --- Measure dimensions ---
     const titleMeasurer = document.createElement('span');
@@ -294,7 +293,7 @@ function openInfoBox(poi, poiPosition) {
     closeBtn.style.padding = '0';
     closeBtn.style.boxShadow = '0 1px 4px rgba(0,0,0,0.12)';
     closeBtn.style.zIndex = '10';
-    closeBtn.onclick = () => queueAndHideInfoBox(null);
+    closeBtn.onclick = () => hideInfoBox();
 
     // Assemble and add to DOM
     panel.appendChild(closeBtn);
@@ -308,16 +307,26 @@ function openInfoBox(poi, poiPosition) {
     currentInfoBox.dataset.poiPositionY = poiPosition.y;
     currentInfoBox.dataset.poiPositionZ = poiPosition.z;
 
-    // Force reflow
+    // Force reflow before starting animation
     void panel.offsetWidth;
 
-    // Start animation
-    requestAnimationFrame(() => {
+    // Start unified animation sequence
+    const startAnimation = () => {
         panel.style.transform = 'scaleX(1)';
-        setTimeout(() => {
-            content.style.opacity = '1';
-            infoBoxAnimating = false;
-        }, contentFadeStart);
+        
+        // Add transition end handler to mark animation as complete
+        panel.addEventListener('transitionend', function handleTransitionEnd(event) {
+            if (event.propertyName === 'transform') {
+                content.style.opacity = '1';
+                infoBoxAnimating = false;
+                panel.removeEventListener('transitionend', handleTransitionEnd);
+            }
+        });
+    };
+
+    // Ensure DOM is ready before starting animation
+    requestAnimationFrame(() => {
+        requestAnimationFrame(startAnimation);
     });
 }
 
@@ -337,13 +346,7 @@ function closeCurrentInfoBox() {
             if (overlay) overlay.remove();
             currentInfoBox = null;
             infoBoxAnimating = false;
-            
-            // Handle queued info box
-            if (queuedInfoBox) {
-                const { poi, poiPosition } = queuedInfoBox;
-                queuedInfoBox = null;
-                openInfoBox(poi, poiPosition);
-            }
+            document.dispatchEvent(new Event('boxClosed'));
         }, { once: true });
         
         return;
@@ -355,6 +358,7 @@ function closeCurrentInfoBox() {
         if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
         currentInfoBox = null;
         infoBoxAnimating = false;
+        document.dispatchEvent(new Event('boxClosed'));
         return;
     }
 
@@ -365,21 +369,22 @@ function closeCurrentInfoBox() {
     if (content) content.style.opacity = '0';
     if (closeBtn) closeBtn.style.display = 'none';
 
-    // Add cleanup listener
-    panel.addEventListener('transitionend', function handleTransitionEnd(event) {
-        if (event.propertyName === 'transform') {
-            if (wrapper.parentNode) {
-                wrapper.parentNode.removeChild(wrapper);
-            }            currentInfoBox = null;
-            infoBoxAnimating = false;
-            // Dispatch event to notify that box is closed
-            document.dispatchEvent(new Event('boxClosed'));
-        }
-    }, { once: true });
-
     // Start closing animation
     requestAnimationFrame(() => {
         panel.style.transform = 'scaleX(0)';
+        
+        // Add cleanup listener
+        panel.addEventListener('transitionend', function handleTransitionEnd(event) {
+            if (event.propertyName === 'transform') {
+                if (wrapper.parentNode) {
+                    wrapper.parentNode.removeChild(wrapper);
+                }            
+                currentInfoBox = null;
+                infoBoxAnimating = false;
+                // Dispatch event to notify that box is closed
+                document.dispatchEvent(new Event('boxClosed'));
+            }
+        }, { once: true });
     });
 }
 
@@ -387,19 +392,16 @@ export function showInfoBox(poi, poiPosition) {
     // If mobile, remove any existing desktop info box
     if (window.innerWidth <= MOBILE_BREAKPOINT && currentInfoBox && !currentInfoBox.classList.contains('bottom-sheet')) {
         hideInfoBox();
+        return;
     }
-    
-    // If a box is already open or animating, close it first
+
+    // If a box is already open or animating, close it first and queue the new one
     if (infoBoxAnimating || currentInfoBox) {
-        // Store the new box info
-        const newBox = { poi, poiPosition };
-        // Add a one-time listener for when the current box finishes closing
         const handleClosed = () => {
-            openInfoBox(newBox.poi, newBox.position);
+            openInfoBox(poi, poiPosition);
             document.removeEventListener('boxClosed', handleClosed);
         };
-        document.addEventListener('boxClosed', handleClosed);
-        // Close current box
+        document.addEventListener('boxClosed', handleClosed, { once: true });
         hideInfoBox();
         return;
     }
