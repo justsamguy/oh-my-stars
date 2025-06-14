@@ -1,0 +1,340 @@
+/* Styles for CSS3DObjects (Header/Footer) */
+.css3d-element {
+    /* Basic styling for elements mapped to 3D */
+    background: none !important;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: #fff;
+    text-align: center;
+    box-sizing: border-box;
+    pointer-events: auto !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.css3d-header, .css3d-footer {
+    width: 90vw;
+    max-width: 500px;
+    min-width: 180px;
+    margin: 0 auto;
+    /* font-size unchanged */
+    background: none !important;
+    color: #fff;
+    text-align: center;
+    box-sizing: border-box;
+    pointer-events: auto !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Header text styling */
+.css3d-header h1 {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 400;
+    font-size: 7px; /* Controls the overall header text size */
+    margin: 0;
+    padding: 0;
+    color: #afafaf;
+    letter-spacing: 0.05em;
+}
+
+/* Footer heading styling */
+.footer-brand h2 {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 400;
+    font-size: 6px;
+    margin: 0;
+    padding: 0;
+    color: #afafaf;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 800px) {
+    .css3d-header {
+        font-size: 3vw; /* Reduced from 6vw */
+  }
+}
+
+/* Problematic Desktop Range: 600px - 1810px */
+@media (min-width: 601px) and (max-width: 1810px) {
+    .css3d-footer .footer-content {
+        flex-direction: column; /* Stack brand text and nav vertically */
+        align-items: center; /* Center items */
+        gap: 15px; /* Adjust gap as needed */
+    }
+
+    .css3d-footer .footer-brand {
+        text-align: center; /* Center brand text */
+    }
+
+    .css3d-footer .footer-brand h2,
+    .css3d-footer .footer-brand p {
+        display: block !important; /* Ensure brand text is visible */
+    }
+
+    .css3d-footer .footer-nav {
+        flex-direction: row !important; /* Keep navigation links in a row */
+        justify-content: center; /* Center navigation links */
+        gap: 15px !important; /* Adjust gap as needed */
+    }
+
+    .css3d-footer .footer-link {
+        padding: 0 8px; /* Add some padding */
+    }
+}
+
+.css3d-footer {
+    width: 90vw;
+    max-width: 500px;
+    min-width: 180px;
+    /* font-size unchanged */
+    background: rgba(0,0,0,0.5);
+    padding: 8px 2vw;
+    box-sizing: border-box;
+    border-radius: 8px;
+    height: auto;
+}
+
+.css3d-footer nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.css3d-footer nav a {
+    color: #ccc;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    pointer-events: auto; /* Allow clicks on links */
+}
+
+.css3d-footer nav a:hover {
+    color: #fff;
+}
+
+.css3d-footer p {
+    margin: 0;
+    font-size: 0.8em;
+    color: #aaa;
+}
+
+/* Glow effect classes */
+.css3d-header h1, .css3d-footer nav a {
+    text-shadow: none;
+    transition: text-shadow 0.3s ease;
+}
+
+/* Update glow effect classes to be consistent */
+.glow-char {
+    display: inline-block;
+    text-shadow: none;
+    transition: text-shadow 0.2s ease, color 0.2s ease;
+    white-space: pre; /* Preserve spaces */
+    color: inherit;
+    text-decoration: inherit;
+}
+
+/* Only apply glow effect to non-link .glow-char elements */
+:not(a) > .glow-char.glow {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                 0 0 15px rgba(255, 255, 255, 0.8),
+                 0 0 25px rgba(255, 255, 255, 0.6),
+                 0 0 35px rgba(255, 255, 255, 0.4);
+}
+
+/* Remove old header glow styles */
+.css3d-header h1.glow {
+    text-shadow: none;
+}
+
+/* Remove old specific glow styles */
+.css3d-footer nav a.glow {
+    text-shadow: none;
+}
+
+/* Update footer content styles */
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2vw;
+    margin-bottom: 4px;
+}
+
+.footer-brand {
+    flex: 1;
+    text-align: left;
+}
+
+.footer-brand h2 {
+    font-size: 16px;
+    margin: 0 0 8px 0;
+    color: #fff;
+}
+
+.footer-brand p {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #aaa;
+    margin: 0;
+}
+
+.footer-nav {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 2vw;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto !important;
+}
+
+.footer-nav a {
+    font-size: 12px;
+    color: #aaa;
+    text-decoration: none; /* Changed from underline */
+    pointer-events: auto !important;
+    display: inline-block;
+}
+
+.footer-nav a.footer-link {
+    font-size: 4px;
+    color: #aaa;
+    text-decoration: none;
+    display: inline-block;
+    pointer-events: auto !important;
+    transition: color 0.2s ease;
+    width: auto;
+    text-align: center;
+    margin: 0;
+    background: none;
+    padding: 0;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.footer-nav a.footer-link:hover {
+    color: #fff;
+    background: linear-gradient(0deg, 
+        rgba(255, 255, 255, 0.5) 0%, 
+        rgba(255, 255, 255, 0.5) 0.15px, 
+        transparent 0.15px
+    );
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: 100% 100%;
+}
+
+.footer-nav a.footer-link .glow-char {
+    position: relative;
+    display: inline-block;
+    color: inherit;
+    text-decoration: inherit;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.footer-nav a.footer-link .glow-char.glow {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                 0 0 15px rgba(255, 255, 255, 0.8),
+                 0 0 25px rgba(255, 255, 255, 0.6),
+                 0 0 35px rgba(255, 255, 255, 0.4);
+}
+
+/* Remove any conflicting hover states */
+.footer-nav a.footer-link:hover::before {
+    opacity: 0;
+}
+
+.footer-nav a .glow-text {
+    display: inline-block;
+    text-decoration: inherit;
+}
+
+.footer-nav a:hover {
+    color: #fff;
+    text-decoration-color: #fff;
+}
+
+.copyright {
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 8px;
+    margin-top: 8px;
+}
+
+/* Mobile Responsiveness - Adjust if needed for 3D elements */
+@media (max-width: 600px) {
+    /* Always show glow effect on mobile */
+    .glow-char {
+        color: #fff !important;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.9),
+                     0 0 15px rgba(255, 255, 255, 0.8),
+                     0 0 25px rgba(255, 255, 255, 0.6),
+                     0 0 35px rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Hide footer heading and description on mobile */
+    .css3d-footer .footer-brand h2,
+    .css3d-footer .footer-brand p {
+        display: none !important;
+    }
+
+    /* Center and stack footer links in a single column */
+    .css3d-footer .footer-content {
+        justify-content: center;
+        gap: 0;
+        flex-direction: column;
+        align-items: center;
+    }
+    .css3d-footer .footer-nav {
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 2px !important; /* spacing between footer menu links */
+    }
+    .css3d-footer .footer-link {
+        display: block !important;
+        width: 100%;
+        text-align: center;
+        margin: 0 auto;
+        padding: 4px 0; /* Added padding for better touch target */
+        font-size: 6px !important; /* Increased from default */
+    }
+
+    .css3d-footer {
+        height: auto !important;
+        min-height: 0 !important;
+        padding-bottom: 12px;
+    }
+
+    body {
+        padding-bottom: 120px !important;
+    }
+    #app-container {
+        padding-bottom: 120px !important;
+    }
+}
+
+/* Prevent text selection during touch interactions */
+.css3d-header, .css3d-footer {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Footer nav adjustments for mobile */
+@media (max-width: 600px) {
+  .footer-nav {
+    flex-direction: column;
+    gap: 2vw;
+    align-items: center;
+  }
+  .footer-content {
+    flex-direction: column;
+    gap: 2vw;
+    align-items: center;
+  }
+}
