@@ -193,7 +193,7 @@ function openInfoBox(poi, poiPosition) {
     const contentFadeStart = Math.round(totalDuration * 0.7);
     const contentFadeDuration = totalDuration - contentFadeStart;
 
-    // --- Measure title width (no wrap) ---
+    // --- Measure dimensions ---
     const titleMeasurer = document.createElement('span');
     titleMeasurer.style.position = 'absolute';
     titleMeasurer.style.visibility = 'hidden';
@@ -205,34 +205,31 @@ function openInfoBox(poi, poiPosition) {
     document.body.appendChild(titleMeasurer);
     const titleWidth = titleMeasurer.offsetWidth;
     document.body.removeChild(titleMeasurer);
-    // --- Calculate box width ---
-    const closeBtnSpace = 36; // px, for button (matches closeBtn width)
-    const closeBtnMargin = 10; // px, for negative offset
-    const sidePadding = 22; // px, left and right
+
+    const closeBtnSpace = 36;
+    const closeBtnMargin = 10;
+    const sidePadding = 22;
     const minBoxWidth = 180;
     const maxBoxWidth = 340;
-    let boxWidth = titleWidth + closeBtnSpace + sidePadding;
-    // Ensure enough space for close button's negative offset
-    boxWidth += closeBtnMargin;
+    let boxWidth = titleWidth + closeBtnSpace + sidePadding + closeBtnMargin;
     boxWidth = Math.max(minBoxWidth, Math.min(maxBoxWidth, boxWidth));
+
     // --- Measure content height ---
     const measurer = document.createElement('div');
     measurer.style.position = 'absolute';
     measurer.style.visibility = 'hidden';
-    measurer.style.pointerEvents = 'none';
-    measurer.style.zIndex = '-1';
-    measurer.style.boxSizing = 'border-box';
     measurer.style.width = boxWidth + 'px';
     measurer.style.padding = '22px 22px 18px 22px';
     measurer.style.fontFamily = 'Courier New, monospace';
     measurer.innerHTML = `
-        <h3 style=\"margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}\">${poi.name}</h3>
-        <p style=\"margin:0\">${poi.description}</p>
-        <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+        <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}">${poi.name}</h3>
+        <p style="margin:0">${poi.description}</p>
+        <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
     `;
     document.body.appendChild(measurer);
     const contentHeight = measurer.offsetHeight;
     document.body.removeChild(measurer);
+
     // --- Create wrapper ---
     const wrapper = document.createElement('div');
     wrapper.className = 'info-box-wrapper';
@@ -240,58 +237,50 @@ function openInfoBox(poi, poiPosition) {
     wrapper.style.left = `${screenX}px`;
     wrapper.style.top = `${screenY}px`;
     wrapper.style.zIndex = '1000';
-    wrapper.style.width = '1px';  // Start with 1px width
+    wrapper.style.width = boxWidth + 'px';
     wrapper.style.height = contentHeight + 'px';
 
     // Create panel
     const panel = document.createElement('div');
     panel.className = 'info-box';
-    panel.style.position = 'relative'; // Changed from absolute
-    panel.style.height = contentHeight + 'px';
-    panel.style.width = '100%'; // Panel takes full width of wrapper
+    panel.style.position = 'relative';
+    panel.style.height = '100%';
+    panel.style.width = '100%';
 
-    // Calculate a dark background color based on the POI color
+    // Calculate background color
     const color = typeof poi.color === 'number' ? poi.color : parseInt(poi.color, 16);
     const r = (color >> 16) & 0xff;
     const g = (color >> 8) & 0xff;
     const b = color & 0xff;
-    // Blend with black for a dark shade (factor controls darkness of infobox background)
     const darkR = Math.round(r * 0.03);
     const darkG = Math.round(g * 0.03);
     const darkB = Math.round(b * 0.03);
     const darkBg = `rgba(${darkR},${darkG},${darkB},0.92)`;
+    
     panel.style.background = darkBg;
     panel.style.color = '#fff';
     panel.style.padding = '22px 22px 18px 22px';
     panel.style.borderRadius = '5px';
-    panel.style.maxWidth = maxBoxWidth + 'px';
-    panel.style.pointerEvents = 'auto';
     panel.style.border = `1px solid #${poi.color.toString(16)}`;
     panel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
     panel.style.overflow = 'hidden';
-    panel.style.transformOrigin = 'left center';
-    panel.style.opacity = '1';
     panel.style.boxSizing = 'border-box';
-    // Append closeBtn and content
+    panel.style.transform = 'scaleX(0)';
+    
+    // Create content
     const content = document.createElement('div');
+    content.className = 'info-box-content';
     content.style.opacity = '0';
-    content.style.transition = `opacity ${contentFadeDuration}ms`;
-    content.style.width = '100%'; // ensure content stays inside panel
-    content.style.maxWidth = '100%';
-    content.style.boxSizing = 'border-box';
     content.style.position = 'relative';
-    content.className = 'info-box-content'; // Add class
-    content.innerHTML = `
-        <h3 style=\"margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}\">${poi.name}</h3>
-        <p style=\"margin:0\">${poi.description}</p>
-        <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
-    `;
+    content.innerHTML = measurer.innerHTML;
+
+    // Create close button
     const closeBtn = document.createElement('div');
     closeBtn.className = 'close-btn';
     closeBtn.innerHTML = '&times;';
     closeBtn.style.position = 'absolute';
-    closeBtn.style.top = '6px';    // closer to top
-    closeBtn.style.right = '6px';  // closer to right
+    closeBtn.style.top = '6px';
+    closeBtn.style.right = '6px';
     closeBtn.style.width = '32px';
     closeBtn.style.height = '32px';
     closeBtn.style.cursor = 'pointer';
@@ -305,9 +294,9 @@ function openInfoBox(poi, poiPosition) {
     closeBtn.style.padding = '0';
     closeBtn.style.boxShadow = '0 1px 4px rgba(0,0,0,0.12)';
     closeBtn.style.zIndex = '10';
-    closeBtn.onclick = () => {
-        queueAndHideInfoBox(null);
-    };
+    closeBtn.onclick = () => queueAndHideInfoBox(null);
+
+    // Assemble and add to DOM
     panel.appendChild(closeBtn);
     panel.appendChild(content);
     wrapper.appendChild(panel);
@@ -318,34 +307,18 @@ function openInfoBox(poi, poiPosition) {
     currentInfoBox.dataset.poiPositionX = poiPosition.x;
     currentInfoBox.dataset.poiPositionY = poiPosition.y;
     currentInfoBox.dataset.poiPositionZ = poiPosition.z;
-    wrapper.dataset.boxWidth = boxWidth;
 
     // Force reflow
-    void wrapper.offsetWidth;
+    void panel.offsetWidth;
 
-    // Animate wrapper to full width
+    // Start animation
     requestAnimationFrame(() => {
-        wrapper.style.width = boxWidth + 'px';
+        panel.style.transform = 'scaleX(1)';
+        setTimeout(() => {
+            content.style.opacity = '1';
+            infoBoxAnimating = false;
+        }, contentFadeStart);
     });
-
-    // Fade in content
-    setTimeout(() => {
-        content.style.opacity = '1';
-        infoBoxAnimating = false;
-    }, contentFadeStart);
-}
-
-function queueAndHideInfoBox(nextInfoBox) {
-    // Always set the queue, then close the current box
-    queuedInfoBox = nextInfoBox;
-    if (currentInfoBox && !infoBoxAnimating) {
-        closeCurrentInfoBox();
-    } else if (!currentInfoBox && queuedInfoBox) {
-        // If nothing is open, open the queued box immediately
-        const { poi, poiPosition } = queuedInfoBox;
-        queuedInfoBox = null;
-        openInfoBox(poi, poiPosition);
-    }
 }
 
 function closeCurrentInfoBox() {
@@ -376,7 +349,6 @@ function closeCurrentInfoBox() {
         return;
     }
 
-    // Handle desktop info box closing
     const wrapper = currentInfoBox;
     const panel = wrapper.querySelector('.info-box');
     if (!panel) {
@@ -389,40 +361,31 @@ function closeCurrentInfoBox() {
     const content = panel.querySelector('.info-box-content');
     const closeBtn = panel.querySelector('.close-btn');
 
-    // Fade out content immediately
-    if (content) {
-        content.style.opacity = '0';
-    }
-
-    // Hide close button
-    if (closeBtn) {
-        closeBtn.style.display = 'none';
-    }
+    // Hide content and close button immediately
+    if (content) content.style.opacity = '0';
+    if (closeBtn) closeBtn.style.display = 'none';
 
     // Add cleanup listener
-    wrapper.addEventListener('transitionend', function handleTransitionEnd(event) {
-        if (event.propertyName === 'width') {
+    panel.addEventListener('transitionend', function handleTransitionEnd(event) {
+        if (event.propertyName === 'transform') {
             if (wrapper.parentNode) {
                 wrapper.parentNode.removeChild(wrapper);
             }
             currentInfoBox = null;
             infoBoxAnimating = false;
             
-            // Handle queued info box
             if (queuedInfoBox) {
                 const { poi, poiPosition } = queuedInfoBox;
                 queuedInfoBox = null;
                 openInfoBox(poi, poiPosition);
             }
-            wrapper.removeEventListener('transitionend', handleTransitionEnd);
         }
-    });
-
-    // Trigger reflow
-    void wrapper.offsetWidth;
+    }, { once: true });
 
     // Start closing animation
-    wrapper.style.width = '1px';
+    requestAnimationFrame(() => {
+        panel.style.transform = 'scaleX(0)';
+    });
 }
 
 export function showInfoBox(poi, poiPosition) {
