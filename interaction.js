@@ -186,11 +186,13 @@ function openInfoBox(poi, poiPosition) {
     pos.project(camera);
     const screenX = (pos.x * 0.5 + 0.5) * window.innerWidth + 20;
     const screenY = (-pos.y * 0.5 + 0.5) * window.innerHeight - 20;
+
     // Animation timing
     const totalDuration = 420; // ms
     const unfoldDuration = totalDuration;
     const contentFadeStart = Math.round(totalDuration * 0.7);
     const contentFadeDuration = totalDuration - contentFadeStart;
+
     // --- Measure title width (no wrap) ---
     const titleMeasurer = document.createElement('span');
     titleMeasurer.style.position = 'absolute';
@@ -238,18 +240,16 @@ function openInfoBox(poi, poiPosition) {
     wrapper.style.left = `${screenX}px`;
     wrapper.style.top = `${screenY}px`;
     wrapper.style.zIndex = '1000';
-    wrapper.style.pointerEvents = 'auto';
-    wrapper.style.overflow = 'visible';
-    wrapper.style.width = boxWidth + 'px';
+    wrapper.style.width = '1px';  // Start with 1px width
     wrapper.style.height = contentHeight + 'px';
-    wrapper.style.boxSizing = 'border-box';
-    // --- Panel (unfolds horizontally) ---
+
+    // Create panel
     const panel = document.createElement('div');
     panel.className = 'info-box';
-    panel.style.position = 'absolute';
-    panel.style.left = '0';
-    panel.style.top = '0';
+    panel.style.position = 'relative'; // Changed from absolute
     panel.style.height = contentHeight + 'px';
+    panel.style.width = '100%'; // Panel takes full width of wrapper
+
     // Calculate a dark background color based on the POI color
     const color = typeof poi.color === 'number' ? poi.color : parseInt(poi.color, 16);
     const r = (color >> 16) & 0xff;
@@ -313,31 +313,26 @@ function openInfoBox(poi, poiPosition) {
     wrapper.appendChild(panel);
     infoBoxContainer.appendChild(wrapper);
     currentInfoBox = wrapper;
-    currentInfoBox.dataset.poiPositionX = poiPosition.x; // Store POI 3D position
+
+    // Store position data
+    currentInfoBox.dataset.poiPositionX = poiPosition.x;
     currentInfoBox.dataset.poiPositionY = poiPosition.y;
     currentInfoBox.dataset.poiPositionZ = poiPosition.z;
-    panel.dataset.boxWidth = boxWidth; // Store original width
-
-    // Set transition before width
-    panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(0.25, 1, 0.5, 1)`; // Use ease-out curve to prevent overshoot
-    panel.style.width = '1px';
+    wrapper.dataset.boxWidth = boxWidth;
 
     // Force reflow
-    void panel.offsetWidth;
+    void wrapper.offsetWidth;
 
-    // Use double requestAnimationFrame to ensure browser paints initial state
+    // Animate wrapper to full width
     requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            panel.style.width = boxWidth + 'px';
-            // Do not set width or transition again after this
-        });
+        wrapper.style.width = boxWidth + 'px';
     });
 
     // Fade in content
     setTimeout(() => {
         content.style.opacity = '1';
         infoBoxAnimating = false;
-    }, contentFadeStart + 10);
+    }, contentFadeStart);
 }
 
 function queueAndHideInfoBox(nextInfoBox) {
@@ -385,7 +380,6 @@ function closeCurrentInfoBox() {
     const wrapper = currentInfoBox;
     const panel = wrapper.querySelector('.info-box');
     if (!panel) {
-        // Fallback cleanup if structure is invalid
         if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
         currentInfoBox = null;
         infoBoxAnimating = false;
@@ -395,53 +389,40 @@ function closeCurrentInfoBox() {
     const content = panel.querySelector('.info-box-content');
     const closeBtn = panel.querySelector('.close-btn');
 
-    // --- Prepare for animation ---
+    // Fade out content immediately
+    if (content) {
+        content.style.opacity = '0';
+    }
 
-    // 1. Hide close button immediately
+    // Hide close button
     if (closeBtn) {
         closeBtn.style.display = 'none';
     }
 
-    // 2. Fade out content quickly, but don't change layout properties
-    if (content) {
-        content.style.transition = 'opacity 0.1s ease-out';
-        content.style.opacity = '0';
-        // DO NOT change position, whitespace, or overflow here.
-        // Rely on panel's overflow:hidden to clip.
-    }
-
-    // 3. Set up panel transitions for width, padding, and border
-    const openTransitionDuration = 420; // Match totalDuration from openInfoBox
-    const easing = 'cubic-bezier(0.25, 1, 0.5, 1)';
-    panel.style.transition = `width ${openTransitionDuration}ms ${easing}, padding ${openTransitionDuration}ms ${easing}, border-width ${openTransitionDuration}ms ${easing}`;
-
-    // 4. Add transitionend listener for cleanup
-    panel.addEventListener('transitionend', function handleTransitionEnd(event) {
-        // Only act when the width transition finishes
+    // Add cleanup listener
+    wrapper.addEventListener('transitionend', function handleTransitionEnd(event) {
         if (event.propertyName === 'width') {
             if (wrapper.parentNode) {
                 wrapper.parentNode.removeChild(wrapper);
             }
             currentInfoBox = null;
             infoBoxAnimating = false;
-            // Open queued box if necessary
+            
+            // Handle queued info box
             if (queuedInfoBox) {
                 const { poi, poiPosition } = queuedInfoBox;
                 queuedInfoBox = null;
                 openInfoBox(poi, poiPosition);
             }
-            // Clean up listener
-            panel.removeEventListener('transitionend', handleTransitionEnd);
+            wrapper.removeEventListener('transitionend', handleTransitionEnd);
         }
-    }, { once: false }); // Use once: false, remove manually
+    });
 
-    // --- Start animation ---
-    // Trigger reflow before starting animation might help ensure styles apply correctly
-    void panel.offsetWidth;
+    // Trigger reflow
+    void wrapper.offsetWidth;
 
-    panel.style.borderWidth = '0px';
-    panel.style.padding = '0px';
-    panel.style.width = '1px';
+    // Start closing animation
+    wrapper.style.width = '1px';
 }
 
 export function showInfoBox(poi, poiPosition) {
