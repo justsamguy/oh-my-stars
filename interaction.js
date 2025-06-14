@@ -404,8 +404,7 @@ export function showInfoBox(poi, poiPosition) {
 }
 
 export function hideInfoBox() {
-    // Queue nothing and close current
-    queueAndHideInfoBox(null);
+    closeCurrentInfoBox();
 }
 
 // Mouse move event (no info box on hover)
