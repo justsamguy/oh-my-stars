@@ -1,4 +1,18 @@
 /* Info Box Minimum Width */
 .info-box {
   min-width: 350px;
+  /* Add transition properties */
+  transition: width 420ms cubic-bezier(0.25, 1, 0.5, 1),
+              padding 420ms cubic-bezier(0.25, 1, 0.5, 1),
+              border-width 420ms cubic-bezier(0.25, 1, 0.5, 1);
+  overflow: hidden;
+}
+
+.info-box-content {
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+.info-box-wrapper {
+  pointer-events: auto;
 }
