@@ -370,15 +370,10 @@ function closeCurrentInfoBox() {
         if (event.propertyName === 'transform') {
             if (wrapper.parentNode) {
                 wrapper.parentNode.removeChild(wrapper);
-            }
-            currentInfoBox = null;
+            }            currentInfoBox = null;
             infoBoxAnimating = false;
-            
-            if (queuedInfoBox) {
-                const { poi, poiPosition } = queuedInfoBox;
-                queuedInfoBox = null;
-                openInfoBox(poi, poiPosition);
-            }
+            // Dispatch event to notify that box is closed
+            document.dispatchEvent(new Event('boxClosed'));
         }
     }, { once: true });
 
@@ -394,11 +389,21 @@ export function showInfoBox(poi, poiPosition) {
         hideInfoBox();
     }
     
-    // If animating or open, queue the new box and close current
+    // If a box is already open or animating, close it first
     if (infoBoxAnimating || currentInfoBox) {
-        queueAndHideInfoBox({ poi, poiPosition });
+        // Store the new box info
+        const newBox = { poi, poiPosition };
+        // Add a one-time listener for when the current box finishes closing
+        const handleClosed = () => {
+            openInfoBox(newBox.poi, newBox.position);
+            document.removeEventListener('boxClosed', handleClosed);
+        };
+        document.addEventListener('boxClosed', handleClosed);
+        // Close current box
+        hideInfoBox();
         return;
     }
+    
     // Otherwise, open immediately
     openInfoBox(poi, poiPosition);
 }
