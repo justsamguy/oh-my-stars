@@ -16,6 +16,9 @@ export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
+// Debugging flags
+const DEBUG_INFOBOX = false; // Set to true to enable console logs for infobox state
+
 // Add touch fade state
 export let touchFadeValue = 1.0;
 let touchFadeInterval = null;
@@ -38,15 +41,32 @@ function startTouchFadeOut() {
     }, FADE_INTERVAL);
 }
 
+function logInfoBoxState(message) {
+    if (DEBUG_INFOBOX) {
+        console.log(`[InfoBox Debug] ${message} | infoBoxAnimating: ${infoBoxAnimating}, currentInfoBox: ${!!currentInfoBox}, queuedInfoBox: ${!!queuedInfoBox}`);
+    }
+}
+
 function createBottomSheet(poi) {
+    logInfoBoxState(`Creating bottom sheet for POI: ${poi.name}`);
     // Clear any existing sheets first
     const existingSheet = document.querySelector('.bottom-sheet');
     const existingOverlay = document.querySelector('.overlay');
     if (existingSheet) existingSheet.remove();
     if (existingOverlay) existingOverlay.remove();
-    
-    const sheet = document.createElement('div');
+      const sheet = document.createElement('div');
     sheet.className = 'bottom-sheet';
+    
+    // Calculate background color to match desktop info box
+    const color = typeof poi.color === 'number' ? poi.color : parseInt(poi.color, 16);
+    const r = (color >> 16) & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = color & 0xff;
+    const darkR = Math.round(r * 0.15);
+    const darkG = Math.round(g * 0.15);
+    const darkB = Math.round(b * 0.15);
+    const darkBg = `rgba(${darkR},${darkG},${darkB},0.85)`;
+    sheet.style.background = darkBg;
     
     sheet.innerHTML = `
         <div class="pull-handle"></div>
@@ -74,20 +94,43 @@ function createBottomSheet(poi) {
     });
 
     const close = () => {
-        if (!currentInfoBox) return; // Prevent double-closing
+        logInfoBoxState('Attempting to close bottom sheet');
+        if (!currentInfoBox) {
+            logInfoBoxState('No currentInfoBox to close (bottom sheet)');
+            return; // Prevent double-closing
+        }
         sheet.classList.remove('open');
         overlay.classList.remove('visible');
         document.body.classList.remove('bottom-sheet-open');
         
+        let timeoutId = null; // Declare timeoutId here for this scope
+
         const handleTransitionEnd = () => {
+            logInfoBoxState('Bottom sheet transition ended.');
+            if (timeoutId) clearTimeout(timeoutId); // Clear timeout if transition completes
             if (currentInfoBox) { // Check again in case of race condition
                 sheet.remove();
                 overlay.remove();
                 currentInfoBox = null;
+                logInfoBoxState('Bottom sheet removed and currentInfoBox nulled.');
             }
+            // Manually call onBoxClosed for bottom sheet to ensure queued box opens
+            onBoxClosed();
         };
         
         sheet.addEventListener('transitionend', handleTransitionEnd, { once: true });
+
+        // Fallback timeout in case transitionend doesn't fire
+        timeoutId = setTimeout(() => {
+            logInfoBoxState('Bottom sheet close timeout fallback triggered.');
+            if (currentInfoBox) { // Only run if not already handled by transitionend
+                sheet.remove();
+                if (overlay) overlay.remove();
+                currentInfoBox = null;
+                logInfoBoxState('Bottom sheet removed and currentInfoBox nulled by timeout.');
+            }
+            onBoxClosed();
+        }, 400); // Slightly longer than 0.3s CSS transition
     };
 
     // Remove all previous event listeners and add new ones
@@ -161,26 +204,30 @@ function createBottomSheet(poi) {
     });
 
     currentInfoBox = sheet;
+    logInfoBoxState(`currentInfoBox set to bottom sheet for POI: ${poi.name}`);
     return { sheet, overlay, close };
 }
 
 function openInfoBox(poi, poiPosition) {
+    logInfoBoxState(`Calling openInfoBox for POI: ${poi.name}`);
     if (window.innerWidth <= MOBILE_BREAKPOINT) {
         return createBottomSheet(poi);
     }
 
     infoBoxAnimating = true;
+    logInfoBoxState('infoBoxAnimating set to true (openInfoBox)');
+
     // Project POI position to screen
     const pos = poiPosition.clone();
     pos.project(camera);
     const screenX = (pos.x * 0.5 + 0.5) * window.innerWidth + 20;
     const screenY = (-pos.y * 0.5 + 0.5) * window.innerHeight - 20;
+
     // Animation timing
     const totalDuration = 420; // ms
-    const unfoldDuration = totalDuration;
     const contentFadeStart = Math.round(totalDuration * 0.7);
-    const contentFadeDuration = totalDuration - contentFadeStart;
-    // --- Measure title width (no wrap) ---
+
+    // --- Measure dimensions ---
     const titleMeasurer = document.createElement('span');
     titleMeasurer.style.position = 'absolute';
     titleMeasurer.style.visibility = 'hidden';
@@ -192,34 +239,31 @@ function openInfoBox(poi, poiPosition) {
     document.body.appendChild(titleMeasurer);
     const titleWidth = titleMeasurer.offsetWidth;
     document.body.removeChild(titleMeasurer);
-    // --- Calculate box width ---
-    const closeBtnSpace = 36; // px, for button (matches closeBtn width)
-    const closeBtnMargin = 10; // px, for negative offset
-    const sidePadding = 22; // px, left and right
+
+    const closeBtnSpace = 36;
+    const closeBtnMargin = 10;
+    const sidePadding = 22;
     const minBoxWidth = 180;
     const maxBoxWidth = 340;
-    let boxWidth = titleWidth + closeBtnSpace + sidePadding;
-    // Ensure enough space for close button's negative offset
-    boxWidth += closeBtnMargin;
+    let boxWidth = titleWidth + closeBtnSpace + sidePadding + closeBtnMargin;
     boxWidth = Math.max(minBoxWidth, Math.min(maxBoxWidth, boxWidth));
+
     // --- Measure content height ---
     const measurer = document.createElement('div');
     measurer.style.position = 'absolute';
     measurer.style.visibility = 'hidden';
-    measurer.style.pointerEvents = 'none';
-    measurer.style.zIndex = '-1';
-    measurer.style.boxSizing = 'border-box';
     measurer.style.width = boxWidth + 'px';
     measurer.style.padding = '22px 22px 18px 22px';
     measurer.style.fontFamily = 'Courier New, monospace';
     measurer.innerHTML = `
-        <h3 style=\"margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}\">${poi.name}</h3>
-        <p style=\"margin:0\">${poi.description}</p>
-        <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+        <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}">${poi.name}</h3>
+        <p style="margin:0">${poi.description}</p>
+        <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
     `;
     document.body.appendChild(measurer);
     const contentHeight = measurer.offsetHeight;
     document.body.removeChild(measurer);
+
     // --- Create wrapper ---
     const wrapper = document.createElement('div');
     wrapper.className = 'info-box-wrapper';
@@ -227,50 +271,49 @@ function openInfoBox(poi, poiPosition) {
     wrapper.style.left = `${screenX}px`;
     wrapper.style.top = `${screenY}px`;
     wrapper.style.zIndex = '1000';
-    wrapper.style.pointerEvents = 'auto';
-    wrapper.style.overflow = 'visible';
     wrapper.style.width = boxWidth + 'px';
-    wrapper.style.height = contentHeight + 'px';
-    wrapper.style.boxSizing = 'border-box';
-    // --- Panel (unfolds horizontally) ---
+
+    // Create panel
     const panel = document.createElement('div');
     panel.className = 'info-box';
-    panel.style.position = 'absolute';
-    panel.style.left = '0';
-    panel.style.top = '0';
-    panel.style.height = contentHeight + 'px';
-    panel.style.background = 'rgba(0,20,40,0.92)';
+    panel.style.position = 'relative';
+    panel.style.height = '100%';
+    panel.style.width = '100%';
+
+    // Calculate background color
+    const color = typeof poi.color === 'number' ? poi.color : parseInt(poi.color, 16);
+    const r = (color >> 16) & 0xff;
+    const g = (color >> 8) & 0xff;
+    const b = color & 0xff;
+    const darkR = Math.round(r * 0.03);
+    const darkG = Math.round(g * 0.03);
+    const darkB = Math.round(b * 0.03);
+    const darkBg = `rgba(${darkR},${darkG},${darkB},0.92)`;
+    
+    panel.style.background = darkBg;
     panel.style.color = '#fff';
-    panel.style.padding = '22px 22px 18px 22px'; // <-- all padding here
+    panel.style.padding = '22px 22px 18px 22px';
     panel.style.borderRadius = '5px';
-    panel.style.maxWidth = maxBoxWidth + 'px';
-    panel.style.pointerEvents = 'auto';
     panel.style.border = `1px solid #${poi.color.toString(16)}`;
     panel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-    panel.style.overflow = 'hidden'; // was 'visible'
-    panel.style.transformOrigin = 'left center';
-    panel.style.opacity = '1';
+    panel.style.overflow = 'hidden';
     panel.style.boxSizing = 'border-box';
-    // Append closeBtn and content
+    panel.style.transform = 'scaleX(0)';
+    
+    // Create content
     const content = document.createElement('div');
+    content.className = 'info-box-content';
     content.style.opacity = '0';
-    content.style.transition = `opacity ${contentFadeDuration}ms`;
-    content.style.width = '100%'; // ensure content stays inside panel
-    content.style.maxWidth = '100%';
-    content.style.boxSizing = 'border-box';
     content.style.position = 'relative';
-    content.className = 'info-box-content'; // Add class
-    content.innerHTML = `
-        <h3 style=\"margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}\">${poi.name}</h3>
-        <p style=\"margin:0\">${poi.description}</p>
-        <div class=\"timestamp\">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
-    `;
+    content.innerHTML = measurer.innerHTML;
+
+    // Create close button
     const closeBtn = document.createElement('div');
     closeBtn.className = 'close-btn';
     closeBtn.innerHTML = '&times;';
     closeBtn.style.position = 'absolute';
-    closeBtn.style.top = '6px';    // closer to top
-    closeBtn.style.right = '6px';  // closer to right
+    closeBtn.style.top = '6px';
+    closeBtn.style.right = '6px';
     closeBtn.style.width = '32px';
     closeBtn.style.height = '32px';
     closeBtn.style.cursor = 'pointer';
@@ -284,163 +327,166 @@ function openInfoBox(poi, poiPosition) {
     closeBtn.style.padding = '0';
     closeBtn.style.boxShadow = '0 1px 4px rgba(0,0,0,0.12)';
     closeBtn.style.zIndex = '10';
-    closeBtn.onclick = () => {
-        queueAndHideInfoBox(null);
-    };
+    closeBtn.onclick = () => hideInfoBox();
+
+    // Assemble and add to DOM
     panel.appendChild(closeBtn);
     panel.appendChild(content);
     wrapper.appendChild(panel);
     infoBoxContainer.appendChild(wrapper);
     currentInfoBox = wrapper;
-    currentInfoBox.dataset.poiPositionX = poiPosition.x; // Store POI 3D position
+
+    // Store position data
+    currentInfoBox.dataset.poiPositionX = poiPosition.x;
     currentInfoBox.dataset.poiPositionY = poiPosition.y;
     currentInfoBox.dataset.poiPositionZ = poiPosition.z;
-    panel.dataset.boxWidth = boxWidth; // Store original width
 
-    // Set transition before width
-    panel.style.transition = `width ${unfoldDuration}ms cubic-bezier(0.25, 1, 0.5, 1)`; // Use ease-out curve to prevent overshoot
-    panel.style.width = '1px';
-
-    // Force reflow
+    // Force reflow before starting animation
     void panel.offsetWidth;
 
-    // Use double requestAnimationFrame to ensure browser paints initial state
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            panel.style.width = boxWidth + 'px';
-            // Do not set width or transition again after this
+    // Start unified animation sequence
+    const startAnimation = () => {
+        logInfoBoxState('Starting desktop info box open animation.');
+        panel.style.transform = 'scaleX(1)';
+        
+        // Add transition end handler to mark animation as complete
+        panel.addEventListener('transitionend', function handleTransitionEnd(event) {
+            if (event.propertyName === 'transform') {
+                content.style.opacity = '1';
+                infoBoxAnimating = false;
+                logInfoBoxState('Desktop info box open animation complete. infoBoxAnimating set to false.');
+                panel.removeEventListener('transitionend', handleTransitionEnd);
+            }
         });
+    };
+
+    // Ensure DOM is ready before starting animation
+    requestAnimationFrame(() => {
+        requestAnimationFrame(startAnimation);
     });
-
-    // Fade in content
-    setTimeout(() => {
-        content.style.opacity = '1';
-        infoBoxAnimating = false;
-    }, contentFadeStart + 10);
 }
 
-function queueAndHideInfoBox(nextInfoBox) {
-    // Always set the queue, then close the current box
-    queuedInfoBox = nextInfoBox;
-    if (currentInfoBox && !infoBoxAnimating) {
-        closeCurrentInfoBox();
-    } else if (!currentInfoBox && queuedInfoBox) {
-        // If nothing is open, open the queued box immediately
-        const { poi, poiPosition } = queuedInfoBox;
-        queuedInfoBox = null;
-        openInfoBox(poi, poiPosition);
+export function showInfoBox(poi, poiPosition) {
+    logInfoBoxState(`Calling showInfoBox for POI: ${poi.name}`);
+    // If mobile, remove any existing desktop info box
+    if (window.innerWidth <= MOBILE_BREAKPOINT && currentInfoBox && !currentInfoBox.classList.contains('bottom-sheet')) {
+        logInfoBoxState('Mobile breakpoint: Hiding existing desktop info box.');
+        hideInfoBox();
+        return;
     }
+
+    // If animating or a box is open, close it first and queue the new one
+    if (infoBoxAnimating || currentInfoBox) {
+        logInfoBoxState('Info box animating or already open. Queuing new info box and hiding current.');
+        queuedInfoBox = { poi, poiPosition };
+        hideInfoBox();
+        return;
+    }
+    
+    // Otherwise, open immediately
+    logInfoBoxState('No info box animating or open. Opening immediately.');
+    openInfoBox(poi, poiPosition);
 }
 
-function closeCurrentInfoBox() {
-    if (!currentInfoBox) return;
+export function hideInfoBox() {
+    logInfoBoxState('Calling hideInfoBox.');
+    if (!currentInfoBox) {
+        logInfoBoxState('No info box to hide.');
+        return;
+    }
+
+    const boxToClose = currentInfoBox; // Store reference to the box being closed
+    currentInfoBox = null; // Immediately nullify currentInfoBox to prevent new boxes from queuing
+    logInfoBoxState('currentInfoBox nulled (hideInfoBox).');
+
     infoBoxAnimating = true;
+    logInfoBoxState('infoBoxAnimating set to true (hideInfoBox)');
+
+    // Handler for when box is fully closed
+    const onBoxFullyClosed = () => {
+        logInfoBoxState('onBoxFullyClosed triggered.');
+        infoBoxAnimating = false;
+        logInfoBoxState('infoBoxAnimating set to false.');
+        // If we have a queued box, open it
+        if (queuedInfoBox) {
+            logInfoBoxState('Queued info box found, opening it now.');
+            const { poi, poiPosition } = queuedInfoBox;
+            queuedInfoBox = null;
+            openInfoBox(poi, poiPosition);
+        }
+        document.dispatchEvent(new Event('boxClosed'));
+    };
 
     // Handle bottom sheet closing
-    if (currentInfoBox.classList.contains('bottom-sheet')) {
-        currentInfoBox.classList.remove('open');
+    if (boxToClose.classList.contains('bottom-sheet')) {
+        boxToClose.classList.remove('open');
         const overlay = document.querySelector('.overlay');
         if (overlay) overlay.classList.remove('visible');
         document.body.classList.remove('bottom-sheet-open');
         
-        currentInfoBox.addEventListener('transitionend', () => {
-            currentInfoBox.remove();
-            if (overlay) overlay.remove();
-            currentInfoBox = null;
-            infoBoxAnimating = false;
-            
-            // Handle queued info box
-            if (queuedInfoBox) {
-                const { poi, poiPosition } = queuedInfoBox;
-                queuedInfoBox = null;
-                openInfoBox(poi, poiPosition);
+        let mobileTimeoutId = null;
+
+        boxToClose.addEventListener('transitionend', (event) => {
+            if (event.propertyName === 'transform' || event.propertyName === 'opacity') {
+                logInfoBoxState('Bottom sheet close transition ended.');
+                if (mobileTimeoutId) clearTimeout(mobileTimeoutId);
+                boxToClose.remove();
+                if (overlay) overlay.remove();
+                onBoxFullyClosed();
             }
         }, { once: true });
+        
+        mobileTimeoutId = setTimeout(() => {
+            logInfoBoxState('Bottom sheet close timeout fallback triggered.');
+            if (boxToClose.parentNode) {
+                boxToClose.remove();
+                if (overlay) overlay.remove();
+                logInfoBoxState('Bottom sheet removed by timeout.');
+            }
+            onBoxFullyClosed();
+        }, 400);
         
         return;
     }
 
-    // Handle desktop info box closing
-    const wrapper = currentInfoBox;
-    const panel = wrapper.querySelector('.info-box');
+    const panel = boxToClose.querySelector('.info-box');
     if (!panel) {
-        // Fallback cleanup if structure is invalid
-        if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
-        currentInfoBox = null;
-        infoBoxAnimating = false;
+        if (boxToClose.parentNode) boxToClose.parentNode.removeChild(boxToClose);
+        onBoxFullyClosed();
         return;
     }
 
     const content = panel.querySelector('.info-box-content');
     const closeBtn = panel.querySelector('.close-btn');
-
-    // --- Prepare for animation ---
-
-    // 1. Hide close button immediately
-    if (closeBtn) {
-        closeBtn.style.display = 'none';
-    }
-
-    // 2. Fade out content quickly, but don't change layout properties
-    if (content) {
-        content.style.transition = 'opacity 0.1s ease-out';
-        content.style.opacity = '0';
-        // DO NOT change position, whitespace, or overflow here.
-        // Rely on panel's overflow:hidden to clip.
-    }
-
-    // 3. Set up panel transitions for width, padding, and border
-    const openTransitionDuration = 420; // Match totalDuration from openInfoBox
-    const easing = 'cubic-bezier(0.25, 1, 0.5, 1)';
-    panel.style.transition = `width ${openTransitionDuration}ms ${easing}, padding ${openTransitionDuration}ms ${easing}, border-width ${openTransitionDuration}ms ${easing}`;
-
-    // 4. Add transitionend listener for cleanup
-    panel.addEventListener('transitionend', function handleTransitionEnd(event) {
-        // Only act when the width transition finishes
-        if (event.propertyName === 'width') {
-            if (wrapper.parentNode) {
-                wrapper.parentNode.removeChild(wrapper);
-            }
-            currentInfoBox = null;
-            infoBoxAnimating = false;
-            // Open queued box if necessary
-            if (queuedInfoBox) {
-                const { poi, poiPosition } = queuedInfoBox;
-                queuedInfoBox = null;
-                openInfoBox(poi, poiPosition);
-            }
-            // Clean up listener
-            panel.removeEventListener('transitionend', handleTransitionEnd);
-        }
-    }, { once: false }); // Use once: false, remove manually
-
-    // --- Start animation ---
-    // Trigger reflow before starting animation might help ensure styles apply correctly
-    void panel.offsetWidth;
-
-    panel.style.borderWidth = '0px';
-    panel.style.padding = '0px';
-    panel.style.width = '1px';
-}
-
-export function showInfoBox(poi, poiPosition) {
-    // If mobile, remove any existing desktop info box
-    if (window.innerWidth <= MOBILE_BREAKPOINT && currentInfoBox && !currentInfoBox.classList.contains('bottom-sheet')) {
-        hideInfoBox();
-    }
     
-    // If animating or open, queue the new box and close current
-    if (infoBoxAnimating || currentInfoBox) {
-        queueAndHideInfoBox({ poi, poiPosition });
-        return;
-    }
-    // Otherwise, open immediately
-    openInfoBox(poi, poiPosition);
-}
+    if (content) content.style.opacity = '0';
+    if (closeBtn) closeBtn.style.display = 'none';
 
-export function hideInfoBox() {
-    // Queue nothing and close current
-    queueAndHideInfoBox(null);
+    requestAnimationFrame(() => {
+        panel.style.transform = 'scaleX(0)';
+        
+        let desktopTimeoutId = null;
+
+        panel.addEventListener('transitionend', function handleTransitionEnd(event) {
+            if (event.propertyName === 'transform') {
+                logInfoBoxState('Desktop info box close transition ended.');
+                if (desktopTimeoutId) clearTimeout(desktopTimeoutId);
+                if (boxToClose.parentNode) {
+                    boxToClose.parentNode.removeChild(boxToClose);
+                }            
+                onBoxFullyClosed();
+            }
+        }, { once: true });
+
+        desktopTimeoutId = setTimeout(() => {
+            logInfoBoxState('Desktop info box close timeout fallback triggered.');
+            if (boxToClose.parentNode) {
+                boxToClose.parentNode.removeChild(boxToClose);
+                logInfoBoxState('Desktop info box removed by timeout.');
+            }
+            onBoxFullyClosed();
+        }, 500);
+    });
 }
 
 // Mouse move event (no info box on hover)

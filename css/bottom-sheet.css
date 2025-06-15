@@ -1,0 +1,136 @@
+/* Mobile Responsiveness - Adjust if needed for 3D elements */
+@media (max-width: 600px) {
+    :root {
+        --mobile-starfield-bottom-padding: 1800px; /* Increased for more space below starfield on mobile */
+    }
+}
+
+/* Restrict overscroll-behavior: contain to mobile screens only */
+@media (max-width: 800px) {
+  html, body, #app-container {
+    overscroll-behavior: contain;
+  }
+}
+
+/* Bottom Sheet Styles (Mobile Only) */
+.bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;    border-radius: 16px 16px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s ease,
+                background-color 0.3s ease;
+    z-index: 1000;
+    pointer-events: auto;
+    height: 33vh;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: rgba(30, 30, 30, 0.85); /* Slightly lighter background */
+    border-top: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.2);
+    font-family: 'Courier New', monospace !important;
+    backdrop-filter: blur(10px);
+}
+
+.bottom-sheet h3 {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+    font-size: 20px;
+    margin: 0 0 10px 0;
+}
+
+.bottom-sheet .timestamp {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 10px;
+}
+
+.bottom-sheet .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    color: inherit;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: background-color 0.2s;
+    z-index: 2000 !important;
+    pointer-events: auto !important;
+    outline: none; /* Remove debug outline after confirming fix */
+}
+
+.bottom-sheet .close-btn:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.bottom-sheet.open {
+    transform: translateY(0);
+    box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.3);
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background-color 0.3s ease;
+    pointer-events: none;
+    z-index: 999;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+}
+
+.overlay.visible {
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+/* Ensure content is styled properly */
+.bottom-sheet-content {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: calc(100% - 30px);
+    overflow-y: auto;
+}
+
+.bottom-sheet.open .bottom-sheet-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Prevent body scroll when sheet is open */
+body.bottom-sheet-open,
+html.bottom-sheet-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100vw !important;
+  touch-action: none !important;
+}
+
+.bottom-sheet {
+  pointer-events: auto !important;
+}
+
+.bottom-sheet .close-btn {
+  pointer-events: auto !important;
+  z-index: 2000 !important;
+  outline: none;
+}
+
+.overlay {
+  pointer-events: auto;
+  z-index: 999;
+}

@@ -1,0 +1,37 @@
+/* Info Box Styles */
+.info-box-wrapper {
+  pointer-events: auto;
+  display: flex;
+  will-change: transform;
+  min-width: 350px;
+  height: fit-content; /* Allow wrapper to fit its content */
+  max-height: calc(100% - 40px); /* Constrain wrapper height with margin */
+  align-items: flex-start; /* Align items to the start of the cross axis */
+  position: relative; /* Ensure relative positioning for children */
+}
+
+.info-box {
+  flex: 1;
+  transform-origin: left center;
+  transition: transform 420ms cubic-bezier(0.25, 1, 0.5, 1);
+  height: fit-content; /* Allow height to fit content */
+  max-height: 100%; /* Prevent exceeding parent height */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  overflow: hidden; /* Re-add overflow hidden to clip content */
+  will-change: transform;
+  transform: scaleX(0);
+}
+
+.info-box-content {
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+  will-change: opacity;
+  backface-visibility: hidden;
+  display: flex; /* Enable flexbox for content layout */
+  flex-direction: column; /* Stack content vertically */
+  height: 100%; /* Take full height of parent */
+  flex-grow: 1; /* Allow content to grow and take available space */
+  padding: 20px; /* Add padding around content */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  max-height: 100%; /* Prevent exceeding viewport height */
+}
