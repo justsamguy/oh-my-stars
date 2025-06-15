@@ -104,8 +104,11 @@ function createBottomSheet(poi) {
         overlay.classList.remove('visible');
         document.body.classList.remove('bottom-sheet-open');
         
+        let timeoutId = null; // Declare timeoutId here for this scope
+
         const handleTransitionEnd = () => {
             logInfoBoxState('Bottom sheet transition ended.');
+            if (timeoutId) clearTimeout(timeoutId); // Clear timeout if transition completes
             if (currentInfoBox) { // Check again in case of race condition
                 sheet.remove();
                 overlay.remove();
@@ -117,6 +120,18 @@ function createBottomSheet(poi) {
         };
         
         sheet.addEventListener('transitionend', handleTransitionEnd, { once: true });
+
+        // Fallback timeout in case transitionend doesn't fire
+        timeoutId = setTimeout(() => {
+            logInfoBoxState('Bottom sheet close timeout fallback triggered.');
+            if (currentInfoBox) { // Only run if not already handled by transitionend
+                sheet.remove();
+                if (overlay) overlay.remove();
+                currentInfoBox = null;
+                logInfoBoxState('Bottom sheet removed and currentInfoBox nulled by timeout.');
+            }
+            onBoxClosed();
+        }, 400); // Slightly longer than 0.3s CSS transition
     };
 
     // Remove all previous event listeners and add new ones
@@ -385,14 +400,29 @@ function closeCurrentInfoBox() {
         if (overlay) overlay.classList.remove('visible');
         document.body.classList.remove('bottom-sheet-open');
         
+        let mobileTimeoutId = null; // Declare timeoutId for mobile
+
         currentInfoBox.addEventListener('transitionend', (event) => {
             if (event.propertyName === 'transform' || event.propertyName === 'opacity') { // Ensure it's the relevant transition
                 logInfoBoxState('Bottom sheet close transition ended.');
+                if (mobileTimeoutId) clearTimeout(mobileTimeoutId); // Clear timeout if transition completes
                 currentInfoBox.remove();
                 if (overlay) overlay.remove();
                 onBoxClosed();
             }
         }, { once: true });
+        
+        // Fallback timeout for mobile bottom sheet
+        mobileTimeoutId = setTimeout(() => {
+            logInfoBoxState('Bottom sheet close timeout fallback triggered.');
+            if (currentInfoBox) { // Only run if not already handled by transitionend
+                currentInfoBox.remove();
+                if (overlay) overlay.remove();
+                // currentInfoBox = null; // onBoxClosed will null this
+                logInfoBoxState('Bottom sheet removed by timeout.');
+            }
+            onBoxClosed();
+        }, 400); // Slightly longer than 0.3s CSS transition
         
         return;
     }
@@ -417,15 +447,31 @@ function closeCurrentInfoBox() {
         panel.style.transform = 'scaleX(0)';
         
         // Add cleanup listener
+        let desktopTimeoutId = null; // Declare timeoutId for desktop
+
         panel.addEventListener('transitionend', function handleTransitionEnd(event) {
             if (event.propertyName === 'transform') {
                 logInfoBoxState('Desktop info box close transition ended.');
+                if (desktopTimeoutId) clearTimeout(desktopTimeoutId); // Clear timeout if transition completes
                 if (wrapper.parentNode) {
                     wrapper.parentNode.removeChild(wrapper);
                 }            
                 onBoxClosed();
             }
         }, { once: true });
+
+        // Fallback timeout in case transitionend doesn't fire
+        desktopTimeoutId = setTimeout(() => {
+            logInfoBoxState('Desktop info box close timeout fallback triggered.');
+            if (currentInfoBox) { // Only run if not already handled by transitionend
+                if (wrapper.parentNode) {
+                    wrapper.parentNode.removeChild(wrapper);
+                }
+                // currentInfoBox = null; // onBoxClosed will null this
+                logInfoBoxState('Desktop info box removed by timeout.');
+            }
+            onBoxClosed();
+        }, 500); // Slightly longer than 420ms CSS transition
     });
 }
 

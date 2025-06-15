@@ -1,5 +1,5 @@
 ---
-description: Guidelines for continuously evolving Cline rules as new patterns emerge.
+description: Guidelines for continuously evolving Cline rules as new patterns emerge, with Copilot and project-specific standards.
 globs: .clinerules/**/*.txt
 alwaysApply: true
 ---
@@ -10,6 +10,7 @@ alwaysApply: true
   - Common error patterns that could be prevented
   - New libraries or tools being used consistently
   - Emerging best practices in the codebase
+  - Copilot or project-specific standards change
 
 - **Analysis Process:**
   - Compare new code with existing rules
@@ -17,6 +18,7 @@ alwaysApply: true
   - Look for references to external documentation
   - Check for consistent error handling patterns
   - Monitor test patterns and coverage
+  - Ensure ES Modules, async/await, and other Copilot standards are followed
 
 - **Rule Updates:**
   - **Add New Rules When:**
@@ -24,6 +26,7 @@ alwaysApply: true
     - Common bugs could be prevented by a rule
     - Code reviews repeatedly mention the same feedback
     - New security or performance patterns emerge
+    - Copilot or project standards are updated
 
   - **Modify Existing Rules When:**
     - Better examples exist in the codebase
@@ -38,16 +41,10 @@ alwaysApply: true
   button.addEventListener('click', handleClick);
 
   // Consider adding a rule to ensure:
-  // - Event listeners are added consistently.
-  // - Corresponding removeEventListener calls exist when needed (e.g., in cleanup functions).
-  // - Appropriate event delegation is used for performance.
+  // - Event listeners are added and removed consistently.
+  // - ES Modules and async/await are used.
+  // - Terminal commands are PowerShell compatible.
   ```
-
-- **Rule Quality Checks:**
-  - Rules should be actionable and specific
-  - Examples should come from actual code
-  - References should be up to date
-  - Patterns should be consistently enforced
 
 - **Continuous Improvement:**
   - Monitor code review comments
@@ -55,6 +52,7 @@ alwaysApply: true
   - Update rules after major refactors
   - Add links to relevant documentation
   - Cross-reference related rules
+  - Ensure Copilot and project standards are always reflected
 
 - **Rule Deprecation:**
   - Mark outdated patterns as deprecated

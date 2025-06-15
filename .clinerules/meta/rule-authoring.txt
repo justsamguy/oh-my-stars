@@ -1,5 +1,5 @@
 ---
-description: Guidelines for creating and maintaining Cline rules to ensure consistency.
+description: Guidelines for creating and maintaining Cline rules to ensure consistency, reflecting Copilot coding standards and current project structure.
 globs: .clinerules/**/*.txt
 alwaysApply: true
 ---
@@ -39,22 +39,25 @@ alwaysApply: true
   - Reference existing code when possible
   - Keep rules DRY by referencing other rules
 
-- **Tailoring Rules for Web Rendering Applications:**
-  - **JavaScript Module Best Practices:**
-    - Write rules that encourage clear `export` and `import` statements.
-    - Emphasize single responsibility for modules (e.g., `interaction.js` handles interactions, `poi.js` handles POIs).
-    - Suggest consistent naming conventions for exported functions and variables.
-    - Example Rule Idea: "Modules should export related functionality."
-  - **Web Interaction Patterns:**
-    - Create rules for consistent handling of mouse, touch, scroll, and resize events.
-    - Include guidelines for managing event listeners (adding and removing them to prevent memory leaks).
-    - Provide examples for rules related to DOM manipulation based on user interaction.
-    - Example Rule Idea: "All event listeners should be properly removed when no longer needed."
-  - **Code Structure for Rendering Applications:**
-    - Develop rules that guide the organization of code related to the rendering library (e.g., Three.js).
-    - Include guidelines for managing the scene, camera, renderer, and 3D objects.
-    - Suggest rules for structuring the animation loop and update functions.
-    - Example Rule Idea: "Rendering setup and animation logic should be separated."
+- **Copilot Coding Standards:**
+  - Use ES Modules (`import …`) – never `require`.
+  - Prefer async/await; avoid `.then` chains.
+  - 2-space indentation, semicolons on, single quotes.
+  - All SQL must be parameterised (use `pg` tagged templates).
+  - Never log JWTs or secrets.
+  - When using terminal commands, format for PowerShell.
+  - When installing dependencies, ensure they are not installed within the application directory.
+  - Add concise, annotated summaries for all changes.
+  - Reference the main README.md for project context.
+
+- **Project Structure (Current):**
+  - `index.html`, `style.css`, `main.js`, `config.js`, `interaction.js`, `layoutConfig.js`, `poi.js`, `sceneSetup.js`, `stars.js`, `utils.js`, `logger.js`, `state.js`, `events.js`, `mobile.css`, `types.ts.bak`
+  - `css/`: base.css, bottom-sheet.css, components.css, header-footer.css
+  - `references/`: documentation and reference files
+
+- **Web Interaction Patterns:**
+  - All event listeners should be properly removed when no longer needed.
+  - Rendering setup and animation logic should be separated.
 
 - **Rule Maintenance:**
   - Update rules when new patterns emerge
@@ -73,7 +76,7 @@ alwaysApply: true
   - When analyzing and coming to a conclusion, include 1 or 2 sentences that explain the actions being taken.
   - When something is done, decide if it is a significant enough action to request an image be shared back for further analysis.
   - When editing files, consolidate changes per-file rather than per-rule.
-  - Add a one-line summary of the actions taken in addition to each response for saving changes. Examples: "Changed the style of the button in the header to be more prominent"; "Fixed header to fit on screen". Separate multiple actions with a semicolon.
+  - Add a one-line summary of the actions taken in addition to each response for saving changes. Examples: "Changed the style of the button in the header to be more prominent"; "Fixed header to fit on screen". Separate multiple actions with a semicolon. If you opt to make a list of changes, include the one-line summary after the list. Do not include other parts of your response on this line.
 
 
 ---

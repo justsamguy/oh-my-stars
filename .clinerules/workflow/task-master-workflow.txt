@@ -1,27 +1,27 @@
 ---
-description: Workflow guide for developing the Star Map application.
+description: Workflow guide for developing and maintaining the Star Map application, reflecting Copilot and current project standards.
 globs: *.html, *.css, *.js
 alwaysApply: true
 ---
 
 - **Development Workflow Process**
-  - Edit project files: `index.html`, `style.css`, `main.js`, `config.js`, `interaction.js`, `layoutConfig.js`, `poi.js`, `sceneSetup.js`, `stars.js`, `utils.js`.
+  - Edit project files: `index.html`, `style.css`, `main.js`, `config.js`, `interaction.js`, `layoutConfig.js`, `poi.js`, `sceneSetup.js`, `stars.js`, `utils.js`, `logger.js`, `state.js`, `events.js`, `mobile.css`, `types.ts.bak`
+  - Edit CSS in `css/`: `base.css`, `bottom-sheet.css`, `components.css`, `header-footer.css`
+  - Use `references/` for documentation and reference files.
   - Open `index.html` in a web browser to view changes and test functionality.
   - Use browser developer tools (console, elements, network) for debugging and inspection.
   - Utilize Git for version control (committing changes, creating branches, pushing to remote).
 
-- **Project Structure**
-  - `index.html`: Main HTML file.
-  - `style.css`: Stylesheet for the application.
-  - `main.js`: Entry point and core logic.
-  - `config.js`: Configuration settings.
-  - `interaction.js`: Handles user interactions.
-  - `layoutConfig.js`: Configuration for layout.
-  - `poi.js`: Logic for Points of Interest.
-  - `sceneSetup.js`: Sets up the 3D scene (if applicable).
-  - `stars.js`: Logic related to stars.
-  - `utils.js`: Utility functions.
-  - `references/`: Directory for reference materials.
+- **Coding Standards (Copilot):**
+  - Use ES Modules (`import …`) – never `require`.
+  - Prefer async/await; avoid `.then` chains.
+  - 2-space indentation, semicolons on, single quotes.
+  - All SQL must be parameterised (use `pg` tagged templates).
+  - Never log JWTs or secrets.
+  - When using terminal commands, format for PowerShell.
+  - When installing dependencies, ensure they are not installed within the application directory.
+  - Add concise, annotated summaries for all changes.
+  - Reference the main README.md for project context.
 
 - **Viewing Changes**
   - After saving changes to HTML, CSS, or JavaScript files, refresh the browser page displaying `index.html`.
