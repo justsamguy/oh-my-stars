@@ -334,6 +334,19 @@ function closeCurrentInfoBox() {
     if (!currentInfoBox) return;
     infoBoxAnimating = true;
 
+    // Handler for when box is fully closed
+    const onBoxClosed = () => {
+        infoBoxAnimating = false;
+        currentInfoBox = null;
+        // If we have a queued box, open it
+        if (queuedInfoBox) {
+            const { poi, poiPosition } = queuedInfoBox;
+            queuedInfoBox = null;
+            openInfoBox(poi, poiPosition);
+        }
+        document.dispatchEvent(new Event('boxClosed'));
+    };
+
     // Handle bottom sheet closing
     if (currentInfoBox.classList.contains('bottom-sheet')) {
         currentInfoBox.classList.remove('open');
@@ -344,9 +357,7 @@ function closeCurrentInfoBox() {
         currentInfoBox.addEventListener('transitionend', () => {
             currentInfoBox.remove();
             if (overlay) overlay.remove();
-            currentInfoBox = null;
-            infoBoxAnimating = false;
-            document.dispatchEvent(new Event('boxClosed'));
+            onBoxClosed();
         }, { once: true });
         
         return;
@@ -356,15 +367,13 @@ function closeCurrentInfoBox() {
     const panel = wrapper.querySelector('.info-box');
     if (!panel) {
         if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
-        currentInfoBox = null;
-        infoBoxAnimating = false;
-        document.dispatchEvent(new Event('boxClosed'));
+        onBoxClosed();
         return;
     }
 
     const content = panel.querySelector('.info-box-content');
     const closeBtn = panel.querySelector('.close-btn');
-
+    
     // Hide content and close button immediately
     if (content) content.style.opacity = '0';
     if (closeBtn) closeBtn.style.display = 'none';
@@ -379,10 +388,7 @@ function closeCurrentInfoBox() {
                 if (wrapper.parentNode) {
                     wrapper.parentNode.removeChild(wrapper);
                 }            
-                currentInfoBox = null;
-                infoBoxAnimating = false;
-                // Dispatch event to notify that box is closed
-                document.dispatchEvent(new Event('boxClosed'));
+                onBoxClosed();
             }
         }, { once: true });
     });
@@ -395,13 +401,9 @@ export function showInfoBox(poi, poiPosition) {
         return;
     }
 
-    // If a box is already open or animating, close it first and queue the new one
+    // If animating or a box is open, close it first and queue the new one
     if (infoBoxAnimating || currentInfoBox) {
-        const handleClosed = () => {
-            openInfoBox(poi, poiPosition);
-            document.removeEventListener('boxClosed', handleClosed);
-        };
-        document.addEventListener('boxClosed', handleClosed, { once: true });
+        queuedInfoBox = { poi, poiPosition };
         hideInfoBox();
         return;
     }
