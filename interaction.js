@@ -16,6 +16,9 @@ export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
+// Debugging flags
+const DEBUG_INFOBOX = true; // Set to true to enable console logs for infobox state
+
 // Add touch fade state
 export let touchFadeValue = 1.0;
 let touchFadeInterval = null;
@@ -38,7 +41,14 @@ function startTouchFadeOut() {
     }, FADE_INTERVAL);
 }
 
+function logInfoBoxState(message) {
+    if (DEBUG_INFOBOX) {
+        console.log(`[InfoBox Debug] ${message} | infoBoxAnimating: ${infoBoxAnimating}, currentInfoBox: ${!!currentInfoBox}, queuedInfoBox: ${!!queuedInfoBox}`);
+    }
+}
+
 function createBottomSheet(poi) {
+    logInfoBoxState(`Creating bottom sheet for POI: ${poi.name}`);
     // Clear any existing sheets first
     const existingSheet = document.querySelector('.bottom-sheet');
     const existingOverlay = document.querySelector('.overlay');
@@ -85,17 +95,25 @@ function createBottomSheet(poi) {
     });
 
     const close = () => {
-        if (!currentInfoBox) return; // Prevent double-closing
+        logInfoBoxState('Attempting to close bottom sheet');
+        if (!currentInfoBox) {
+            logInfoBoxState('No currentInfoBox to close (bottom sheet)');
+            return; // Prevent double-closing
+        }
         sheet.classList.remove('open');
         overlay.classList.remove('visible');
         document.body.classList.remove('bottom-sheet-open');
         
         const handleTransitionEnd = () => {
+            logInfoBoxState('Bottom sheet transition ended.');
             if (currentInfoBox) { // Check again in case of race condition
                 sheet.remove();
                 overlay.remove();
                 currentInfoBox = null;
+                logInfoBoxState('Bottom sheet removed and currentInfoBox nulled.');
             }
+            // Manually call onBoxClosed for bottom sheet to ensure queued box opens
+            onBoxClosed();
         };
         
         sheet.addEventListener('transitionend', handleTransitionEnd, { once: true });
@@ -172,15 +190,18 @@ function createBottomSheet(poi) {
     });
 
     currentInfoBox = sheet;
+    logInfoBoxState(`currentInfoBox set to bottom sheet for POI: ${poi.name}`);
     return { sheet, overlay, close };
 }
 
 function openInfoBox(poi, poiPosition) {
+    logInfoBoxState(`Calling openInfoBox for POI: ${poi.name}`);
     if (window.innerWidth <= MOBILE_BREAKPOINT) {
         return createBottomSheet(poi);
     }
 
     infoBoxAnimating = true;
+    logInfoBoxState('infoBoxAnimating set to true (openInfoBox)');
 
     // Project POI position to screen
     const pos = poiPosition.clone();
@@ -312,6 +333,7 @@ function openInfoBox(poi, poiPosition) {
 
     // Start unified animation sequence
     const startAnimation = () => {
+        logInfoBoxState('Starting desktop info box open animation.');
         panel.style.transform = 'scaleX(1)';
         
         // Add transition end handler to mark animation as complete
@@ -319,6 +341,7 @@ function openInfoBox(poi, poiPosition) {
             if (event.propertyName === 'transform') {
                 content.style.opacity = '1';
                 infoBoxAnimating = false;
+                logInfoBoxState('Desktop info box open animation complete. infoBoxAnimating set to false.');
                 panel.removeEventListener('transitionend', handleTransitionEnd);
             }
         });
@@ -331,15 +354,23 @@ function openInfoBox(poi, poiPosition) {
 }
 
 function closeCurrentInfoBox() {
-    if (!currentInfoBox) return;
+    logInfoBoxState('Calling closeCurrentInfoBox.');
+    if (!currentInfoBox) {
+        logInfoBoxState('No currentInfoBox to close.');
+        return;
+    }
     infoBoxAnimating = true;
+    logInfoBoxState('infoBoxAnimating set to true (closeCurrentInfoBox)');
 
     // Handler for when box is fully closed
     const onBoxClosed = () => {
+        logInfoBoxState('onBoxClosed triggered.');
         infoBoxAnimating = false;
         currentInfoBox = null;
+        logInfoBoxState('infoBoxAnimating set to false, currentInfoBox nulled.');
         // If we have a queued box, open it
         if (queuedInfoBox) {
+            logInfoBoxState('Queued info box found, opening it now.');
             const { poi, poiPosition } = queuedInfoBox;
             queuedInfoBox = null;
             openInfoBox(poi, poiPosition);
@@ -354,10 +385,13 @@ function closeCurrentInfoBox() {
         if (overlay) overlay.classList.remove('visible');
         document.body.classList.remove('bottom-sheet-open');
         
-        currentInfoBox.addEventListener('transitionend', () => {
-            currentInfoBox.remove();
-            if (overlay) overlay.remove();
-            onBoxClosed();
+        currentInfoBox.addEventListener('transitionend', (event) => {
+            if (event.propertyName === 'transform' || event.propertyName === 'opacity') { // Ensure it's the relevant transition
+                logInfoBoxState('Bottom sheet close transition ended.');
+                currentInfoBox.remove();
+                if (overlay) overlay.remove();
+                onBoxClosed();
+            }
         }, { once: true });
         
         return;
@@ -385,6 +419,7 @@ function closeCurrentInfoBox() {
         // Add cleanup listener
         panel.addEventListener('transitionend', function handleTransitionEnd(event) {
             if (event.propertyName === 'transform') {
+                logInfoBoxState('Desktop info box close transition ended.');
                 if (wrapper.parentNode) {
                     wrapper.parentNode.removeChild(wrapper);
                 }            
@@ -395,24 +430,29 @@ function closeCurrentInfoBox() {
 }
 
 export function showInfoBox(poi, poiPosition) {
+    logInfoBoxState(`Calling showInfoBox for POI: ${poi.name}`);
     // If mobile, remove any existing desktop info box
     if (window.innerWidth <= MOBILE_BREAKPOINT && currentInfoBox && !currentInfoBox.classList.contains('bottom-sheet')) {
+        logInfoBoxState('Mobile breakpoint: Hiding existing desktop info box.');
         hideInfoBox();
         return;
     }
 
     // If animating or a box is open, close it first and queue the new one
     if (infoBoxAnimating || currentInfoBox) {
+        logInfoBoxState('Info box animating or already open. Queuing new info box and hiding current.');
         queuedInfoBox = { poi, poiPosition };
         hideInfoBox();
         return;
     }
     
     // Otherwise, open immediately
+    logInfoBoxState('No info box animating or open. Opening immediately.');
     openInfoBox(poi, poiPosition);
 }
 
 export function hideInfoBox() {
+    logInfoBoxState('Calling hideInfoBox.');
     closeCurrentInfoBox();
 }
 
