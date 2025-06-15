@@ -273,7 +273,6 @@ function openInfoBox(poi, poiPosition) {
     wrapper.style.top = `${screenY}px`;
     wrapper.style.zIndex = '1000';
     wrapper.style.width = boxWidth + 'px';
-    wrapper.style.height = contentHeight + 'px';
 
     // Create panel
     const panel = document.createElement('div');
