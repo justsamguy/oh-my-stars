@@ -17,7 +17,7 @@ let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
 // Debugging flags
-const DEBUG_INFOBOX = true; // Set to true to enable console logs for infobox state
+const DEBUG_INFOBOX = false; // Set to true to enable console logs for infobox state
 
 // Add touch fade state
 export let touchFadeValue = 1.0;

@@ -3,11 +3,11 @@
   pointer-events: auto;
   display: flex;
   will-change: transform;
+  min-width: 350px;
 }
 
 .info-box {
   flex: 1;
-  max-width: 340px;
   transform-origin: left center;
   transition: transform 420ms cubic-bezier(0.25, 1, 0.5, 1);
   overflow: hidden;
