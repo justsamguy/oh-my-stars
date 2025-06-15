@@ -367,113 +367,6 @@ function openInfoBox(poi, poiPosition) {
     });
 }
 
-function closeCurrentInfoBox() {
-    logInfoBoxState('Calling closeCurrentInfoBox.');
-    if (!currentInfoBox) {
-        logInfoBoxState('No currentInfoBox to close.');
-        return;
-    }
-    infoBoxAnimating = true;
-    logInfoBoxState('infoBoxAnimating set to true (closeCurrentInfoBox)');
-
-    // Handler for when box is fully closed
-    const onBoxClosed = () => {
-        logInfoBoxState('onBoxClosed triggered.');
-        infoBoxAnimating = false;
-        currentInfoBox = null;
-        logInfoBoxState('infoBoxAnimating set to false, currentInfoBox nulled.');
-        // If we have a queued box, open it
-        if (queuedInfoBox) {
-            logInfoBoxState('Queued info box found, opening it now.');
-            const { poi, poiPosition } = queuedInfoBox;
-            queuedInfoBox = null;
-            openInfoBox(poi, poiPosition);
-        }
-        document.dispatchEvent(new Event('boxClosed'));
-    };
-
-    // Handle bottom sheet closing
-    if (currentInfoBox.classList.contains('bottom-sheet')) {
-        currentInfoBox.classList.remove('open');
-        const overlay = document.querySelector('.overlay');
-        if (overlay) overlay.classList.remove('visible');
-        document.body.classList.remove('bottom-sheet-open');
-        
-        let mobileTimeoutId = null; // Declare timeoutId for mobile
-
-        currentInfoBox.addEventListener('transitionend', (event) => {
-            if (event.propertyName === 'transform' || event.propertyName === 'opacity') { // Ensure it's the relevant transition
-                logInfoBoxState('Bottom sheet close transition ended.');
-                if (mobileTimeoutId) clearTimeout(mobileTimeoutId); // Clear timeout if transition completes
-                currentInfoBox.remove();
-                if (overlay) overlay.remove();
-                onBoxClosed();
-            }
-        }, { once: true });
-        
-        // Fallback timeout for mobile bottom sheet
-        mobileTimeoutId = setTimeout(() => {
-            logInfoBoxState('Bottom sheet close timeout fallback triggered.');
-            if (currentInfoBox) { // Only run if not already handled by transitionend
-                currentInfoBox.remove();
-                if (overlay) overlay.remove();
-                // currentInfoBox = null; // onBoxClosed will null this
-                logInfoBoxState('Bottom sheet removed by timeout.');
-            }
-            onBoxClosed();
-        }, 400); // Slightly longer than 0.3s CSS transition
-        
-        return;
-    }
-
-    const wrapper = currentInfoBox;
-    const panel = wrapper.querySelector('.info-box');
-    if (!panel) {
-        if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
-        onBoxClosed();
-        return;
-    }
-
-    const content = panel.querySelector('.info-box-content');
-    const closeBtn = panel.querySelector('.close-btn');
-    
-    // Hide content and close button immediately
-    if (content) content.style.opacity = '0';
-    if (closeBtn) closeBtn.style.display = 'none';
-
-    // Start closing animation
-    requestAnimationFrame(() => {
-        panel.style.transform = 'scaleX(0)';
-        
-        // Add cleanup listener
-        let desktopTimeoutId = null; // Declare timeoutId for desktop
-
-        panel.addEventListener('transitionend', function handleTransitionEnd(event) {
-            if (event.propertyName === 'transform') {
-                logInfoBoxState('Desktop info box close transition ended.');
-                if (desktopTimeoutId) clearTimeout(desktopTimeoutId); // Clear timeout if transition completes
-                if (wrapper.parentNode) {
-                    wrapper.parentNode.removeChild(wrapper);
-                }            
-                onBoxClosed();
-            }
-        }, { once: true });
-
-        // Fallback timeout in case transitionend doesn't fire
-        desktopTimeoutId = setTimeout(() => {
-            logInfoBoxState('Desktop info box close timeout fallback triggered.');
-            if (currentInfoBox) { // Only run if not already handled by transitionend
-                if (wrapper.parentNode) {
-                    wrapper.parentNode.removeChild(wrapper);
-                }
-                // currentInfoBox = null; // onBoxClosed will null this
-                logInfoBoxState('Desktop info box removed by timeout.');
-            }
-            onBoxClosed();
-        }, 500); // Slightly longer than 420ms CSS transition
-    });
-}
-
 export function showInfoBox(poi, poiPosition) {
     logInfoBoxState(`Calling showInfoBox for POI: ${poi.name}`);
     // If mobile, remove any existing desktop info box
@@ -498,7 +391,103 @@ export function showInfoBox(poi, poiPosition) {
 
 export function hideInfoBox() {
     logInfoBoxState('Calling hideInfoBox.');
-    closeCurrentInfoBox();
+    if (!currentInfoBox) {
+        logInfoBoxState('No info box to hide.');
+        return;
+    }
+
+    const boxToClose = currentInfoBox; // Store reference to the box being closed
+    currentInfoBox = null; // Immediately nullify currentInfoBox to prevent new boxes from queuing
+    logInfoBoxState('currentInfoBox nulled (hideInfoBox).');
+
+    infoBoxAnimating = true;
+    logInfoBoxState('infoBoxAnimating set to true (hideInfoBox)');
+
+    // Handler for when box is fully closed
+    const onBoxFullyClosed = () => {
+        logInfoBoxState('onBoxFullyClosed triggered.');
+        infoBoxAnimating = false;
+        logInfoBoxState('infoBoxAnimating set to false.');
+        // If we have a queued box, open it
+        if (queuedInfoBox) {
+            logInfoBoxState('Queued info box found, opening it now.');
+            const { poi, poiPosition } = queuedInfoBox;
+            queuedInfoBox = null;
+            openInfoBox(poi, poiPosition);
+        }
+        document.dispatchEvent(new Event('boxClosed'));
+    };
+
+    // Handle bottom sheet closing
+    if (boxToClose.classList.contains('bottom-sheet')) {
+        boxToClose.classList.remove('open');
+        const overlay = document.querySelector('.overlay');
+        if (overlay) overlay.classList.remove('visible');
+        document.body.classList.remove('bottom-sheet-open');
+        
+        let mobileTimeoutId = null;
+
+        boxToClose.addEventListener('transitionend', (event) => {
+            if (event.propertyName === 'transform' || event.propertyName === 'opacity') {
+                logInfoBoxState('Bottom sheet close transition ended.');
+                if (mobileTimeoutId) clearTimeout(mobileTimeoutId);
+                boxToClose.remove();
+                if (overlay) overlay.remove();
+                onBoxFullyClosed();
+            }
+        }, { once: true });
+        
+        mobileTimeoutId = setTimeout(() => {
+            logInfoBoxState('Bottom sheet close timeout fallback triggered.');
+            if (boxToClose.parentNode) {
+                boxToClose.remove();
+                if (overlay) overlay.remove();
+                logInfoBoxState('Bottom sheet removed by timeout.');
+            }
+            onBoxFullyClosed();
+        }, 400);
+        
+        return;
+    }
+
+    const panel = boxToClose.querySelector('.info-box');
+    if (!panel) {
+        if (boxToClose.parentNode) boxToClose.parentNode.removeChild(boxToClose);
+        onBoxFullyClosed();
+        return;
+    }
+
+    const content = panel.querySelector('.info-box-content');
+    const closeBtn = panel.querySelector('.close-btn');
+    
+    if (content) content.style.opacity = '0';
+    if (closeBtn) closeBtn.style.display = 'none';
+
+    requestAnimationFrame(() => {
+        panel.style.transform = 'scaleX(0)';
+        
+        let desktopTimeoutId = null;
+
+        panel.addEventListener('transitionend', function handleTransitionEnd(event) {
+            if (event.propertyName === 'transform') {
+                logInfoBoxState('Desktop info box close transition ended.');
+                if (desktopTimeoutId) clearTimeout(desktopTimeoutId);
+                if (boxToClose.parentNode) {
+                    boxToClose.parentNode.removeChild(boxToClose);
+                }            
+                onBoxFullyClosed();
+            }
+        }, { once: true });
+
+        desktopTimeoutId = setTimeout(() => {
+            logInfoBoxState('Desktop info box close timeout fallback triggered.');
+            if (boxToClose.parentNode) {
+                boxToClose.parentNode.removeChild(boxToClose);
+                logInfoBoxState('Desktop info box removed by timeout.');
+            }
+            onBoxFullyClosed();
+        }, 500);
+    });
 }
 
 // Mouse move event (no info box on hover)
