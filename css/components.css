@@ -4,7 +4,8 @@
   display: flex;
   will-change: transform;
   min-width: 350px;
-  height: 100%; /* Ensure wrapper takes full available height */
+  height: fit-content; /* Allow wrapper to fit its content */
+  max-height: calc(100% - 40px); /* Constrain wrapper height with margin */
   align-items: flex-start; /* Align items to the start of the cross axis */
   position: relative; /* Ensure relative positioning for children */
 }
