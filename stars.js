@@ -17,7 +17,7 @@ const vertexShader = `
         vec3 pos = position;
         float parallaxStrength = 0.0075 * (180.0 + position.z) / 60.0;
         if (isMobile) {
-            parallaxStrength *= 2.0;
+            parallaxStrength *= 6.0;
         }
         vec3 worldPos = (modelMatrix * vec4(position, 1.0)).xyz;
         worldPos.y -= cameraY * parallaxStrength;
