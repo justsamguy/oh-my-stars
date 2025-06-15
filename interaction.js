@@ -54,8 +54,7 @@ function createBottomSheet(poi) {
     const existingOverlay = document.querySelector('.overlay');
     if (existingSheet) existingSheet.remove();
     if (existingOverlay) existingOverlay.remove();
-    
-    const sheet = document.createElement('div');
+      const sheet = document.createElement('div');
     sheet.className = 'bottom-sheet';
     
     // Calculate background color to match desktop info box
@@ -63,10 +62,10 @@ function createBottomSheet(poi) {
     const r = (color >> 16) & 0xff;
     const g = (color >> 8) & 0xff;
     const b = color & 0xff;
-    const darkR = Math.round(r * 0.03);
-    const darkG = Math.round(g * 0.03);
-    const darkB = Math.round(b * 0.03);
-    const darkBg = `rgba(${darkR},${darkG},${darkB},0.92)`;
+    const darkR = Math.round(r * 0.15);
+    const darkG = Math.round(g * 0.15);
+    const darkB = Math.round(b * 0.15);
+    const darkBg = `rgba(${darkR},${darkG},${darkB},0.85)`;
     sheet.style.background = darkBg;
     
     sheet.innerHTML = `

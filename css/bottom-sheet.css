@@ -27,9 +27,11 @@
     height: 33vh;
     padding: 20px;
     box-sizing: border-box;
-    border-top: 2px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(30, 30, 30, 0.85); /* Slightly lighter background */
+    border-top: 2px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.2);
     font-family: 'Courier New', monospace !important;
+    backdrop-filter: blur(10px);
 }
 
 .bottom-sheet h3 {
