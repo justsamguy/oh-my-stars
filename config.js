@@ -22,7 +22,7 @@ export const pois = [
 ];
 
 export const BASE_STAR_COUNT = 9000;
-export const MOBILE_STAR_COUNT = BASE_STAR_COUNT * 0.5;
+export const MOBILE_STAR_COUNT = BASE_STAR_COUNT * 0.65;
 export const SCROLL_DAMPING = 0.95;
 export const MAX_SCROLL_SPEED = 2;
 export const MAX_INTERACTION_RADIUS = 75.0;
