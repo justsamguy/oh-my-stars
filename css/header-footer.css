@@ -319,6 +319,12 @@
     }
 }
 
+@media (max-width: 800px) {
+    .css3d-footer {
+        z-index: 2;
+    }
+}
+
 /* Prevent text selection during touch interactions */
 .css3d-header, .css3d-footer {
     user-select: none;

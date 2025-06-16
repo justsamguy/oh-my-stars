@@ -10,11 +10,13 @@ const style = `
             background: #000; /* Reverted to original black background */
             height: 100vh;
             width: 100vw;
-        }
-        canvas { 
+        }        canvas { 
             position: fixed;
             top: 0;
             left: 0;
+            height: calc(100vh - 60px) !important;
+            width: 100vw;
+            z-index: 1;
         }
         .info-box {
             font-family: 'Courier New', monospace !important;
