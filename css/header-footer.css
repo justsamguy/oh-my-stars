@@ -91,6 +91,9 @@
     box-sizing: border-box;
     border-radius: 8px;
     height: auto;
+    z-index: 2;
+    position: relative;
+    pointer-events: auto;
 }
 
 .css3d-footer nav {

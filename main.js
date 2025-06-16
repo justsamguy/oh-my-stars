@@ -180,10 +180,8 @@ function onWindowResize() {
   camera.left = -newViewportWidth / 2;
   camera.right = newViewportWidth / 2;
   camera.updateProjectionMatrix();
-  camera.position.x = 0;
-  const adjustedHeight = height - (window.innerWidth <= MOBILE_BREAKPOINT ? 60 : 0);
-  renderer.setSize(width, adjustedHeight);
-  cssRenderer.setSize(width, height); // Keep CSS renderer full height for footer positioning
+  camera.position.x = 0;  renderer.setSize(width, height);
+  cssRenderer.setSize(width, height);
 
   headerObj.position.y = maxY + paddingTopY - headerWorldHeight / 2;
   footerObj.position.y = minY - paddingBottomY + (window.innerWidth <= MOBILE_BREAKPOINT ? mobileFooterOffset : desktopFooterOffset);
