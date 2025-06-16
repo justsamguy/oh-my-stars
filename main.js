@@ -52,6 +52,7 @@ const desktopFooterOffset = 30; // Original offset for desktop
 
 // Replace header creation with:
 const headerDiv = createHeaderElement();
+headerDiv.style.pointerEvents = 'auto'; // Enable pointer events for header
 const headerObj = new CSS3DObject(headerDiv);
 const headerWorldHeight = 70;
 headerObj.position.set(0, maxY + paddingTopY - headerWorldHeight / 2, 0);
@@ -60,6 +61,7 @@ scene.add(headerObj);
 
 // Replace footer creation with:
 let footerDiv = createFooterElement();
+footerDiv.style.pointerEvents = 'auto'; // Enable pointer events for footer
 let footerObj = new CSS3DObject(footerDiv);
 footerObj.position.set(0, minY - paddingBottomY + 15, 0);
 footerObj.rotation.set(0, 0, 0);
