@@ -5,14 +5,14 @@ export const headerConfig = {
 export const footerConfig = {
     brand: {
         text: 'Oh My Stars',
-        description: 'An interactive journey through the cosmos. Explore stellar phenomena and the mysteries of deep space.'
+        description: 'An interactive journey through my projects. Explore the variety of creative works and contributions that make up my digital universe.'
     },
     navigation: {
         links: [
-            { text: 'Star Map', href: '#map' },
-            { text: 'Points of Interest', href: '#poi' },
-            { text: 'Documentation', href: '#docs' },
-            { text: 'Updates', href: '#updates' },
+            { text: 'S&A', href: '#' },
+            { text: 'JustSamGuy', href: 'https://justsamguy.myportfolio.com' },
+            { text: 'About', href: '#about' },
+            { text: 'Updates', href: 'https://github.com/justsamguy/oh-my-stars/commits/main/' },
             { text: 'Github', href: 'https://github.com/justsamguy/oh-my-stars' }
         ]
     },
