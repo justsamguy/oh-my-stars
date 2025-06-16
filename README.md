@@ -18,7 +18,7 @@
 </sub>
 <!-- ## Last Update Reference <a href="https://github.com/justsamguy/oh-my-stars/blob/main/Changes.md">Changes.md</a> for feature updates. -->
 <br><br>
-#### Ideas
+Ideas
 <li> add a subtle smooth scroll-up effect upon initial load (desktop only)
 <li> Dark mode on site: Make the entire view crack into peices, and then fall down revealing a light theme, maybe with a static grey image texture in the background (solid white for now). To return to dark mode, simply fade back into the stars.
 <li> Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly animate the camera to a selected POI when this feature is implemented.
