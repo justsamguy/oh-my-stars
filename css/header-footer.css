@@ -347,3 +347,11 @@
     align-items: center;
   }
 }
+
+.css3d-footer a,
+.css3d-footer .footer-link {
+    pointer-events: auto !important;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+    touch-action: manipulation;
+}

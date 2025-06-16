@@ -17,6 +17,7 @@ const style = `
             width: 100vw;
             height: 100vh;
             z-index: 1;
+            pointer-events: none;  /* Allow events to pass through the canvas */
         }
         .info-box {
             font-family: 'Courier New', monospace !important;
