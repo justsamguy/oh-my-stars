@@ -9,8 +9,6 @@
 <a href="#" target="_blank"></a>
 
 ### Roadmap
-<li> site tree for live/development versions of the site - dev version can be a sub-page (links to both in readme)
-<li> review and adjust star size diversity
 <li> add a subtle smooth scroll-up effect upon initial load (desktop only)
 <li> Dark mode on site: Make the entire view crack into peices, and then fall down revealing a light theme, maybe with a static grey image texture in the background (solid white for now). To return to dark mode, simply fade back into the stars.
 <li> Camera-move-to-POI feature: Use cameraTargetY (currently unused) to smoothly animate the camera to a selected POI when this feature is implemented.
