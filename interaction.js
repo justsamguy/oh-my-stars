@@ -539,6 +539,9 @@ export function setupClickHandler(poiObjects) {
     const TAP_DURATION = 200;
 
     const handleInteraction = (e) => {
+        // Don't interfere with footer link interactions
+        if (e.target.closest('.footer-link')) return;
+
         // Ignore interactions if bottom sheet is open on mobile
         if (window.innerWidth <= MOBILE_BREAKPOINT && 
             document.body.classList.contains('bottom-sheet-open')) {
@@ -603,6 +606,9 @@ export function setupClickHandler(poiObjects) {
     let isTapping = false;
 
     window.addEventListener('touchstart', (e) => {
+        // Don't track taps on footer links
+        if (e.target.closest('.footer-link')) return;
+
         touchStartTime = Date.now();
         touchStartPos = {
             x: e.touches[0].clientX,
@@ -685,6 +691,10 @@ export function setupScrollHandler() {
   window.addEventListener('touchmove', (e) => {
     if (!USE_CUSTOM_SCROLL) return;
     if (e.touches.length !== 1) return;
+    
+    // Don't prevent default on footer links
+    if (e.target.closest('.footer-link')) return;
+    
     e.preventDefault(); // Prevent native scroll
     const currentY = e.touches[0].clientY;
     const now = performance.now();
