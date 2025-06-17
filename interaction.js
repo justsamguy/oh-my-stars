@@ -47,6 +47,25 @@ function logInfoBoxState(message) {
     }
 }
 
+export function createInfoBox(poi) {
+    const box = document.createElement('div');
+    box.className = 'info-box-wrapper';
+
+    box.innerHTML = `
+        <div class="info-box">
+            <div class="info-box-content">
+                <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
+                ${poi.url ? `<a href="${poi.url}" target="_blank" style="color:#666;font-size:0.8em;text-decoration:none;margin-bottom:10px;display:block">${poi.url}</a>` : ''}
+                <p style="margin:0;line-height:1.4">${poi.description}</p>
+                <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+            </div>
+            <div class="close-btn">&times;</div>
+        </div>
+    `;
+    
+    return box;
+}
+
 function createBottomSheet(poi) {
     logInfoBoxState(`Creating bottom sheet for POI: ${poi.name}`);
     // Clear any existing sheets first
@@ -54,7 +73,8 @@ function createBottomSheet(poi) {
     const existingOverlay = document.querySelector('.overlay');
     if (existingSheet) existingSheet.remove();
     if (existingOverlay) existingOverlay.remove();
-      const sheet = document.createElement('div');
+    
+    const sheet = document.createElement('div');
     sheet.className = 'bottom-sheet';
     
     // Calculate background color to match desktop info box
@@ -73,6 +93,7 @@ function createBottomSheet(poi) {
         <div class="close-btn">&times;</div>
         <div class="bottom-sheet-content">
             <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
+            ${poi.url ? `<a href="${poi.url}" target="_blank" style="color:#666;font-size:0.8em;text-decoration:none;margin-bottom:10px;display:block">${poi.url}</a>` : ''}
             <p style="margin:0;line-height:1.4">${poi.description}</p>
             <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
         </div>
@@ -257,6 +278,7 @@ function openInfoBox(poi, poiPosition) {
     measurer.style.fontFamily = 'Courier New, monospace';
     measurer.innerHTML = `
         <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}">${poi.name}</h3>
+        ${poi.url ? `<a href="${poi.url}" target="_blank" style="color:#666;font-size:0.8em;text-decoration:none;margin-bottom:10px;display:block">${poi.url}</a>` : ''}
         <p style="margin:0">${poi.description}</p>
         <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
     `;

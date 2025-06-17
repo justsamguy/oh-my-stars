@@ -12,13 +12,13 @@ export function generateSpectralColors(count) {
 
 export const poiColors = generateSpectralColors(7);
 export const pois = [
-    { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'JustSamGuy', description: 'Sam\'s first brand. Initially concieved as an online alias, it has since grown to represent creations that fall into art & entertainment.' },
-    { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Clarenova', description: 'What started as the financial operations for Sam\'s body of work has become a brand that represents the values of clarity and simplicity in a world of complex technicalities.' },
-    { position: new THREE.Vector3(35, -20, 0), color: poiColors[2], name: "Coming Soon", description: 'This project is to be revealed at a later date.' },
-    { position: new THREE.Vector3(40, -80, 0), color: poiColors[3], name: 'WoodLab Demo App', description: 'What was just another experiment went successful - I\'ll let the app speak for itself.' },
-    { position: new THREE.Vector3(-35, -130, 0), color: poiColors[4], name: 'WoodLab Database', description: 'What started as a garage business has become a national leader in a nearly unscalable industry. TBA.' },
-    { position: new THREE.Vector3(15, -190, 0), color: poiColors[5], name: 'Coming Soon', description: 'No one has claimed this spot (yet).' },
-    { position: new THREE.Vector3(-20, -240, 0), color: poiColors[6], name: 'Coming Soon', description: '404 project not found' }
+    { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'JustSamGuy', url: 'https://justsamguy.com', description: 'Sam\'s first brand. Initially concieved as an online alias, it has since grown to represent creations that fall into art & entertainment.' },
+    { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Clarenova', url: 'https://clarenova.com', description: 'What started as the financial operations for Sam\'s body of work has become a brand that represents the values of clarity and simplicity in a world of complex technicalities.' },
+    { position: new THREE.Vector3(35, -20, 0), color: poiColors[2], name: "Coming Soon", url: '', description: 'This project is to be revealed at a later date.' },
+    { position: new THREE.Vector3(40, -80, 0), color: poiColors[3], name: 'WoodLab Demo App', url: 'https://demo.woodlab.com', description: 'What was just another experiment went successful - I\'ll let the app speak for itself.' },
+    { position: new THREE.Vector3(-35, -130, 0), color: poiColors[4], name: 'WoodLab Database', url: 'https://woodlab.com', description: 'What started as a garage business has become a national leader in a nearly unscalable industry. TBA.' },
+    { position: new THREE.Vector3(15, -190, 0), color: poiColors[5], name: 'Coming Soon', url: '', description: 'No one has claimed this spot (yet).' },
+    { position: new THREE.Vector3(-20, -240, 0), color: poiColors[6], name: 'Coming Soon', url: '', description: '404 project not found' }
 ];
 
 export const BASE_STAR_COUNT = 9000;
