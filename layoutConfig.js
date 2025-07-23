@@ -9,14 +9,14 @@ export const footerConfig = {
     },
     navigation: {
         links: [
-            { text: 'S&A', href: '#' },
             { text: 'JustSamGuy', href: 'https://justsamguy.myportfolio.com' },
-            { text: 'About', href: '#about' },
-            { text: 'Updates', href: 'https://github.com/justsamguy/oh-my-stars/commits/main/' },
-            { text: 'Github', href: 'https://github.com/justsamguy/oh-my-stars' }
+            { text: 'About', href: 'https://justsamguy.myportfolio.com/about' },
+            { text: 'Starfield', href: 'https://github.com/justsamguy/oh-my-stars/commits/main/' },
+            { text: 'Github', href: 'https://github.com/justsamguy' },
+            { text: 'Contact', href: 'https://justsamguy.myportfolio.com/contact' },
         ]
     },
-    copyright: '© 2025 S&A All rights reserved.'
+    copyright: '© 2025 JustSamGuy'
 };
 
 // Helper function to wrap text in glow spans

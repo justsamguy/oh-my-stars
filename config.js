@@ -12,7 +12,7 @@ export function generateSpectralColors(count) {
 
 export const poiColors = generateSpectralColors(7);
 export const pois = [
-    { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'JustSamGuy', url: 'https://justsamguy.myportfolio.com/', description: 'Sam\'s first brand. Initially concieved as an online alias, it has since grown to represent creations that fall into art & entertainment.' },
+    { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'JustSamGuy', url: 'https://justsamguy.myportfolio.com/', description: 'Sam\'s first brand. Initially concieved as an online alias, it has since grown to represent creations in the art & entertainment categories.' },
     { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Clarenova', url: '', description: 'What started as the financial operations for Sam\'s body of work has become a brand that represents the values of clarity and simplicity in a world of complex technicalities.' },
     { position: new THREE.Vector3(35, -20, 0), color: poiColors[2], name: "WoodLab Website", url: 'https://woodlab.co', description: 'As you can see... I make websites for fun.' },
     { position: new THREE.Vector3(40, -80, 0), color: poiColors[3], name: 'WoodLab Demo App', url: 'https://github.com/justsamguy/WL-Configurator-Demo', description: 'Status: In ProgressWhat was just another experiment went successful - I\'ll let the app speak for itself.' },
