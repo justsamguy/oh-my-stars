@@ -13,9 +13,9 @@ export function generateSpectralColors(count) {
 export const poiColors = generateSpectralColors(7);
 export const pois = [
     { position: new THREE.Vector3(-25, 60, 0), color: poiColors[0], name: 'JustSamGuy', url: 'https://justsamguy.myportfolio.com/', description: 'Sam\'s first brand. Initially concieved as an online alias, it has since grown to represent creations in the art & entertainment categories.' },
-    { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Clarenova', url: '', description: 'What started as the financial operations for Sam\'s body of work has become a brand that represents the values of clarity and simplicity in a world of complex technicalities.' },
+    { position: new THREE.Vector3(-20, 30, 0), color: poiColors[1], name: 'Clarenova', url: '[in progress]', description: 'What started as the financial operations for Sam\'s body of work has become a brand that represents the values of clarity and simplicity in a world of complex technicalities.' },
     { position: new THREE.Vector3(35, -20, 0), color: poiColors[2], name: "WoodLab Website", url: 'https://woodlab.co', description: 'As you can see... I make websites for fun.' },
-    { position: new THREE.Vector3(40, -80, 0), color: poiColors[3], name: 'WoodLab Demo App', url: 'https://github.com/justsamguy/WL-Configurator-Demo', description: 'Status: In ProgressWhat was just another experiment went successful - I\'ll let the app speak for itself.' },
+    { position: new THREE.Vector3(40, -80, 0), color: poiColors[3], name: 'WoodLab Demo App', url: '[in progress]', description: 'Invented as the solution to a custom sales process requiring millions of SKUs - I\'ll let the app speak for itself.' },
     { position: new THREE.Vector3(-35, -130, 0), color: poiColors[4], name: 'WoodLab Database', url: '', description: 'What started as a garage business has become a national leader in a nearly unscalable industry. TBA.' },
     { position: new THREE.Vector3(15, -190, 0), color: poiColors[5], name: 'Coming Soon', url: '', description: 'No one has claimed this spot (yet).' },
     { position: new THREE.Vector3(-20, -240, 0), color: poiColors[6], name: 'Coming Soon', url: '', description: '404 project not found' }
