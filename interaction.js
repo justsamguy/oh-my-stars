@@ -57,7 +57,7 @@ export function createInfoBox(poi) {
                 <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
                 ${poi.url ? `<a href="${poi.url}" target="_blank" style="color:#666;font-size:0.8em;text-decoration:none;margin-bottom:10px;display:block">${poi.url}</a>` : ''}
                 <p style="margin:0;line-height:1.4">${poi.description}</p>
-                <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+                <div class="timestamp">${poi.timestamp}</div>
             </div>
             <div class="close-btn">&times;</div>
         </div>
@@ -95,7 +95,7 @@ function createBottomSheet(poi) {
             <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
             ${poi.url ? `<a href="${poi.url}" target="_blank" style="color:#666;font-size:0.8em;text-decoration:none;margin-bottom:10px;display:block">${poi.url}</a>` : ''}
             <p style="margin:0;line-height:1.4">${poi.description}</p>
-            <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+            <div class="timestamp">${poi.timestamp}</div>
         </div>
     `;
 
@@ -280,7 +280,7 @@ function openInfoBox(poi, poiPosition) {
         <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}">${poi.name}</h3>
         ${poi.url ? `<a href="${poi.url}" target="_blank" style="color:#666;font-size:0.8em;text-decoration:none;margin-bottom:10px;display:block">${poi.url}</a>` : ''}
         <p style="margin:0">${poi.description}</p>
-        <div class="timestamp">${new Date().toISOString().replace('T', ' ').slice(0, -5)}</div>
+        <div class="timestamp">${poi.timestamp}</div>
     `;
     document.body.appendChild(measurer);
     const contentHeight = measurer.offsetHeight;
