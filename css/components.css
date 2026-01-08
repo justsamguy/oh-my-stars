@@ -35,3 +35,138 @@
   overflow-y: auto; /* Enable vertical scrolling if content overflows */
   max-height: 100%; /* Prevent exceeding viewport height */
 }
+
+.visit-btn {
+  align-self: flex-start;
+  margin: 12px 0 2px 0;
+  padding: 6px 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--poi-accent, #bfbfbf);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--poi-accent, #666);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.visit-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.visit-btn:active {
+  transform: translateY(0);
+}
+
+.warp-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 2000;
+  transition: opacity 200ms ease;
+}
+
+.warp-overlay.is-active {
+  opacity: 1;
+}
+
+.warp-streaks,
+.warp-vignette,
+.warp-flash {
+  position: absolute;
+  inset: 0;
+}
+
+.warp-streaks {
+  inset: -40%;
+  opacity: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.0) 0 14px, rgba(255, 255, 255, 0.22) 14px 15px, rgba(255, 255, 255, 0.0) 15px 32px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.0) 0 6px, rgba(255, 255, 255, 0.12) 6px 7px, rgba(255, 255, 255, 0.0) 7px 18px);
+  filter: blur(0.6px);
+  mix-blend-mode: screen;
+  transform: scale(0.6) translateY(0);
+}
+
+.warp-vignette {
+  opacity: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.0) 55%, rgba(0, 0, 0, 0.0) 100%);
+  mix-blend-mode: screen;
+}
+
+.warp-flash {
+  opacity: 0;
+  background: #fff;
+}
+
+.warp-overlay.is-active .warp-streaks {
+  animation: warp-streaks 2000ms cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+
+.warp-overlay.is-active .warp-vignette {
+  animation: warp-vignette 2000ms cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+
+.warp-overlay.is-active .warp-flash {
+  animation: warp-flash 2000ms cubic-bezier(0.2, 0, 0.1, 1) forwards;
+}
+
+body.warping #bg {
+  filter: brightness(1.7) saturate(1.4) blur(0.4px);
+}
+
+body.warping .css3d-header,
+body.warping .css3d-footer {
+  filter: brightness(1.5);
+}
+
+#bg,
+.css3d-header,
+.css3d-footer {
+  transition: filter 200ms ease;
+}
+
+@keyframes warp-streaks {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(0);
+  }
+  35% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(3.4) translateY(-24%);
+  }
+}
+
+@keyframes warp-vignette {
+  0% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes warp-flash {
+  0% {
+    opacity: 0;
+  }
+  55% {
+    opacity: 0.15;
+  }
+  82% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}

@@ -5,7 +5,7 @@ import { pois, SCROLL_DAMPING, MAX_SCROLL_SPEED, BASE_STAR_COUNT, MOBILE_BREAKPO
 import { scene, camera, renderer, viewportWidth, viewportHeight, getViewportHeight, getViewportWidth } from './sceneSetup.js';
 import { createAllStars, updateStars } from './stars.js';
 import { createAllPOIs, createConnectingLines, updatePOIs } from './poi.js';
-import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox, touchFadeValue } from './interaction.js';
+import { setupMouseMoveHandler, setupScrollHandler, setupResizeHandler, setupClickHandler, mouseWorldPosition, scrollState, raycaster, currentInfoBox, touchFadeValue, warpState } from './interaction.js';
 import { createHeaderElement, createFooterElement } from './layoutConfig.js';
 
 // --- CSS3DRenderer only for overlays and header/footer ---
@@ -104,22 +104,24 @@ function animate() {
     const now = performance.now();
     const elapsed = (now - lastTime) / 1000;
     lastTime = now;
-    // Camera scroll
-    if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
-    if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
-    // Smooth transition after drag ends
-    // (Removed dragReleaseY/dragReleaseFrames logic for direct velocity handoff)
-    if (scrollState.isDragging && scrollState.dragY !== null) {
-        camera.position.y = scrollState.dragY;
-    } else if (Math.abs(scrollState.velocity) > 0.001) {
-        camera.position.y += scrollState.velocity;
-        scrollState.velocity *= scrollDamping;
+    if (!warpState.active) {
+        // Camera scroll
+        if (scrollState.velocity > MAX_SCROLL_SPEED) scrollState.velocity = MAX_SCROLL_SPEED;
+        if (scrollState.velocity < -MAX_SCROLL_SPEED) scrollState.velocity = -MAX_SCROLL_SPEED;
+        // Smooth transition after drag ends
+        // (Removed dragReleaseY/dragReleaseFrames logic for direct velocity handoff)
+        if (scrollState.isDragging && scrollState.dragY !== null) {
+            camera.position.y = scrollState.dragY;
+        } else if (Math.abs(scrollState.velocity) > 0.001) {
+            camera.position.y += scrollState.velocity;
+            scrollState.velocity *= scrollDamping;
+        }
+        // Clamp camera based on POI positions, not header/footer
+        const cameraViewHeight = camera.top - camera.bottom;
+        const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingBottomY;
+        const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingTopY;
+        camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
     }
-    // Clamp camera based on POI positions, not header/footer
-    const cameraViewHeight = camera.top - camera.bottom;
-    const clampMinY = Math.min(minY, maxY) + cameraViewHeight / 2 - paddingBottomY;
-    const clampMaxY = Math.max(minY, maxY) - cameraViewHeight / 2 + paddingTopY;
-    camera.position.y = Math.max(clampMinY, Math.min(clampMaxY, camera.position.y));
 
     // No need to update projection matrix here unless zoom changes
     // camera.updateProjectionMatrix();

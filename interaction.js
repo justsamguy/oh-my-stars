@@ -16,6 +16,13 @@ export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
+// Warp jump state
+export const warpState = { active: false };
+let warpAnimationId = null;
+let warpCleanupId = null;
+const WARP_DURATION = 2000;
+const WARP_OVERLAY_ID = 'warp-overlay';
+
 // Debugging flags
 const DEBUG_INFOBOX = false; // Set to true to enable console logs for infobox state
 
@@ -47,6 +54,89 @@ function logInfoBoxState(message) {
     }
 }
 
+function ensureWarpOverlay() {
+    let overlay = document.getElementById(WARP_OVERLAY_ID);
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = WARP_OVERLAY_ID;
+        overlay.className = 'warp-overlay';
+        overlay.innerHTML = `
+            <div class="warp-streaks"></div>
+            <div class="warp-vignette"></div>
+            <div class="warp-flash"></div>
+        `;
+        document.body.appendChild(overlay);
+    }
+    return overlay;
+}
+
+function startWarpJump(poi, poiPosition) {
+    if (!poi || !poi.url) return;
+    if (warpState.active) return;
+
+    const targetPosition = poiPosition || poi.position;
+    if (!targetPosition) return;
+
+    warpState.active = true;
+    scrollState.velocity = 0;
+    scrollState.dragY = null;
+    scrollState.isDragging = false;
+
+    const overlay = ensureWarpOverlay();
+    overlay.classList.remove('is-active');
+    void overlay.offsetWidth;
+    overlay.classList.add('is-active');
+    document.body.classList.add('warping');
+
+    const startTime = performance.now();
+    const startPosition = camera.position.clone();
+    const startZoom = camera.zoom || 1;
+    const targetZoom = Math.max(startZoom, 2.2);
+    const target = new THREE.Vector3(targetPosition.x, targetPosition.y, camera.position.z);
+
+    const easeIn = (t) => t * t;
+    const step = (now) => {
+        const t = Math.min(1, (now - startTime) / WARP_DURATION);
+        const eased = easeIn(t);
+        camera.position.x = startPosition.x + (target.x - startPosition.x) * eased;
+        camera.position.y = startPosition.y + (target.y - startPosition.y) * eased;
+        camera.zoom = startZoom + (targetZoom - startZoom) * eased;
+        camera.updateProjectionMatrix();
+
+        if (t < 1 && warpState.active) {
+            warpAnimationId = requestAnimationFrame(step);
+        }
+    };
+
+    warpAnimationId = requestAnimationFrame(step);
+
+    if (warpCleanupId) clearTimeout(warpCleanupId);
+    warpCleanupId = setTimeout(() => {
+        const opened = window.open(poi.url, '_blank', 'noopener');
+        if (!opened) {
+            window.location.href = poi.url;
+        }
+        warpState.active = false;
+        document.body.classList.remove('warping');
+        if (overlay) overlay.classList.remove('is-active');
+        if (warpAnimationId) {
+            cancelAnimationFrame(warpAnimationId);
+            warpAnimationId = null;
+        }
+    }, WARP_DURATION);
+}
+
+function attachVisitHandler(container, poi, poiPosition) {
+    const visitBtn = container.querySelector('.visit-btn');
+    if (!visitBtn) return;
+    visitBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        hideInfoBox();
+        startWarpJump(poi, poiPosition);
+    });
+}
+
 export function createInfoBox(poi) {
     const box = document.createElement('div');
     box.className = 'info-box-wrapper';
@@ -55,18 +145,27 @@ export function createInfoBox(poi) {
         <div class="info-box">
             <div class="info-box-content">
                 <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
-                ${poi.url ? `<a href="${poi.url}" target="_blank" style="color:#666;font-size:0.8em;text-decoration:none;margin-bottom:10px;display:block">${poi.url}</a>` : ''}
+                ${poi.url ? `<button type="button" class="visit-btn">visit</button>` : ''}
                 <p style="margin:0;line-height:1.4">${poi.description}</p>
                 <div class="timestamp">${poi.timestamp}</div>
             </div>
             <div class="close-btn">&times;</div>
         </div>
     `;
-    
+
+    const panel = box.querySelector('.info-box');
+    if (panel) {
+        panel.style.setProperty('--poi-accent', `#${poi.color.toString(16)}`);
+    }
+
+    if (poi && poi.url) {
+        attachVisitHandler(box, poi, poi.position);
+    }
+
     return box;
 }
 
-function createBottomSheet(poi) {
+function createBottomSheet(poi, poiPosition) {
     logInfoBoxState(`Creating bottom sheet for POI: ${poi.name}`);
     // Clear any existing sheets first
     const existingSheet = document.querySelector('.bottom-sheet');
@@ -87,13 +186,14 @@ function createBottomSheet(poi) {
     const darkB = Math.round(b * 0.15);
     const darkBg = `rgba(${darkR},${darkG},${darkB},0.85)`;
     sheet.style.background = darkBg;
+    sheet.style.setProperty('--poi-accent', `#${poi.color.toString(16)}`);
     
     sheet.innerHTML = `
         <div class="pull-handle"></div>
         <div class="close-btn">&times;</div>
         <div class="bottom-sheet-content">
             <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
-            ${poi.url ? `<a href="${poi.url}" target="_blank" style="color:#666;font-size:0.8em;text-decoration:none;margin-bottom:10px;display:block">${poi.url}</a>` : ''}
+            ${poi.url ? `<button type="button" class="visit-btn">visit</button>` : ''}
             <p style="margin:0;line-height:1.4">${poi.description}</p>
             <div class="timestamp">${poi.timestamp}</div>
         </div>
@@ -224,6 +324,10 @@ function createBottomSheet(poi) {
         e.stopPropagation();
     });
 
+    if (poi && poi.url) {
+        attachVisitHandler(sheet, poi, poiPosition || poi.position);
+    }
+
     currentInfoBox = sheet;
     logInfoBoxState(`currentInfoBox set to bottom sheet for POI: ${poi.name}`);
     return { sheet, overlay, close };
@@ -232,7 +336,7 @@ function createBottomSheet(poi) {
 function openInfoBox(poi, poiPosition) {
     logInfoBoxState(`Calling openInfoBox for POI: ${poi.name}`);
     if (window.innerWidth <= MOBILE_BREAKPOINT) {
-        return createBottomSheet(poi);
+        return createBottomSheet(poi, poiPosition);
     }
 
     infoBoxAnimating = true;
@@ -278,7 +382,7 @@ function openInfoBox(poi, poiPosition) {
     measurer.style.fontFamily = 'Courier New, monospace';
     measurer.innerHTML = `
         <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}">${poi.name}</h3>
-        ${poi.url ? `<a href="${poi.url}" target="_blank" style="color:#666;font-size:0.8em;text-decoration:none;margin-bottom:10px;display:block">${poi.url}</a>` : ''}
+        ${poi.url ? `<button type="button" class="visit-btn">visit</button>` : ''}
         <p style="margin:0">${poi.description}</p>
         <div class="timestamp">${poi.timestamp}</div>
     `;
@@ -321,6 +425,7 @@ function openInfoBox(poi, poiPosition) {
     panel.style.overflow = 'hidden';
     panel.style.boxSizing = 'border-box';
     panel.style.transform = 'scaleX(0)';
+    panel.style.setProperty('--poi-accent', `#${poi.color.toString(16)}`);
     
     // Create content
     const content = document.createElement('div');
@@ -365,6 +470,10 @@ function openInfoBox(poi, poiPosition) {
 
     // Force reflow before starting animation
     void panel.offsetWidth;
+
+    if (poi && poi.url) {
+        attachVisitHandler(panel, poi, poiPosition);
+    }
 
     // Start unified animation sequence
     const startAnimation = () => {
@@ -514,6 +623,7 @@ export function hideInfoBox() {
 // Mouse move event (no info box on hover)
 export function setupMouseMoveHandler(poiObjects) {
     const handleMove = (e) => {
+        if (warpState.active) return;
         const pos = e.touches ? e.touches[0] : e;
         const canvas = renderer.domElement;
         const rect = canvas.getBoundingClientRect();
@@ -561,6 +671,7 @@ export function setupClickHandler(poiObjects) {
     const TAP_DURATION = 200;
 
     const handleInteraction = (e) => {
+        if (warpState.active) return;
         // Don't interfere with footer link interactions
         if (e.target.closest('.footer-link')) return;
 
@@ -688,6 +799,7 @@ export function setupScrollHandler() {
 
   window.addEventListener('wheel', (e) => {
     if (!USE_CUSTOM_SCROLL) return;
+    if (warpState.active) return;
     e.preventDefault();
     scrollState.velocity -= e.deltaY * 0.01 * multiplier;
   }, { passive: false });
@@ -700,6 +812,7 @@ export function setupScrollHandler() {
 
   window.addEventListener('touchstart', (e) => {
     if (!USE_CUSTOM_SCROLL) return;
+    if (warpState.active) return;
     if (e.touches.length !== 1) return;
     touchStartY = e.touches[0].clientY;
     lastTouchY = touchStartY;
@@ -712,6 +825,7 @@ export function setupScrollHandler() {
 
   window.addEventListener('touchmove', (e) => {
     if (!USE_CUSTOM_SCROLL) return;
+    if (warpState.active) return;
     if (e.touches.length !== 1) return;
     
     // Don't prevent default on footer links
@@ -747,6 +861,7 @@ export function setupScrollHandler() {
   let dragReleaseFrames = 0;
   window.addEventListener('touchend', () => {
     if (!USE_CUSTOM_SCROLL) return;
+    if (warpState.active) return;
     scrollState.isDragging = false;
     scrollState.dragY = null;
     // Calculate pixel-to-world ratio for velocity
