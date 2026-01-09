@@ -61,6 +61,16 @@
   transform: translateY(0);
 }
 
+:root {
+  --warp-center-duration: 420ms;
+  --warp-flash-duration: 180ms;
+  --warp-streak-duration: 1400ms;
+  --warp-flash-delay: 420ms;
+  --warp-streak-delay: 600ms;
+  --warp-blur-delay: 420ms;
+  --warp-blur-duration: 180ms;
+}
+
 .warp-overlay {
   position: fixed;
   inset: 0;
@@ -104,24 +114,21 @@
 }
 
 .warp-overlay.is-active .warp-streaks {
-  animation: warp-streaks 2000ms cubic-bezier(0.2, 0, 0.1, 1) forwards;
+  animation: warp-streaks var(--warp-streak-duration, 1400ms) cubic-bezier(0.2, 0, 0.1, 1) var(--warp-streak-delay, 600ms) forwards;
 }
 
 .warp-overlay.is-active .warp-vignette {
-  animation: warp-vignette 2000ms cubic-bezier(0.2, 0, 0.1, 1) forwards;
+  animation: warp-vignette var(--warp-streak-duration, 1400ms) cubic-bezier(0.2, 0, 0.1, 1) var(--warp-streak-delay, 600ms) forwards;
 }
 
 .warp-overlay.is-active .warp-flash {
-  animation: warp-flash 2000ms cubic-bezier(0.2, 0, 0.1, 1) forwards;
+  animation: warp-flash var(--warp-flash-duration, 180ms) ease-out var(--warp-flash-delay, 420ms) forwards;
 }
 
-body.warping #bg {
-  animation: warp-blur 2000ms cubic-bezier(0.2, 0, 0.1, 1) forwards;
-}
-
+body.warping #bg,
 body.warping .css3d-header,
 body.warping .css3d-footer {
-  filter: brightness(1.5);
+  animation: warp-blur var(--warp-blur-duration, 180ms) ease-out var(--warp-blur-delay, 420ms) both;
 }
 
 #bg,
@@ -160,14 +167,14 @@ body.warping .css3d-footer {
   0% {
     opacity: 0;
   }
-  72% {
-    opacity: 0.05;
+  40% {
+    opacity: 0;
   }
-  88% {
-    opacity: 0.3;
+  60% {
+    opacity: 0.9;
   }
   100% {
-    opacity: 1;
+    opacity: 0;
   }
 }
 
@@ -175,13 +182,10 @@ body.warping .css3d-footer {
   0% {
     filter: brightness(1) saturate(1) blur(0px);
   }
-  72% {
-    filter: brightness(1.15) saturate(1.15) blur(0px);
-  }
-  88% {
-    filter: brightness(1.35) saturate(1.25) blur(2.6px);
+  45% {
+    filter: brightness(1.2) saturate(1.1) blur(2.5px);
   }
   100% {
-    filter: brightness(1.2) saturate(1.1) blur(0.4px);
+    filter: brightness(1) saturate(1) blur(0px);
   }
 }

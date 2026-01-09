@@ -16,11 +16,22 @@ export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
-const WARP_DURATION = 2000;
+const WARP_CENTER_DURATION = 420;
+const WARP_FLASH_DURATION = 180;
+const WARP_STREAK_DURATION = 1400;
+const WARP_DURATION = WARP_CENTER_DURATION + WARP_FLASH_DURATION + WARP_STREAK_DURATION;
 const WARP_OVERLAY_ID = 'warp-overlay';
 
 // Warp jump state
-export const warpState = { active: false, startTime: null, duration: WARP_DURATION };
+export const warpState = {
+    active: false,
+    startTime: null,
+    duration: WARP_DURATION,
+    centerDuration: WARP_CENTER_DURATION,
+    flashDuration: WARP_FLASH_DURATION,
+    streakDuration: WARP_STREAK_DURATION,
+    streakStartTime: null
+};
 let warpAnimationId = null;
 let warpCleanupId = null;
 
@@ -71,6 +82,17 @@ function ensureWarpOverlay() {
     return overlay;
 }
 
+function applyWarpTimings() {
+    const root = document.body;
+    root.style.setProperty('--warp-center-duration', `${WARP_CENTER_DURATION}ms`);
+    root.style.setProperty('--warp-flash-duration', `${WARP_FLASH_DURATION}ms`);
+    root.style.setProperty('--warp-streak-duration', `${WARP_STREAK_DURATION}ms`);
+    root.style.setProperty('--warp-streak-delay', `${WARP_CENTER_DURATION + WARP_FLASH_DURATION}ms`);
+    root.style.setProperty('--warp-flash-delay', `${WARP_CENTER_DURATION}ms`);
+    root.style.setProperty('--warp-blur-delay', `${WARP_CENTER_DURATION}ms`);
+    root.style.setProperty('--warp-blur-duration', `${WARP_FLASH_DURATION}ms`);
+}
+
 function startWarpJump(poi, poiPosition) {
     if (!poi || !poi.url) return;
     if (warpState.active) return;
@@ -78,35 +100,47 @@ function startWarpJump(poi, poiPosition) {
     const targetPosition = poiPosition || poi.position;
     if (!targetPosition) return;
 
+    const startTime = performance.now();
     warpState.active = true;
-    warpState.startTime = performance.now();
+    warpState.startTime = startTime;
     warpState.duration = WARP_DURATION;
+    warpState.centerDuration = WARP_CENTER_DURATION;
+    warpState.flashDuration = WARP_FLASH_DURATION;
+    warpState.streakDuration = WARP_STREAK_DURATION;
+    warpState.streakStartTime = startTime + WARP_CENTER_DURATION + WARP_FLASH_DURATION;
     scrollState.velocity = 0;
     scrollState.dragY = null;
     scrollState.isDragging = false;
 
     const overlay = ensureWarpOverlay();
+    applyWarpTimings();
     overlay.classList.remove('is-active');
     void overlay.offsetWidth;
     overlay.classList.add('is-active');
     document.body.classList.add('warping');
 
-    const startTime = performance.now();
     const startPosition = camera.position.clone();
     const startZoom = camera.zoom || 1;
     const targetZoom = Math.max(startZoom, 2.2);
     const target = new THREE.Vector3(targetPosition.x, targetPosition.y, camera.position.z);
 
-    const easeIn = (t) => t * t;
+    const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
     const step = (now) => {
-        const t = Math.min(1, (now - startTime) / WARP_DURATION);
-        const eased = easeIn(t);
-        camera.position.x = startPosition.x + (target.x - startPosition.x) * eased;
-        camera.position.y = startPosition.y + (target.y - startPosition.y) * eased;
-        camera.zoom = startZoom + (targetZoom - startZoom) * eased;
+        const elapsed = now - startTime;
+        const centerProgress = Math.min(1, elapsed / WARP_CENTER_DURATION);
+        const centerEase = easeInOut(centerProgress);
+        camera.position.x = startPosition.x + (target.x - startPosition.x) * centerEase;
+        camera.position.y = startPosition.y + (target.y - startPosition.y) * centerEase;
+
+        let zoomProgress = 0;
+        if (elapsed > WARP_CENTER_DURATION + WARP_FLASH_DURATION) {
+            zoomProgress = Math.min(1, (elapsed - WARP_CENTER_DURATION - WARP_FLASH_DURATION) / WARP_STREAK_DURATION);
+        }
+        const zoomEase = easeInOut(zoomProgress);
+        camera.zoom = startZoom + (targetZoom - startZoom) * zoomEase;
         camera.updateProjectionMatrix();
 
-        if (t < 1 && warpState.active) {
+        if (elapsed < WARP_DURATION && warpState.active) {
             warpAnimationId = requestAnimationFrame(step);
         }
     };
@@ -121,6 +155,7 @@ function startWarpJump(poi, poiPosition) {
         }
         warpState.active = false;
         warpState.startTime = null;
+        warpState.streakStartTime = null;
         document.body.classList.remove('warping');
         if (overlay) overlay.classList.remove('is-active');
         if (warpAnimationId) {

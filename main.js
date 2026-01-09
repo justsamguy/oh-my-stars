@@ -126,8 +126,8 @@ function animate() {
     // No need to update projection matrix here unless zoom changes
     // camera.updateProjectionMatrix();
 
-    const warpProgress = warpState.active && warpState.startTime !== null
-        ? Math.min(1, (now - warpState.startTime) / warpState.duration)
+    const warpProgress = warpState.active && warpState.streakStartTime !== null && now >= warpState.streakStartTime
+        ? Math.min(1, (now - warpState.streakStartTime) / warpState.streakDuration)
         : 0;
 
     // Update stars
