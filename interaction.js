@@ -84,11 +84,13 @@ function ensureWarpOverlay() {
 
 function applyWarpTimings() {
     const root = document.body;
+    const whiteFadeDelay = WARP_CENTER_DURATION + WARP_FLASH_DURATION + Math.round(WARP_STREAK_DURATION * 0.5);
+    const whiteFadeDuration = Math.round(WARP_STREAK_DURATION * 0.5);
     root.style.setProperty('--warp-center-duration', `${WARP_CENTER_DURATION}ms`);
-    root.style.setProperty('--warp-flash-duration', `${WARP_FLASH_DURATION}ms`);
+    root.style.setProperty('--warp-flash-duration', `${whiteFadeDuration}ms`);
     root.style.setProperty('--warp-streak-duration', `${WARP_STREAK_DURATION}ms`);
     root.style.setProperty('--warp-streak-delay', `${WARP_CENTER_DURATION + WARP_FLASH_DURATION}ms`);
-    root.style.setProperty('--warp-flash-delay', `${WARP_CENTER_DURATION}ms`);
+    root.style.setProperty('--warp-flash-delay', `${whiteFadeDelay}ms`);
     root.style.setProperty('--warp-blur-delay', `${WARP_CENTER_DURATION}ms`);
     root.style.setProperty('--warp-blur-duration', `${WARP_FLASH_DURATION}ms`);
 }

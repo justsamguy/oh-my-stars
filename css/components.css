@@ -63,9 +63,9 @@
 
 :root {
   --warp-center-duration: 420ms;
-  --warp-flash-duration: 180ms;
+  --warp-flash-duration: 700ms;
   --warp-streak-duration: 1400ms;
-  --warp-flash-delay: 420ms;
+  --warp-flash-delay: 1300ms;
   --warp-streak-delay: 600ms;
   --warp-blur-delay: 420ms;
   --warp-blur-duration: 180ms;
@@ -122,7 +122,7 @@
 }
 
 .warp-overlay.is-active .warp-flash {
-  animation: warp-flash var(--warp-flash-duration, 180ms) ease-out var(--warp-flash-delay, 420ms) forwards;
+  animation: warp-flash var(--warp-flash-duration, 700ms) ease-in var(--warp-flash-delay, 1300ms) forwards;
 }
 
 body.warping #bg,
@@ -167,14 +167,8 @@ body.warping .css3d-footer {
   0% {
     opacity: 0;
   }
-  40% {
-    opacity: 0;
-  }
-  60% {
-    opacity: 0.9;
-  }
   100% {
-    opacity: 0;
+    opacity: 0.9;
   }
 }
 
