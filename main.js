@@ -126,8 +126,15 @@ function animate() {
     // No need to update projection matrix here unless zoom changes
     // camera.updateProjectionMatrix();
 
+    const warpProgress = warpState.active && warpState.startTime !== null
+        ? Math.min(1, (now - warpState.startTime) / warpState.duration)
+        : 0;
+
     // Update stars
-    updateStars(starsGroup, now * 0.001, camera.position.y, mouseWorldPosition, touchFadeValue);
+    updateStars(starsGroup, now * 0.001, camera, mouseWorldPosition, touchFadeValue, {
+        active: warpState.active,
+        progress: warpProgress
+    });
     // Update POIs
     updatePOIs(poiObjects, now * 0.001, raycaster);
 

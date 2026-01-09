@@ -16,12 +16,13 @@ export let currentInfoBox = null; // Export this variable
 let infoBoxAnimating = false;
 let queuedInfoBox = null;
 
-// Warp jump state
-export const warpState = { active: false };
-let warpAnimationId = null;
-let warpCleanupId = null;
 const WARP_DURATION = 2000;
 const WARP_OVERLAY_ID = 'warp-overlay';
+
+// Warp jump state
+export const warpState = { active: false, startTime: null, duration: WARP_DURATION };
+let warpAnimationId = null;
+let warpCleanupId = null;
 
 // Debugging flags
 const DEBUG_INFOBOX = false; // Set to true to enable console logs for infobox state
@@ -78,6 +79,8 @@ function startWarpJump(poi, poiPosition) {
     if (!targetPosition) return;
 
     warpState.active = true;
+    warpState.startTime = performance.now();
+    warpState.duration = WARP_DURATION;
     scrollState.velocity = 0;
     scrollState.dragY = null;
     scrollState.isDragging = false;
@@ -117,6 +120,7 @@ function startWarpJump(poi, poiPosition) {
             window.location.href = poi.url;
         }
         warpState.active = false;
+        warpState.startTime = null;
         document.body.classList.remove('warping');
         if (overlay) overlay.classList.remove('is-active');
         if (warpAnimationId) {

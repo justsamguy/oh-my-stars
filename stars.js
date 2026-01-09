@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { pois, BASE_STAR_COUNT, MOBILE_STAR_COUNT, MAX_INTERACTION_RADIUS, MIN_INTERACTION_RADIUS, MOBILE_BREAKPOINT } from './config.js';
 
+const STAR_GEOMETRY_RADIUS = 4;
+const STAR_GEOMETRY_DIAMETER = STAR_GEOMETRY_RADIUS * 2;
+
 // Star shaders (as string constants)
 const vertexShader = `
     uniform float cameraY;
@@ -97,7 +100,7 @@ export function createAllStars(_, pois, viewportWidth, viewportHeight) {
         // Add distance-based size variation for better depth
         const z = -120 - Math.random() * 60;
         
-        const geometry = new THREE.CircleGeometry(4, 32);
+        const geometry = new THREE.CircleGeometry(STAR_GEOMETRY_RADIUS, 32);
         let colorIndex = 0;
         const normalizedY = Math.min(Math.max(y, lowestY), highestY);
         for (let j = 0; j < sortedPOIs.length - 1; j++) {
@@ -138,30 +141,88 @@ export function createAllStars(_, pois, viewportWidth, viewportHeight) {
         star.userData.originalScale = size;
         star.scale.set(size / 3, size / 3, 1);
         star.rotation.z = Math.random() * Math.PI;
+        star.userData.basePosition = star.position.clone();
+        star.userData.baseRotation = star.rotation.z;
+        star.userData.baseScale = star.scale.x;
         group.add(star);
     }
     return group;
 }
 
 // Update stars in animation loop
-export function updateStars(starsGroup, elapsedTime, cameraY, mouseWorldPosition, touchFade = 1.0) {
+export function updateStars(starsGroup, elapsedTime, camera, mouseWorldPosition, touchFade = 1.0, warp = {}) {
+    const warpActive = warp && warp.active;
+    const warpProgress = warpActive ? Math.min(1, warp.progress || 0) : 0;
+    const warpEase = warpProgress * warpProgress;
+    const zoom = camera.zoom || 1;
+    const halfWidth = (camera.right - camera.left) / (2 * zoom);
+    const halfHeight = (camera.top - camera.bottom) / (2 * zoom);
+    const minLineLength = 12;
+    const minThickness = 0.05;
+
     starsGroup.children.forEach(star => {
         star.material.uniforms.time.value = elapsedTime;
-        star.material.uniforms.cameraY.value = cameraY;
+        star.material.uniforms.cameraY.value = camera.position.y;
         star.material.uniforms.mousePosition.value.copy(mouseWorldPosition);
         star.material.uniforms.touchFade.value = touchFade;
+
+        const basePos = star.userData.basePosition || star.position;
+        const dx = basePos.x - mouseWorldPosition.x;
+        const dy = basePos.y - mouseWorldPosition.y;
+        const mouseDist = Math.sqrt(dx * dx + dy * dy);
+        const factor = Math.max(0.0, Math.min(1.0, (mouseDist - MIN_INTERACTION_RADIUS) / (MAX_INTERACTION_RADIUS - MIN_INTERACTION_RADIUS)));
+        const mouseProximityFactor = 1.0 - factor;
         const originalScale = star.userData.originalScale;
-        if (originalScale) {
-            const starPos = star.position;
-            const dx = starPos.x - mouseWorldPosition.x;
-            const dy = starPos.y - mouseWorldPosition.y;
-            const mouseDist = Math.sqrt(dx * dx + dy * dy);
-            const factor = Math.max(0.0, Math.min(1.0, (mouseDist - MIN_INTERACTION_RADIUS) / (MAX_INTERACTION_RADIUS - MIN_INTERACTION_RADIUS)));
-            const mouseProximityFactor = 1.0 - factor;
-            const targetScale = (originalScale / 3) + (originalScale * 2 / 3) * mouseProximityFactor;
-            const lerpFactor = 0.1;
-            star.scale.x += (targetScale - star.scale.x) * lerpFactor;
-            star.scale.y += (targetScale - star.scale.y) * lerpFactor;
+        if (!originalScale) return;
+        const targetScale = (originalScale / 3) + (originalScale * 2 / 3) * mouseProximityFactor;
+        const lerpFactor = 0.1;
+        const previousBaseScale = star.userData.baseScale ?? star.scale.x;
+        const baseScale = previousBaseScale + (targetScale - previousBaseScale) * lerpFactor;
+        star.userData.baseScale = baseScale;
+
+        if (!warpActive || warpEase <= 0) {
+            star.scale.set(baseScale, baseScale, 1);
+            star.position.copy(basePos);
+            const baseRotation = star.userData.baseRotation;
+            if (typeof baseRotation === 'number') {
+                star.rotation.z = baseRotation;
+            }
+            return;
         }
+
+        const toCenterX = basePos.x - camera.position.x;
+        const toCenterY = basePos.y - camera.position.y;
+        const ndcX = toCenterX / halfWidth;
+        const ndcY = toCenterY / halfHeight;
+        const ndcDistance = Math.hypot(ndcX, ndcY);
+        if (ndcDistance < 0.0001) {
+            star.scale.set(baseScale, baseScale, 1);
+            star.position.copy(basePos);
+            const baseRotation = star.userData.baseRotation;
+            if (typeof baseRotation === 'number') {
+                star.rotation.z = baseRotation;
+            }
+            return;
+        }
+
+        const ndcDirX = ndcX / ndcDistance;
+        const ndcDirY = ndcY / ndcDistance;
+        const worldDirX = ndcDirX * halfWidth;
+        const worldDirY = ndcDirY * halfHeight;
+        const worldDirLength = Math.hypot(worldDirX, worldDirY);
+        const dirX = worldDirX / worldDirLength;
+        const dirY = worldDirY / worldDirLength;
+        const edgeDistanceX = Math.abs(ndcDirX) > 0.00001 ? 1 / Math.abs(ndcDirX) : Infinity;
+        const edgeDistanceY = Math.abs(ndcDirY) > 0.00001 ? 1 / Math.abs(ndcDirY) : Infinity;
+        const edgeDistance = Math.min(edgeDistanceX, edgeDistanceY);
+        const distanceToEdge = Math.max(0, edgeDistance - ndcDistance);
+        const lineLength = Math.max(distanceToEdge * worldDirLength, minLineLength) * warpEase;
+        const lineScale = Math.max(baseScale, lineLength / STAR_GEOMETRY_DIAMETER);
+        const thickness = Math.max(minThickness, baseScale * (1 - 0.65 * warpEase));
+        star.scale.set(lineScale, thickness, 1);
+        star.rotation.z = Math.atan2(dirY, dirX);
+
+        const shift = lineLength * 0.5;
+        star.position.set(basePos.x + dirX * shift, basePos.y + dirY * shift, basePos.z);
     });
 }

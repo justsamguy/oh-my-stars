@@ -82,14 +82,14 @@
 }
 
 .warp-streaks {
-  inset: -40%;
+  inset: -30%;
   opacity: 0;
   background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.0) 0 14px, rgba(255, 255, 255, 0.22) 14px 15px, rgba(255, 255, 255, 0.0) 15px 32px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.0) 0 6px, rgba(255, 255, 255, 0.12) 6px 7px, rgba(255, 255, 255, 0.0) 7px 18px);
-  filter: blur(0.6px);
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.0) 60%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.0) 75%);
+  filter: blur(0.8px);
   mix-blend-mode: screen;
-  transform: scale(0.6) translateY(0);
+  transform: scale(0.7);
 }
 
 .warp-vignette {
@@ -116,7 +116,7 @@
 }
 
 body.warping #bg {
-  filter: brightness(1.7) saturate(1.4) blur(0.4px);
+  animation: warp-blur 2000ms cubic-bezier(0.2, 0, 0.1, 1) forwards;
 }
 
 body.warping .css3d-header,
@@ -133,14 +133,14 @@ body.warping .css3d-footer {
 @keyframes warp-streaks {
   0% {
     opacity: 0;
-    transform: scale(0.6) translateY(0);
+    transform: scale(0.7);
   }
   35% {
-    opacity: 0.35;
+    opacity: 0.3;
   }
   100% {
-    opacity: 0.95;
-    transform: scale(3.4) translateY(-24%);
+    opacity: 0.25;
+    transform: scale(1.6);
   }
 }
 
@@ -160,13 +160,28 @@ body.warping .css3d-footer {
   0% {
     opacity: 0;
   }
-  55% {
-    opacity: 0.15;
+  72% {
+    opacity: 0.05;
   }
-  82% {
-    opacity: 0.7;
+  88% {
+    opacity: 0.3;
   }
   100% {
     opacity: 1;
+  }
+}
+
+@keyframes warp-blur {
+  0% {
+    filter: brightness(1) saturate(1) blur(0px);
+  }
+  72% {
+    filter: brightness(1.15) saturate(1.15) blur(0px);
+  }
+  88% {
+    filter: brightness(1.35) saturate(1.25) blur(2.6px);
+  }
+  100% {
+    filter: brightness(1.2) saturate(1.1) blur(0.4px);
   }
 }

@@ -15,6 +15,7 @@
 <br> § Gemini 2.5 Flash (Cline)
 <br> § Claude 3.5 Sonnet (Copilot)
 <br> § GPT4.1 (Copilot)
+<br> § Codex 5.2
 </sub>
 <!-- ## Last Update Reference <a href="https://github.com/justsamguy/oh-my-stars/blob/main/Changes.md">Changes.md</a> for feature updates. -->
 <br><br>
