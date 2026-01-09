@@ -99,20 +99,6 @@ function startWarpJump(poi, poiPosition) {
     if (!poi || !poi.url) return;
     if (warpState.active) return;
 
-    let pendingWindow = null;
-    try {
-        pendingWindow = window.open('', '_blank');
-    } catch (err) {
-        pendingWindow = null;
-    }
-    if (pendingWindow) {
-        try {
-            pendingWindow.opener = null;
-        } catch (err) {
-            // Some browsers treat opener as read-only; ignore if so.
-        }
-    }
-
     const targetPosition = poiPosition || poi.position;
     if (!targetPosition) return;
 
@@ -165,16 +151,11 @@ function startWarpJump(poi, poiPosition) {
 
     if (warpCleanupId) clearTimeout(warpCleanupId);
     warpCleanupId = setTimeout(() => {
-        if (pendingWindow && !pendingWindow.closed) {
-            pendingWindow.location.href = poi.url;
-            if (pendingWindow.focus) pendingWindow.focus();
-        } else {
-            const opened = window.open(poi.url, '_blank', 'noopener');
-            if (!opened) {
-                window.location.href = poi.url;
-            } else if (opened.focus) {
-                opened.focus();
-            }
+        const opened = window.open(poi.url, '_blank', 'noopener');
+        if (!opened) {
+            window.location.href = poi.url;
+        } else if (opened.focus) {
+            opened.focus();
         }
         warpState.active = false;
         warpState.startTime = null;
