@@ -152,11 +152,10 @@ function startWarpJump(poi, poiPosition) {
     if (warpCleanupId) clearTimeout(warpCleanupId);
     warpCleanupId = setTimeout(() => {
         const opened = window.open(poi.url, '_blank', 'noopener');
-        if (!opened) {
-            window.location.href = poi.url;
-        } else if (opened.focus) {
+        if (opened && opened.focus) {
             opened.focus();
         }
+        window.location.reload();
         warpState.active = false;
         warpState.startTime = null;
         warpState.streakStartTime = null;
