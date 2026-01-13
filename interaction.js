@@ -66,6 +66,14 @@ function logInfoBoxState(message) {
     }
 }
 
+function getVisitButtonMarkup(poi) {
+    const hasUrl = Boolean(poi && poi.url);
+    const label = hasUrl ? 'Go here' : 'Destination not yet resolved';
+    const className = hasUrl ? 'visit-btn' : 'visit-btn is-disabled';
+    const ariaDisabled = hasUrl ? '' : ' aria-disabled="true"';
+    return `<button type="button" class="${className}"${ariaDisabled}>${label}</button>`;
+}
+
 function ensureWarpOverlay() {
     let overlay = document.getElementById(WARP_OVERLAY_ID);
     if (!overlay) {
@@ -187,7 +195,7 @@ export function createInfoBox(poi) {
         <div class="info-box">
             <div class="info-box-content">
                 <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
-                ${poi.url ? `<button type="button" class="visit-btn">visit</button>` : ''}
+                ${getVisitButtonMarkup(poi)}
                 <p style="margin:0;line-height:1.4">${poi.description}</p>
                 <div class="timestamp">${poi.timestamp}</div>
             </div>
@@ -235,7 +243,7 @@ function createBottomSheet(poi, poiPosition) {
         <div class="close-btn">&times;</div>
         <div class="bottom-sheet-content">
             <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;color:#${poi.color.toString(16)}">${poi.name}</h3>
-            ${poi.url ? `<button type="button" class="visit-btn">visit</button>` : ''}
+            ${getVisitButtonMarkup(poi)}
             <p style="margin:0;line-height:1.4">${poi.description}</p>
             <div class="timestamp">${poi.timestamp}</div>
         </div>
@@ -424,7 +432,7 @@ function openInfoBox(poi, poiPosition) {
     measurer.style.fontFamily = 'Courier New, monospace';
     measurer.innerHTML = `
         <h3 style="margin:0 0 10px 0;font-size:20px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#${poi.color.toString(16)}">${poi.name}</h3>
-        ${poi.url ? `<button type="button" class="visit-btn">visit</button>` : ''}
+        ${getVisitButtonMarkup(poi)}
         <p style="margin:0">${poi.description}</p>
         <div class="timestamp">${poi.timestamp}</div>
     `;
