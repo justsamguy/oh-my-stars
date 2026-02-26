@@ -66,6 +66,25 @@ function logInfoBoxState(message) {
     }
 }
 
+function isBottomSheetOpen() {
+    return document.body.classList.contains('bottom-sheet-open') ||
+        document.documentElement.classList.contains('bottom-sheet-open');
+}
+
+function setBottomSheetScrollLock(isLocked) {
+    document.body.classList.toggle('bottom-sheet-open', isLocked);
+    document.documentElement.classList.toggle('bottom-sheet-open', isLocked);
+    if (isLocked) {
+        scrollState.velocity = 0;
+        scrollState.dragY = null;
+        scrollState.isDragging = false;
+    }
+}
+
+function isModalOrOverlayTarget(target) {
+    return Boolean(target && target.closest && target.closest('.bottom-sheet, .overlay, .info-box'));
+}
+
 function getVisitButtonMarkup(poi) {
     const hasUrl = Boolean(poi && poi.url);
     const label = hasUrl ? 'Go here' : 'Destination not yet resolved';
@@ -179,12 +198,14 @@ function startWarpJump(poi, poiPosition) {
 function attachVisitHandler(container, poi, poiPosition) {
     const visitBtn = container.querySelector('.visit-btn');
     if (!visitBtn) return;
-    visitBtn.addEventListener('click', (e) => {
+    const handleVisit = (e) => {
         e.preventDefault();
         e.stopPropagation();
         hideInfoBox();
         startWarpJump(poi, poiPosition);
-    });
+    };
+    visitBtn.addEventListener('click', handleVisit);
+    visitBtn.addEventListener('touchend', handleVisit, { passive: false });
 }
 
 export function createInfoBox(poi) {
@@ -256,7 +277,7 @@ function createBottomSheet(poi, poiPosition) {
     document.body.appendChild(sheet);
 
     // Lock scrolling with class
-    document.body.classList.add('bottom-sheet-open');
+    setBottomSheetScrollLock(true);
     
     // Animate in
     requestAnimationFrame(() => {
@@ -272,7 +293,7 @@ function createBottomSheet(poi, poiPosition) {
         }
         sheet.classList.remove('open');
         overlay.classList.remove('visible');
-        document.body.classList.remove('bottom-sheet-open');
+        setBottomSheetScrollLock(false);
         
         let timeoutId = null; // Declare timeoutId here for this scope
 
@@ -317,6 +338,7 @@ function createBottomSheet(poi, poiPosition) {
 
     // Touch handlers for the sheet
     const handleTouchStart = (e) => {
+        if (e.target.closest('.close-btn, .visit-btn, button, a')) return;
         if (!e.target.closest('.bottom-sheet-content')) {
             e.preventDefault();
             startY = e.touches[0].clientY;
@@ -325,6 +347,7 @@ function createBottomSheet(poi, poiPosition) {
     };
 
     const handleTouchMove = (e) => {
+        if (e.target.closest('.close-btn, .visit-btn, button, a')) return;
         if (!e.target.closest('.bottom-sheet-content')) {
             e.preventDefault();
             isDragging = true;
@@ -337,6 +360,7 @@ function createBottomSheet(poi, poiPosition) {
     };
 
     const handleTouchEnd = (e) => {
+        if (e.target.closest('.close-btn, .visit-btn, button, a')) return;
         if (!e.target.closest('.bottom-sheet-content')) {
             if (isDragging) {
                 const delta = currentY - startY;
@@ -603,7 +627,7 @@ export function hideInfoBox() {
         boxToClose.classList.remove('open');
         const overlay = document.querySelector('.overlay');
         if (overlay) overlay.classList.remove('visible');
-        document.body.classList.remove('bottom-sheet-open');
+        setBottomSheetScrollLock(false);
         
         let mobileTimeoutId = null;
 
@@ -727,7 +751,7 @@ export function setupClickHandler(poiObjects) {
 
         // Ignore interactions if bottom sheet is open on mobile
         if (window.innerWidth <= MOBILE_BREAKPOINT && 
-            document.body.classList.contains('bottom-sheet-open')) {
+            isBottomSheetOpen()) {
             return;
         }
 
@@ -791,6 +815,10 @@ export function setupClickHandler(poiObjects) {
     window.addEventListener('touchstart', (e) => {
         // Don't track taps on footer links
         if (e.target.closest('.footer-link')) return;
+        if (isBottomSheetOpen() || isModalOrOverlayTarget(e.target)) {
+            isTapping = false;
+            return;
+        }
 
         touchStartTime = Date.now();
         touchStartPos = {
@@ -815,6 +843,10 @@ export function setupClickHandler(poiObjects) {
 
     window.addEventListener('touchend', (e) => {
         if (!isTapping) return;
+        if (isBottomSheetOpen() || isModalOrOverlayTarget(e.target)) {
+            isTapping = false;
+            return;
+        }
         
         const touchEndTime = Date.now();
         const touchDuration = touchEndTime - touchStartTime;
@@ -864,6 +896,7 @@ export function setupScrollHandler() {
     if (!USE_CUSTOM_SCROLL) return;
     if (warpState.active) return;
     if (e.touches.length !== 1) return;
+    if (isBottomSheetOpen() || isModalOrOverlayTarget(e.target)) return;
     touchStartY = e.touches[0].clientY;
     lastTouchY = touchStartY;
     lastTouchTime = performance.now();
@@ -877,6 +910,12 @@ export function setupScrollHandler() {
     if (!USE_CUSTOM_SCROLL) return;
     if (warpState.active) return;
     if (e.touches.length !== 1) return;
+    if (isBottomSheetOpen() || isModalOrOverlayTarget(e.target)) {
+      scrollState.isDragging = false;
+      scrollState.dragY = null;
+      scrollState.velocity = 0;
+      return;
+    }
     
     // Don't prevent default on footer links
     if (e.target.closest('.footer-link')) return;
@@ -909,9 +948,15 @@ export function setupScrollHandler() {
   // Smooth transition from drag to momentum
   let dragReleaseY = null;
   let dragReleaseFrames = 0;
-  window.addEventListener('touchend', () => {
+  window.addEventListener('touchend', (e) => {
     if (!USE_CUSTOM_SCROLL) return;
     if (warpState.active) return;
+    if (isBottomSheetOpen() || isModalOrOverlayTarget(e.target)) {
+      scrollState.isDragging = false;
+      scrollState.dragY = null;
+      scrollState.velocity = 0;
+      return;
+    }
     scrollState.isDragging = false;
     scrollState.dragY = null;
     // Calculate pixel-to-world ratio for velocity
